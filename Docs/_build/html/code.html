@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Documentation for the Code &#8212; probDE  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to probDE’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-BayesODE">
+<span id="documentation-for-the-code"></span><h1>Documentation for the Code<a class="headerlink" href="#module-BayesODE" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="kernels">
+<h2>Kernels<a class="headerlink" href="#kernels" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-BayesODE.cov_exp">
+<span id="exponential-kernel"></span><h3>Exponential Kernel<a class="headerlink" href="#module-BayesODE.cov_exp" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-cov_exp"></span><dl class="attribute">
+<dt id="BayesODE.cov_exp.cov_vv_ex">
+<code class="descclassname">BayesODE.cov_exp.</code><code class="descname">cov_vv_ex</code><a class="headerlink" href="#BayesODE.cov_exp.cov_vv_ex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance function for the derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – Time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(v_t, v_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BayesODE.cov_exp.cov_xv_ex">
+<code class="descclassname">BayesODE.cov_exp.</code><code class="descname">cov_xv_ex</code><a class="headerlink" href="#BayesODE.cov_exp.cov_xv_ex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cross-covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span> and its derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, v_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BayesODE.cov_exp.cov_xx_ex">
+<code class="descclassname">BayesODE.cov_exp.</code><code class="descname">cov_xx_ex</code><a class="headerlink" href="#BayesODE.cov_exp.cov_xx_ex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, x_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-BayesODE.cov_rect">
+<span id="rectangular-kernel"></span><h3>Rectangular Kernel<a class="headerlink" href="#module-BayesODE.cov_rect" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-cov_rect"></span><dl class="attribute">
+<dt id="BayesODE.cov_rect.cov_vv_re">
+<code class="descclassname">BayesODE.cov_rect.</code><code class="descname">cov_vv_re</code><a class="headerlink" href="#BayesODE.cov_rect.cov_vv_re" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance function for the derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – Time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(v_t, v_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BayesODE.cov_rect.cov_xv_re">
+<code class="descclassname">BayesODE.cov_rect.</code><code class="descname">cov_xv_re</code><a class="headerlink" href="#BayesODE.cov_rect.cov_xv_re" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cross-covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span> and its derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, v_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BayesODE.cov_rect.cov_xx_re">
+<code class="descclassname">BayesODE.cov_rect.</code><code class="descname">cov_xx_re</code><a class="headerlink" href="#BayesODE.cov_rect.cov_xx_re" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, x_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-BayesODE.cov_square_exp">
+<span id="square-exponential-kernel"></span><h3>Square Exponential Kernel<a class="headerlink" href="#module-BayesODE.cov_square_exp" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-cov_square_exp"></span><dl class="attribute">
+<dt id="BayesODE.cov_square_exp.cov_vv_se">
+<code class="descclassname">BayesODE.cov_square_exp.</code><code class="descname">cov_vv_se</code><a class="headerlink" href="#BayesODE.cov_square_exp.cov_vv_se" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance function for the derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – Time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(v_t, v_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BayesODE.cov_square_exp.cov_xv_se">
+<code class="descclassname">BayesODE.cov_square_exp.</code><code class="descname">cov_xv_se</code><a class="headerlink" href="#BayesODE.cov_square_exp.cov_xv_se" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the cross-covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span> and its derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, v_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BayesODE.cov_square_exp.cov_xx_se">
+<code class="descclassname">BayesODE.cov_square_exp.</code><code class="descname">cov_xx_se</code><a class="headerlink" href="#BayesODE.cov_square_exp.cov_xx_se" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, x_s)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-BayesODE.cov_fun">
+<span id="covariance-function"></span><h2>Covariance Function<a class="headerlink" href="#module-BayesODE.cov_fun" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-cov_fun"></span><dl class="function">
+<dt id="BayesODE.cov_fun.cov_prior">
+<code class="descclassname">BayesODE.cov_fun.</code><code class="descname">cov_prior</code><span class="sig-paren">(</span><em>tseq</em>, <em>model</em>, <em>gamma</em>, <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.cov_fun.cov_prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate covariance and cross-covariance matrices between :math:x_t and :math:v_t.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tseq</strong> (<em>float</em>) – Vector of <em>N</em> timepoints at which to calculate the covariances.</p></li>
+<li><p><strong>model</strong> (<em>str</em>) – <p>Name of the covariance model to use.  Possible choices are:</p>
+<ul>
+<li><p><em>exp2</em>: Squared-exponential.</p></li>
+<li><p><em>rect</em>: Rectangular.</p></li>
+<li><p><em>exp</em>: Exponential.</p></li>
+</ul>
+</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Covariance decorrelation time.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Three <em>N x N</em> matrices:</p>
+<ul class="simple">
+<li><p><strong>Sigma_vv</strong> = cov(v(tseq), v(tseq))</p></li>
+<li><p><strong>Sigma_xx</strong> = cov(x(tseq), x(tseq))</p></li>
+<li><p><strong>Sigma_xv</strong> = cov(x(tseq), v(tseq))</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-BayesODE.ode_bayes">
+<span id="ode-bayes-solver"></span><h2>ODE Bayes Solver<a class="headerlink" href="#module-BayesODE.ode_bayes" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ode_bayes"></span><dl class="function">
+<dt id="BayesODE.ode_bayes.ode_bayes">
+<code class="descclassname">BayesODE.ode_bayes.</code><code class="descname">ode_bayes</code><span class="sig-paren">(</span><em>fun</em>, <em>tseq</em>, <em>x0</em>, <em>Sigma_vv</em>, <em>Sigma_xx</em>, <em>Sigma_xv</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.ode_bayes.ode_bayes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bayesian solver of ODE problem <span class="math notranslate nohighlight">\(dx_t/dt = f(x_t, t)\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>function</em>) – ODE function, taking two <cite>float</cite> parameters and returning a <cite>float</cite>.</p></li>
+<li><p><strong>tseq</strong> (<em>float</em>) – Vector of <cite>N</cite> timepoints at which <span class="math notranslate nohighlight">\(x_t\)</span> will be calculated.</p></li>
+<li><p><strong>x0</strong> (<em>float</em>) – Initial condition <span class="math notranslate nohighlight">\(x(t_0) = x_0\)</span>.</p></li>
+<li><p><strong>Sigma_vv</strong> (<em>float</em>) – <cite>N x N</cite> prior covariance matrix <strong>cov(v(tseq), v(tseq))</strong>.</p></li>
+<li><p><strong>Sigma_xx</strong> (<em>float</em>) – <cite>N x N</cite> prior covariance matrix <strong>cov(x(tseq), x(tseq))</strong>.</p></li>
+<li><p><strong>Sigma_xv</strong> (<em>float</em>) – <cite>N x N</cite> prior cross-covariance matrix <strong>cov(x(tseq), v(tseq))</strong>, where <span class="math notranslate nohighlight">\(v_t = dx_t/dt\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A vector of length <cite>N</cite> corresponding to the probabilistic solution <strong>x(tseq)</strong>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">probDE</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation for the Code</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#kernels">Kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-BayesODE.cov_fun">Covariance Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-BayesODE.ode_bayes">ODE Bayes Solver</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to probDE’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Martin Lysy, Mohan Wu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/code.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
