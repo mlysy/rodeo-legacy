@@ -4,7 +4,7 @@
 """
 import numpy as np
 
-def ode_bayes(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv):
+def ode_bayes(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv, vstar=None, mu_star=None, Sigma_star=None):
     """Bayesian solver of ODE problem :math:`dx_t/dt = f(x_t, t)`.
 
     :param fun: ODE function, taking two `float` parameters and returning a `float`.
@@ -19,22 +19,40 @@ def ode_bayes(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv):
     :type Sigma_xx: float
     :param Sigma_xv: `N x N` prior cross-covariance matrix **cov(x(tseq), v(tseq))**, where :math:`v_t = dx_t/dt`.
     :type Sigma_xv: float
-    :returns: A vector of length `N` corresponding to the probabilistic solution **x(tseq)**.
-    :rtype: float
+    :param vstar: default None, predetermined V_t after N interrogations
+    :type vstar: None or float
+    :param mu_star: default None, predetermined mean of x(tseq)
+    :type mu_star: None or float
+    :param Sigma_star: default None, predetermined covariance matrix **cov(x(tseq), x(tseq))**
+    :type Sigma_star: None or float
+    :returns: A vector of length `N` corresponding to the probabilistic solution **x(tseq)** or checks if predetermined mu_star
+    and Sigma_star matches with mu_x and Sigma_xx respectively.
+    :rtype: float or (bool,bool)
     """
 
     N = len(tseq)
     mu_v = np.array([0]*N) # prior mean of v(tseq)
     mu_x = x0 + mu_v # prior mean of x(tseq)
-    for i in range(N):
-        xt = np.random.normal(mu_x[i], Sigma_xx[i,i]) # interrogation of x_t
-        vt = fun(xt, tseq[i]) # interrogation of v_t
-        # mean and variance updates
-        mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vv[i,i] *(vt - mu_v[i])
+    if vstar is None:
+        for i in range(N):
+            xt = np.random.normal(mu_x[i], Sigma_xx[i,i]) # interrogation of x_t
+            vt = fun(xt, tseq[i]) # interrogation of v_t
+            # mean and variance updates
+            mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vv[i,i] *(vt - mu_v[i])
+            mu_v = mu_v + Sigma_vv[:,i]*(vt - mu_v[i])*1/Sigma_vv[i,i]
+            
+            Sigma_xx = Sigma_xx - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_xv[:,i])
+            Sigma_xv = Sigma_xv - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_vv[i,:])
+            Sigma_vv = Sigma_vv - 1/Sigma_vv[i,i]*np.outer(Sigma_vv[:,i], Sigma_vv[i,:])
 
-        mu_v = mu_v + Sigma_vv[:,i]*(vt - mu_v[i])*1/Sigma_vv[i,i]
-        Sigma_xx = Sigma_xx - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_xv[:,i])
-        Sigma_xv = Sigma_xv - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_vv[i,:])
-        Sigma_vv = Sigma_vv - 1/Sigma_vv[i,i]*np.outer(Sigma_vv[:,i], Sigma_vv[i,:])
-    
-    return np.random.multivariate_normal(mu_x, Sigma_xx)
+        return np.random.multivariate_normal(mu_x, Sigma_xx)
+    else:
+        for i in range(N):
+            mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vv[i,i] *(vstar[i] - mu_v[i])
+            mu_v = mu_v + Sigma_vv[:,i]*(vstar[i] - mu_v[i])*1/Sigma_vv[i,i]
+
+            Sigma_xx = Sigma_xx - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_xv[:,i])
+            Sigma_xv = Sigma_xv - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_vv[i,:])
+            Sigma_vv = Sigma_vv - 1/Sigma_vv[i,i]*np.outer(Sigma_vv[:,i], Sigma_vv[i,:])
+
+        return np.allclose(mu_star, mu_x), np.allclose(Sigma_star, Sigma_xx)
