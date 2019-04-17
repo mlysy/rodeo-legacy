@@ -33,7 +33,7 @@ def ode_bayes(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv, vstar=None, mu_star=N
     N = len(tseq)
     mu_v = np.array([0]*N) # prior mean of v(tseq)
     mu_x = x0 + mu_v # prior mean of x(tseq)
-    if vstar is None:
+    if vstar is None or mu_star is None or Sigma_star is None:
         for i in range(N):
             xt = np.random.normal(mu_x[i], Sigma_xx[i,i]) # interrogation of x_t
             vt = fun(xt, tseq[i]) # interrogation of v_t
