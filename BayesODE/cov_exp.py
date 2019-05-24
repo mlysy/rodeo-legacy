@@ -56,5 +56,5 @@ def cov_xx_ex(t,s,gamma):
     :rtype: float
     """
     gamma2 = gamma*gamma
-    ans = -gamma2 + gamma2*exp(-t/gamma) - gamma2*exp(abs(t-s)/gamma) + gamma2*exp(-s/gamma) + 2*gamma*min(t,s)
+    ans = -gamma2 + gamma2*exp(-t/gamma) - gamma2*exp(t-s/gamma) + gamma2*exp(-s/gamma) + 2*gamma*min(t,s)
     return ans
