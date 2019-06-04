@@ -1,4 +1,3 @@
-import unittest
 from scipy import integrate
 import numpy as np
 import sys
@@ -10,61 +9,50 @@ sys.path.insert(0, os.path.abspath('../'))
 from BayesODE.cov_fun import cov_vv_re, cov_xv_re, cov_xx_re
 
 
-class TestIntegrate(unittest.TestCase):
-    def R_re(self, t, s):
-        if s < t+1 and s > t-1:
-            return 1
-        else:
-            return 0
-        
-    def RR_re(self, z, t, s):
-        return self.R_re(t,z)*self.R_re(s,z)
+def R_re(t, s):
+    if s < t+1 and s > t-1:
+        return 1
+    else:
+        return 0
+    
+def RR_re(z, t, s):
+    return R_re(t,z)*R_re(s,z)
 
-    def Q_re(self, t, s):
-        return max(0, min(s+1,t) - max(0, s-1))
+def Q_re(t, s):
+    return max(0, min(s+1,t) - max(0, s-1))
 
-    def QQ_re(self, z, t, s):
-        return self.Q_re(t,z)*self.Q_re(s,z)
+def QQ_re(z, t, s):
+    return Q_re(t,z)*Q_re(s,z)
 
-    def QR_re(self, z, t, s):
-        return self.Q_re(t,z)*self.R_re(s,z)
+def QR_re(z, t, s):
+    return Q_re(t,z)*R_re(s,z)
 
-    def cov_vv_re2(self, t,s):
-        return integrate.quad(self.RR_re, -np.inf, np.inf, args=(t,s))
+def cov_vv_re2(t,s):
+    return integrate.quad(RR_re, -1, max(t+1,s+1), args=(t,s))
 
-    def cov_xx_re2(self, t,s):
-        return integrate.quad(self.QQ_re, -1, max(t+1,s+1), args=(t,s))
+def cov_xx_re2(t,s):
+    return integrate.quad(QQ_re, -1, max(t+1,s+1), args=(t,s))
 
-    def cov_xv_re2(self, t,s):
-        return integrate.quad(self.QR_re, -1, max(t+1,s+1), args=(t,s))
+def cov_xv_re2(t,s):
+    return integrate.quad(QR_re, -1, max(t+1,s+1), args=(t,s))
 
-    def Q_re2(self, t, s):
-        return integrate.quad(self.R_re, 0, t, args=(s,))
+def Q_re2(t, s):
+    return integrate.quad(R_re, 0, t, args=(s,))
 
-    def test_Q_re(self):
-        t = np.linspace(1, 2, 5)
-        for i in range(len(t)):
-            for j in range(len(t)):
-                np.testing.assert_almost_equal(self.Q_re(t[i],t[j]), self.Q_re2(t[i],t[j])[0])
+def test_cov_re(tseq):
+    N = len(tseq)
+    Sigma_an_vv = np.zeros((N,N))
+    Sigma_an_xx = np.zeros((N,N))
+    Sigma_an_xv = np.zeros((N,N))
 
-    def test_cov_vv_re(self):
-        t = np.linspace(1, 2, 5)
-        for i in range(len(t)):
-            for j in range(len(t)):
-                np.testing.assert_almost_equal(cov_vv_re(t[i],t[j],1), self.cov_vv_re2(t[i],t[j])[0])
+    for i in range(N):
+        for j in range(N):
+            Sigma_an_vv[i,j] = cov_vv_re2(tseq[i], tseq[j])[0]
+            Sigma_an_xx[i,j] = cov_xx_re2(tseq[i], tseq[j])[0]
+            Sigma_an_xv[i,j] = cov_xv_re2(tseq[i], tseq[j])[0]
+    
+    Sigma_nu_vv = cov_vv_re(tseq, tseq, 1, 1)
+    Sigma_nu_xx = cov_xx_re(tseq, tseq, 1, 1)
+    Sigma_nu_xv = cov_xv_re(tseq, tseq, 1, 1)
 
-
-    def test_cov_xv_re(self):
-        t = np.linspace(1, 2, 5)
-        for i in range(len(t)):
-            for j in range(len(t)):
-                np.testing.assert_almost_equal(cov_xv_re(t[i],t[j],1), self.cov_xv_re2(t[i],t[j])[0])
-
-    def test_cov_xx_re(self):
-        t = np.linspace(1, 2, 5)
-        for i in range(len(t)):
-            for j in range(len(t)):
-                np.testing.assert_almost_equal(cov_xx_re(t[i],t[j],1), self.cov_xx_re2(t[i],t[j])[0])
-
-if __name__ == '__main__':
-    unittest.main()
+    return Sigma_an_vv, Sigma_an_xx, Sigma_an_xv, Sigma_nu_vv, Sigma_nu_xx, Sigma_nu_xv
