@@ -43,7 +43,7 @@ def cov_yy_ex(t1, t2, gamma, alpha):
     # var of x
     Sigma[np.ix_(ix1, ix2)] = cov_xx_ex(t1, t2, gamma, alpha)
     return Sigma
-
+"""
 gamma = 0.35
 alpha = .6
 n1 = 3
@@ -60,8 +60,9 @@ icond
 mu = np.zeros(2*(n1+n2))
 A, b, V = mvCond(mu, Sigma, icond)
 print(np.linalg.eigvalsh(V))
-A
-
+print(A)
+print(V)
+"""
 
 # -----------
 
