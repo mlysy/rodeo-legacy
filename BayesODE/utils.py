@@ -1,4 +1,5 @@
 
+import numpy as np
 import scipy.linalg as scl
 
 def mvCond(mu, Sigma, icond):
