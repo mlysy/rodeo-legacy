@@ -60,9 +60,9 @@ def cov_xv_se(t, s, gamma, alpha):
 
     for i in range(t_len):
         for j in range(s_len):
-            Sigma_xv[i,j] = pi * gamma2 * erf((t[i] - s[j]) / (2 * gamma)) + pi * gamma2 * erf(s[i] / (2 * gamma))
+            Sigma_xv[i,j] = pi * gamma2 * erf((t[i] - s[j]) / (2 * gamma)) + pi * gamma2 * erf(s[j] / (2 * gamma))
             
-            Sigma_xv = Sigma_xv/alpha
+    Sigma_xv = Sigma_xv/alpha
     
     return Sigma_xv
 
@@ -93,11 +93,11 @@ def cov_xx_se(t, s, gamma, alpha):
                 + 2 * sqrt(pi) * gamma3 * exp(-(s[j]**2) / (4 * gamma2)) \
                 - pi * gamma2 * (t[i] - s[j]) * erf((t[i] - s[j]) / (2 * gamma)) \
                 - 2 * sqrt(pi) * gamma3 * exp(-(t[i] - s[j])**2 / (4 * gamma2)) \
-                + pi * gamma2 * s[j] * erf(t[i] / (2 * gamma)) \
+                + pi * gamma2 * t[i] * erf(t[i] / (2 * gamma)) \
                 + 2 * sqrt(pi) * gamma3 * exp(-(t[i]**2) / (4 * gamma2)) \
                 - 2 * sqrt(pi) * gamma3
             
-            Sigma_xx = Sigma_xx/alpha
+    Sigma_xx = Sigma_xx/alpha
 
     return Sigma_xx
 

@@ -56,7 +56,7 @@ def cov_xv_re(t,s,gamma,alpha):
             +((t[i]+gamma)*min(t[i]+gamma,s[j]+gamma) - 0.5*min(t[i]+gamma,s[j]+gamma)**2 - (t[i]+gamma)*max(gamma,max(t[i]-gamma,s[j]-gamma)) + 0.5*max(gamma,max(t[i]-gamma,s[j]-gamma))**2)*(min(t[i]+gamma,s[j]+gamma) > max(gamma,max(t[i]-gamma,s[j]-gamma))) \
             + (t[i])*(-max(t[i],s[j]) + 2*gamma)*(-max(t[i],s[j]) > -2*gamma))
 
-            Sigma_xv = Sigma_xv/alpha
+    Sigma_xv = Sigma_xv/alpha
             
     return Sigma_xv
 
@@ -90,7 +90,7 @@ def cov_xx_re(t,s,gamma,alpha):
             +(t[i])*(0.5*min(gamma,s[j]-gamma)**2 + (gamma)*min(gamma,s[j]-gamma)- 0.5*(t[i]-gamma)**2 - (gamma)*(t[i]-gamma))*(min(gamma,s[j]-gamma)>(t[i]-gamma)) \
             +(t[i])*(s[j])*(2*gamma-max(t[i],s[j]))*(2*gamma>max(t[i],s[j])))
 
-            Sigma_xx = Sigma_xx/alpha
+    Sigma_xx = Sigma_xx/alpha
     
     return Sigma_xx
     

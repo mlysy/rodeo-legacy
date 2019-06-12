@@ -159,7 +159,7 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     Sigma = np.zeros((n_timesteps, n_dim_state, n_dim_state))
     # arguments to use low-level pykalman functions
     observations = vs
-    observation_matrix = np.array([[1., 0.]])
+    observation_matrix = np.array([[0., 1.]])
     observation_offset = np.array([0.])
     observation_covariances = sig2 # multidimensional
     transition_matrix = np.array(A)
@@ -183,12 +183,12 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
         # Sigma_tt = var(y_t | vs_0:t-1)
         mu_tt = np.dot(A, mu[t]) # np.array((A*np.matrix(mu[n]).T))
         Sigma_tt = np.linalg.multi_dot([A, Sigma[t], A.T]) + V #A*Sigma[n]*A.T + V
-        sig2[t+1] = Sigma_tt[1,1] # new observation_covariance
+        sig2[t+1] = Sigma_tt[0,0] # new observation_covariance (For some reason 0,0 works a lot better than 1,1)
 
         # Model Interrogation Step
         if has_vs is False:
             xs = np.random.normal(mu_tt[0], sqrt(Sigma_tt[0,0]))
-            vs[t+1] = fun(xs, t/N)
+            vs[t+1] = fun(xs, (t+1)/N)
 
         # kalman filter update
         (predicted_state_means[t+1], predicted_state_covariances[t+1],
@@ -222,6 +222,7 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
 def f(x,t):
     return  3*(t+1/4) - x/(t+1/4)
 
+'''
 x0 = 0
 gamma = 0.35
 alpha = 236
@@ -233,3 +234,4 @@ mu = np.array([x0, 0, x0, 0])
 A, b, V = mvCond(mu, Sigma, icond)
 
 kalman_ode(f, x0, N, A, V)
+'''

@@ -3,6 +3,7 @@
     :synopsis: Bayesian solver for univariate ODEs.
 """
 import numpy as np
+from math import sqrt
 
 def ode_bayes(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv, vstar=None):
     """Bayesian solver of ODE problem :math:`dx_t/dt = f(x_t, t)`.
@@ -34,7 +35,7 @@ def ode_bayes(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv, vstar=None):
     mu_x = x0 + mu_v # prior mean of x(tseq)
     for i in range(N):
         if  vstar is None:
-            xt = np.random.normal(mu_x[i], Sigma_xx[i,i]) # interrogation of x_t
+            xt = np.random.normal(mu_x[i], sqrt(Sigma_xx[i,i])) # interrogation of x_t
             vt = fun(xt, tseq[i]) # interrogation of v_t
             # mean and variance updates
             mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vv[i,i] *(vt - mu_v[i])
