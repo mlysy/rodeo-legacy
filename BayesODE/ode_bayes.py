@@ -34,17 +34,18 @@ def ode_bayes(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv, vstar=None):
     mu_v = np.array([0]*N) # prior mean of v(tseq)
     mu_x = x0 + mu_v # prior mean of x(tseq)
     for i in range(N):
+        Sigma_vstar = Sigma_vv[i,i] if i == 0 else 2 * Sigma_vv[i,i]
         if  vstar is None:
             xt = np.random.normal(mu_x[i], sqrt(Sigma_xx[i,i])) # interrogation of x_t
             vt = fun(xt, tseq[i]) # interrogation of v_t
             # mean and variance updates
-            mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vv[i,i] *(vt - mu_v[i])
-            mu_v = mu_v + Sigma_vv[:,i]*(vt - mu_v[i])*1/Sigma_vv[i,i]
+            mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vstar *(vt - mu_v[i])
+            mu_v = mu_v + Sigma_vv[:,i]*(vt - mu_v[i])*1/Sigma_vstar
         else:
-            mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vv[i,i] *(vstar[i] - mu_v[i])
-            mu_v = mu_v + Sigma_vv[:,i]*(vstar[i] - mu_v[i])*1/Sigma_vv[i,i]
-        Sigma_xx = Sigma_xx - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_xv[:,i])
-        Sigma_xv = Sigma_xv - 1/Sigma_vv[i,i]*np.outer(Sigma_xv[:,i], Sigma_vv[i,:])
-        Sigma_vv = Sigma_vv - 1/Sigma_vv[i,i]*np.outer(Sigma_vv[:,i], Sigma_vv[i,:])
+            mu_x = mu_x + Sigma_xv[:,i]*1/Sigma_vstar *(vstar[i] - mu_v[i])
+            mu_v = mu_v + Sigma_vv[:,i]*(vstar[i] - mu_v[i])*1/Sigma_vstar
+        Sigma_xx = Sigma_xx - 1/Sigma_vstar*np.outer(Sigma_xv[:,i], Sigma_xv[:,i])
+        Sigma_xv = Sigma_xv - 1/Sigma_vstar*np.outer(Sigma_xv[:,i], Sigma_vv[i,:])
+        Sigma_vv = Sigma_vv - 1/Sigma_vstar*np.outer(Sigma_vv[:,i], Sigma_vv[i,:])
 
     return np.random.multivariate_normal(mu_x, Sigma_xx), mu_x, Sigma_xx
