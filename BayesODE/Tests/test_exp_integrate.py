@@ -7,24 +7,8 @@ import os
 from math import exp, erf, sqrt, pi
 
 sys.path.insert(0, os.path.abspath('../'))
-from BayesODE.cov_fun import cov_vv_ex, cov_xv_ex, cov_xx_ex
-
-# def cov_vv_ex(t, s, gamma, alpha):
-#     return exp(-abs(t-s)/gamma)/alpha
-
-def mvCond(mu, Sigma, icond):
-    """
-    For y ~ N(mu, Sigma), returns A, b, and V 
-    such that y[~icond] | y[icond] ~ N(A * y[icond] + b, V).
-    """
-    # if y1 = y[~icond] and y2 = y[icond],
-    # should have A = Sigma12 * Sigma22^{-1}
-    A = np.dot(Sigma[np.ix_(~icond, icond)],sc.linalg.cho_solve(sc.linalg.cho_factor(Sigma[np.ix_(icond,icond)]), np.identity(sum(icond))))
-    b = mu[~icond] - np.dot(A, mu[icond]) # mu1 - A * mu2
-    # Sigma11 - A * Sigma21
-    V = Sigma[np.ix_(~icond,~icond)] - np.dot(A, Sigma[np.ix_(icond,~icond)]) 
-    return A, b, V
-
+from BayesODE import cov_vv_ex, cov_xv_ex, cov_xx_ex
+from BayesODE.utils import mvCond
 
 def cov_yy_ex(t1, t2, gamma, alpha):
     n1 = len(t1)

@@ -12,7 +12,6 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Welcome to probDE’s documentation!" href="index.html" />
@@ -36,20 +35,25 @@
 <h2>Kernels<a class="headerlink" href="#kernels" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-BayesODE.cov_exp">
 <span id="exponential-kernel"></span><h3>Exponential Kernel<a class="headerlink" href="#module-BayesODE.cov_exp" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-cov_exp"></span><dl class="attribute">
+<span class="target" id="module-cov_exp"></span><p>Covariance and cross-covariance functions for the solution process x_t and its derivative</p>
+<div class="math">
+<p><img src="_images/math/cab277cf17f97312af4dce1c11e22583824ed9f6.png" alt="v_t = dx_t/dt"/></p>
+</div><p>under the exponential correlation model.</p>
+<dl class="attribute">
 <dt id="BayesODE.cov_exp.cov_vv_ex">
 <code class="descclassname">BayesODE.cov_exp.</code><code class="descname">cov_vv_ex</code><a class="headerlink" href="#BayesODE.cov_exp.cov_vv_ex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance function for the derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dd><p>Computes the covariance function for the derivative <img class="math" src="_images/math/14b5fe247ccc30de3663584f08485b2229535aea.png" alt="v_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – Time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – Time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(v_t, v_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/eeb613fffa6c77c83df60289971ffc3601a932fb.png" alt="cov(v_t, v_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -60,17 +64,18 @@
 <dl class="attribute">
 <dt id="BayesODE.cov_exp.cov_xv_ex">
 <code class="descclassname">BayesODE.cov_exp.</code><code class="descname">cov_xv_ex</code><a class="headerlink" href="#BayesODE.cov_exp.cov_xv_ex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the cross-covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span> and its derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dd><p>Computes the cross-covariance function for the solution process <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/> and its derivative <img class="math" src="_images/math/14b5fe247ccc30de3663584f08485b2229535aea.png" alt="v_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, v_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/28c1aa53c7e12500414c23eb9ff17d94228fc054.png" alt="cov(x_t, v_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -81,17 +86,18 @@
 <dl class="attribute">
 <dt id="BayesODE.cov_exp.cov_xx_ex">
 <code class="descclassname">BayesODE.cov_exp.</code><code class="descname">cov_xx_ex</code><a class="headerlink" href="#BayesODE.cov_exp.cov_xx_ex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span>.</p>
+<dd><p>Computes the covariance function for the solution process <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, x_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/def5813e7a1b84ee415a422911f10a1971433ac0.png" alt="cov(x_t, x_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -102,20 +108,25 @@
 </div>
 <div class="section" id="module-BayesODE.cov_rect">
 <span id="rectangular-kernel"></span><h3>Rectangular Kernel<a class="headerlink" href="#module-BayesODE.cov_rect" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-cov_rect"></span><dl class="attribute">
+<span class="target" id="module-cov_rect"></span><p>Covariance and cross-covariance functions for the solution process x_t and its derivative</p>
+<div class="math">
+<p><img src="_images/math/cab277cf17f97312af4dce1c11e22583824ed9f6.png" alt="v_t = dx_t/dt"/></p>
+</div><p>under the rectangular-kernel correlation model.</p>
+<dl class="attribute">
 <dt id="BayesODE.cov_rect.cov_vv_re">
 <code class="descclassname">BayesODE.cov_rect.</code><code class="descname">cov_vv_re</code><a class="headerlink" href="#BayesODE.cov_rect.cov_vv_re" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance function for the derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dd><p>Computes the covariance function for the derivative <img class="math" src="_images/math/14b5fe247ccc30de3663584f08485b2229535aea.png" alt="v_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – Time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – Time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(v_t, v_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/eeb613fffa6c77c83df60289971ffc3601a932fb.png" alt="cov(v_t, v_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -126,17 +137,18 @@
 <dl class="attribute">
 <dt id="BayesODE.cov_rect.cov_xv_re">
 <code class="descclassname">BayesODE.cov_rect.</code><code class="descname">cov_xv_re</code><a class="headerlink" href="#BayesODE.cov_rect.cov_xv_re" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the cross-covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span> and its derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dd><p>Computes the cross-covariance function for the solution process <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/> and its derivative <img class="math" src="_images/math/14b5fe247ccc30de3663584f08485b2229535aea.png" alt="v_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, v_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/28c1aa53c7e12500414c23eb9ff17d94228fc054.png" alt="cov(x_t, v_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -147,17 +159,18 @@
 <dl class="attribute">
 <dt id="BayesODE.cov_rect.cov_xx_re">
 <code class="descclassname">BayesODE.cov_rect.</code><code class="descname">cov_xx_re</code><a class="headerlink" href="#BayesODE.cov_rect.cov_xx_re" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span>.</p>
+<dd><p>Computes the covariance function for the solution process <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, x_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/def5813e7a1b84ee415a422911f10a1971433ac0.png" alt="cov(x_t, x_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -168,20 +181,24 @@
 </div>
 <div class="section" id="module-BayesODE.cov_square_exp">
 <span id="square-exponential-kernel"></span><h3>Square Exponential Kernel<a class="headerlink" href="#module-BayesODE.cov_square_exp" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-cov_square_exp"></span><dl class="attribute">
+<span class="target" id="module-cov_square_exp"></span><p>Covariance and cross-covariance functions for the solution process x_t and its derivative v_t = dx_t/dt under the squared-exponential correlation model</p>
+<div class="math">
+<p><img src="_images/math/ba689ae1491f5ecf706383076ad6eac9517f6ecc.png" alt="cov(v_t, v_s) = exp(-|t-s|^2/gamma^2)."/></p>
+</div><dl class="attribute">
 <dt id="BayesODE.cov_square_exp.cov_vv_se">
 <code class="descclassname">BayesODE.cov_square_exp.</code><code class="descname">cov_vv_se</code><a class="headerlink" href="#BayesODE.cov_square_exp.cov_vv_se" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance function for the derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dd><p>Computes the covariance function for the derivative <img class="math" src="_images/math/14b5fe247ccc30de3663584f08485b2229535aea.png" alt="v_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – Time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – Time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(v_t, v_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/eeb613fffa6c77c83df60289971ffc3601a932fb.png" alt="cov(v_t, v_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -192,17 +209,18 @@
 <dl class="attribute">
 <dt id="BayesODE.cov_square_exp.cov_xv_se">
 <code class="descclassname">BayesODE.cov_square_exp.</code><code class="descname">cov_xv_se</code><a class="headerlink" href="#BayesODE.cov_square_exp.cov_xv_se" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the cross-covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span> and its derivative <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
+<dd><p>Computes the cross-covariance function for the solution process <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/> and its derivative <img class="math" src="_images/math/14b5fe247ccc30de3663584f08485b2229535aea.png" alt="v_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, v_s)\)</span>.</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/28c1aa53c7e12500414c23eb9ff17d94228fc054.png" alt="cov(x_t, v_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -213,85 +231,164 @@
 <dl class="attribute">
 <dt id="BayesODE.cov_square_exp.cov_xx_se">
 <code class="descclassname">BayesODE.cov_square_exp.</code><code class="descname">cov_xx_se</code><a class="headerlink" href="#BayesODE.cov_square_exp.cov_xx_se" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance function for the solution process <span class="math notranslate nohighlight">\(x_t\)</span>.</p>
+<dd><p>Computes the covariance function for the solution process <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>float</em>) – time point at t</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – time point at s</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <span class="math notranslate nohighlight">\(cov(v_t, v_{t+\gamma}) = 1/e\)</span>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluates <span class="math notranslate nohighlight">\(cov(x_t, x_s)\)</span>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-</div>
-<div class="section" id="module-BayesODE.cov_fun">
-<span id="covariance-function"></span><h2>Covariance Function<a class="headerlink" href="#module-BayesODE.cov_fun" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-cov_fun"></span><dl class="function">
-<dt id="BayesODE.cov_fun.cov_prior">
-<code class="descclassname">BayesODE.cov_fun.</code><code class="descname">cov_prior</code><span class="sig-paren">(</span><em>tseq</em>, <em>model</em>, <em>gamma</em>, <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.cov_fun.cov_prior" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate covariance and cross-covariance matrices between :math:x_t and :math:v_t.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tseq</strong> (<em>float</em>) – Vector of <em>N</em> timepoints at which to calculate the covariances.</p></li>
-<li><p><strong>model</strong> (<em>str</em>) – <p>Name of the covariance model to use.  Possible choices are:</p>
-<ul>
-<li><p><em>exp2</em>: Squared-exponential.</p></li>
-<li><p><em>rect</em>: Rectangular.</p></li>
-<li><p><em>exp</em>: Exponential.</p></li>
-</ul>
-</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – Covariance decorrelation time.</p></li>
+<li><p><strong>t</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector t</p></li>
+<li><p><strong>s</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of float) – Time vector s</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Decorrelation time, such that <img class="math" src="_images/math/5a0f771e736ca17f5fd9ced14544d6896f682edb.png" alt="cov(v_t, v_{t+\gamma}) = 1/e"/>.</p></li>
 <li><p><strong>alpha</strong> (<em>float</em>) – Covariance scale parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Three <em>N x N</em> matrices:</p>
-<ul class="simple">
-<li><p><strong>Sigma_vv</strong> = cov(v(tseq), v(tseq))</p></li>
-<li><p><strong>Sigma_xx</strong> = cov(x(tseq), x(tseq))</p></li>
-<li><p><strong>Sigma_xv</strong> = cov(x(tseq), v(tseq))</p></li>
-</ul>
-</p>
+<dd class="field-even"><p>Evaluates <img class="math" src="_images/math/def5813e7a1b84ee415a422911f10a1971433ac0.png" alt="cov(x_t, x_s)"/>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array</p>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
 
 </div>
-<div class="section" id="module-BayesODE.ode_bayes">
-<span id="ode-bayes-solver"></span><h2>ODE Bayes Solver<a class="headerlink" href="#module-BayesODE.ode_bayes" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-ode_bayes"></span><dl class="function">
-<dt id="BayesODE.ode_bayes.ode_bayes">
-<code class="descclassname">BayesODE.ode_bayes.</code><code class="descname">ode_bayes</code><span class="sig-paren">(</span><em>fun</em>, <em>tseq</em>, <em>x0</em>, <em>Sigma_vv</em>, <em>Sigma_xx</em>, <em>Sigma_xv</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.ode_bayes.ode_bayes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bayesian solver of ODE problem <span class="math notranslate nohighlight">\(dx_t/dt = f(x_t, t)\)</span>.</p>
+</div>
+<div class="section" id="module-BayesODE.bayes_ode">
+<span id="bayes-ode-solver"></span><h2>Bayes ODE Solver<a class="headerlink" href="#module-BayesODE.bayes_ode" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bayes_ode"></span><dl class="function">
+<dt id="BayesODE.bayes_ode.bayes_ode">
+<code class="descclassname">BayesODE.bayes_ode.</code><code class="descname">bayes_ode</code><span class="sig-paren">(</span><em>fun</em>, <em>tseq</em>, <em>x0</em>, <em>Sigma_vv</em>, <em>Sigma_xx</em>, <em>Sigma_xv</em>, <em>vstar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.bayes_ode.bayes_ode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bayesian solver of ODE problem <img class="math" src="_images/math/502cdc119cb6b023b403470031387900e4d8820d.png" alt="dx_t/dt = f(x_t, t)"/>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fun</strong> (<em>function</em>) – ODE function, taking two <cite>float</cite> parameters and returning a <cite>float</cite>.</p></li>
-<li><p><strong>tseq</strong> (<em>float</em>) – Vector of <cite>N</cite> timepoints at which <span class="math notranslate nohighlight">\(x_t\)</span> will be calculated.</p></li>
-<li><p><strong>x0</strong> (<em>float</em>) – Initial condition <span class="math notranslate nohighlight">\(x(t_0) = x_0\)</span>.</p></li>
-<li><p><strong>Sigma_vv</strong> (<em>float</em>) – <cite>N x N</cite> prior covariance matrix <strong>cov(v(tseq), v(tseq))</strong>.</p></li>
-<li><p><strong>Sigma_xx</strong> (<em>float</em>) – <cite>N x N</cite> prior covariance matrix <strong>cov(x(tseq), x(tseq))</strong>.</p></li>
-<li><p><strong>Sigma_xv</strong> (<em>float</em>) – <cite>N x N</cite> prior cross-covariance matrix <strong>cov(x(tseq), v(tseq))</strong>, where <span class="math notranslate nohighlight">\(v_t = dx_t/dt\)</span>.</p></li>
+<li><p><strong>tseq</strong> (<em>[</em><em>N</em><em>] </em><em>arrary of floats</em>) – Vector of <cite>N</cite> timepoints at which <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/> will be calculated.</p></li>
+<li><p><strong>x0</strong> (<em>float</em>) – Initial condition <img class="math" src="_images/math/52550fb799417141e07c4af32a701891ca137e3b.png" alt="x(t_0) = x_0"/>.</p></li>
+<li><p><strong>Sigma_vv</strong> ([N, N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of floats) – <cite>N x N</cite> prior covariance matrix <strong>cov(v(tseq), v(tseq))</strong>.</p></li>
+<li><p><strong>Sigma_xx</strong> ([N, N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of floats) – <cite>N x N</cite> prior covariance matrix <strong>cov(x(tseq), x(tseq))</strong>.</p></li>
+<li><p><strong>Sigma_xv</strong> ([N, N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of floats) – <cite>N x N</cite> prior cross-covariance matrix <strong>cov(x(tseq), v(tseq))</strong>, where <img class="math" src="_images/math/106c77ac6ad0f88503c8d9bde08ff1b8f65bf2a8.png" alt="v_t = dx_t/dt"/>.</p></li>
+<li><p><strong>vstar</strong> (None, [N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of floats) – default None, predetermined V_t after N interrogations</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A vector of length <cite>N</cite> corresponding to the probabilistic solution <strong>x(tseq)</strong>.</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>solution</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of floats) – vector of length <cite>N</cite> corresponding to the probabilistic solution <strong>x(tseq)</strong></p></li>
+<li><p><strong>mu_x</strong> ([N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of floats) – vector of length <cite>N</cite> corresponding to the mean of x(tseq)</p></li>
+<li><p><strong>Sigma_xx</strong> ([N, N] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of floats) – <cite>N x N</cite> prior covariance matrix <strong>cov(x(tseq), x(tseq))</strong>.</p></li>
+</ul>
+</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-BayesODE.kalman_ode">
+<span id="kalman-ode-solver"></span><h2>Kalman ODE Solver<a class="headerlink" href="#module-BayesODE.kalman_ode" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-kalman_ode"></span><p>Probabilistic solver for 1st order ODE</p>
+<div class="math">
+<p><img src="_images/math/7cca6a053e45276284f0a840651604e54c614361.png" alt="v_t = dx_t/dt = f(x_t, t)"/></p>
+</div><p>on the time interval <img class="math" src="_images/math/493e15ea40ee636e1bb4d4753f39809172e2f652.png" alt="t \in [0, 1]"/> with initial condition <img class="math" src="_images/math/d75940421a6f7e20829c6eb7e242a4c00ecef80e.png" alt="x_0 = x0"/>.</p>
+<dl class="function">
+<dt id="BayesODE.kalman_ode.filter_update_full">
+<code class="descclassname">BayesODE.kalman_ode.</code><code class="descname">filter_update_full</code><span class="sig-paren">(</span><em>filtered_state_mean</em>, <em>filtered_state_covariance</em>, <em>observation</em>, <em>transition_matrix</em>, <em>transition_offset</em>, <em>transition_covariance</em>, <em>observation_matrix</em>, <em>observation_offset</em>, <em>observation_covariance</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.kalman_ode.filter_update_full" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a Kalman Filter state estimate.
+Perform a one-step update to estimate the state at time <img class="math" src="_images/math/50a23c9ac4f2c09a8f70d836633d9092808407ab.png" alt="t+1"/>
+give an observation at time <img class="math" src="_images/math/50a23c9ac4f2c09a8f70d836633d9092808407ab.png" alt="t+1"/> and the previous estimate for
+time <img class="math" src="_images/math/5ec053cf70dc1c98cc297322250569eda193e7a4.png" alt="t"/> given observations from times <img class="math" src="_images/math/671f821d37dc3937765e1580cd79b54a2924954f.png" alt="[0...t]"/>.  This
+method is useful if one wants to track an object with streaming
+observations.</p>
+<p>Exactly the same as <cite>pykalman.standard.KalmanFilter.filter_update</cite>,
+except outputs everything needed to use <cite>pykalman.standard._smooth</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filtered_state_mean</strong> (<em>[</em><em>n_dim_state</em><em>] </em><em>array</em>) – mean estimate for state at time t given observations from times
+[0…t].</p></li>
+<li><p><strong>filtered_state_covariance</strong> (<em>[</em><em>n_dim_state</em><em>, </em><em>n_dim_state</em><em>] </em><em>array</em>) – covariance of estimate for state at time t given observations from
+times [0…t]</p></li>
+<li><p><strong>observation</strong> (<em>[</em><em>n_dim_obs</em><em>] </em><em>array</em>) – observation from time t+1.</p></li>
+<li><p><strong>transition_matrix</strong> (<em>[</em><em>n_dim_state</em><em>, </em><em>n_dim_state</em><em>] </em><em>array</em>) – state transition matrix from time t to t+1.</p></li>
+<li><p><strong>transition_offset</strong> (<em>[</em><em>n_dim_state</em><em>] </em><em>array</em>) – state offset for transition from time t to t+1.</p></li>
+<li><p><strong>transition_covariance</strong> (<em>[</em><em>n_dim_state</em><em>, </em><em>n_dim_state</em><em>] </em><em>array</em>) – state transition covariance from time t to t+1.</p></li>
+<li><p><strong>observation_matrix</strong> (<em>[</em><em>n_dim_obs</em><em>, </em><em>n_dim_state</em><em>] </em><em>array</em>) – observation matrix at time t+1.</p></li>
+<li><p><strong>observation_offset</strong> (<em>[</em><em>n_dim_obs</em><em>] </em><em>array</em>) – observation offset at time t+1.</p></li>
+<li><p><strong>observation_covariance</strong> (<em>[</em><em>n_dim_obs</em><em>, </em><em>n_dim_obs</em><em>] </em><em>array</em>) – observation covariance at time t+1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>predicted_state_mean</strong> (<em>[n_dim_state] array</em>) – mean of hidden state at time t+1 given observations from
+times [0…t+1]</p></li>
+<li><p><strong>predicted_state_covariance</strong> (<em>[n_dim_state, n_dim_state] array</em>) – covariance of hidden state at time t+1 given observations from
+times [0…t+1]</p></li>
+<li><p><strong>kalman_gain</strong> (<em>[n_dim_state, n_dim_obs] array</em>) – Kalman gain matrix for time t+1</p></li>
+<li><p><strong>filtered_state_mean</strong> (<em>[n_dim_state] array</em>) – mean of hidden state at time t+1 given observations from
+times [0…t+1]</p></li>
+<li><p><strong>filtered_state_covariance</strong> (<em>[n_dim_state, n_dim_state] array</em>) – covariance of hidden state at time t+1 given observations from
+times [0…t+1]</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="BayesODE.kalman_ode.kalman_ode">
+<code class="descclassname">BayesODE.kalman_ode.</code><code class="descname">kalman_ode</code><span class="sig-paren">(</span><em>fun</em>, <em>x0</em>, <em>N</em>, <em>A</em>, <em>V</em>, <em>v_star=None</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.kalman_ode.kalman_ode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probabilistic ODE solver based on the Kalman filter and smoother.</p>
+<p>Returns an approximate solution to the ODE</p>
+<div class="math">
+<p><img src="_images/math/b707468b2d4fcd9463d4e3909c279fca46207080.png" alt="dx_t/dt = f(x_t, t)"/></p>
+</div><p>on the interval <img class="math" src="_images/math/493e15ea40ee636e1bb4d4753f39809172e2f652.png" alt="t \in [0, 1]"/>, with initial condition <img class="math" src="_images/math/d75940421a6f7e20829c6eb7e242a4c00ecef80e.png" alt="x_0 = x0"/>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>function</em>) – ODE function <img class="math" src="_images/math/aad68c8f59bce4d3345068e84d863e799e0a5d4d.png" alt="f(x, t)"/> taking arguments <cite>x</cite> and <cite>t</cite>.</p></li>
+<li><p><strong>x0</strong> (<em>float</em>) – Initial value of <img class="math" src="_images/math/1b1fd12d69ea533588e033d255888cb6a17cdca6.png" alt="x_t"/> at time <img class="math" src="_images/math/7d18e301247447e4600046af051b2bfe857faaa0.png" alt="t = 0"/>.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of discretization points of the time interval,
+such that discretization timestep is <cite>dt = 1/N</cite>.</p></li>
+<li><p><strong>A</strong> (<em>[</em><em>2</em><em>, </em><em>2</em><em>]</em>) – Transition matrix defining the solution prior (see below).</p></li>
+<li><p><strong>V</strong> ([2, 2] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – <p>Variance matrix defining the solution prior.  Namely,
+if <img class="math" src="_images/math/8e8da956bfa8a610f04e6b9a1de447f8e4a3e1e4.png" alt="y_n = (x_n, v_n)"/> is the solution and its derivative
+at time <cite>t = n/N</cite>, then</p>
+<div class="math">
+<p><img src="_images/math/fdc55bfcda16b348f989e001d8b4881aef5e70eb.png" alt="y_{n+1} = A y_n + V^{1/2} \epsilon_n, \qquad \epsilon_n \stackrel{iid}{\sim} \mathcal N(0, I_2)."/></p>
+</div></p></li>
+<li><p><strong>v_star</strong> ([N+1] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, optional) – Pre-generated model interrogations.  Mainly useful for debugging.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>yn_mean</strong> ([N+1, 2] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Posterior mean of the solution process and its derivative <img class="math" src="_images/math/8e8da956bfa8a610f04e6b9a1de447f8e4a3e1e4.png" alt="y_n = (x_n, v_n)"/> at times <img class="math" src="_images/math/44b4fa8e320180fac428f21bd6e3bfeecc50ed31.png" alt="t = 0,1/N,\ldots,1"/>.</p></li>
+<li><p><strong>yn_var</strong> ([N+1, 2, 2] <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Posterior variance of the solution process and its derivative at times <img class="math" src="_images/math/44b4fa8e320180fac428f21bd6e3bfeecc50ed31.png" alt="t = 0,1/N,\ldots,1"/>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-BayesODE.utils">
+<span id="utils"></span><h2>Utils<a class="headerlink" href="#module-BayesODE.utils" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-utils"></span><dl class="function">
+<dt id="BayesODE.utils.mvCond">
+<code class="descclassname">BayesODE.utils.</code><code class="descname">mvCond</code><span class="sig-paren">(</span><em>mu</em>, <em>Sigma</em>, <em>icond</em><span class="sig-paren">)</span><a class="headerlink" href="#BayesODE.utils.mvCond" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates A, b, and V such that y[~icond] | y[icond] ~ N(A * y[icond] + b, V).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu</strong> (<em>[</em><em>2*n_dim</em><em>] </em><em>array</em>) – mean of y</p></li>
+<li><p><strong>Sigma</strong> (<em>[</em><em>2*n_dim</em><em>, </em><em>2*n_dim</em><em>] </em><em>array</em>) – Covariance of y</p></li>
+<li><p><strong>icond</strong> (<em>[</em><em>2*n_dim</em><em>] </em><em>array</em>) – Conditioning on the terms given</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>A</strong> (<em>[n_dim, n_dim] array</em>) – For y ~ N(mu, Sigma) such that y[~icond] | y[icond] ~ N(A * y[icond] + b, V) Calculate A.</p></li>
+<li><p><strong>b</strong> (<em>[n_dim] array</em>) – For y ~ N(mu, Sigma) such that y[~icond] | y[icond] ~ N(A * y[icond] + b, V) Calculate b.</p></li>
+<li><p><strong>V</strong> (<em>[n_dim, n_dim] array</em>) – For y ~ N(mu, Sigma) such that y[~icond] | y[icond] ~ N(A * y[icond] + b, V) Calculate V.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -318,8 +415,9 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation for the Code</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#kernels">Kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-BayesODE.cov_fun">Covariance Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-BayesODE.ode_bayes">ODE Bayes Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-BayesODE.bayes_ode">Bayes ODE Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-BayesODE.kalman_ode">Kalman ODE Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-BayesODE.utils">Utils</a></li>
 </ul>
 </li>
 </ul>

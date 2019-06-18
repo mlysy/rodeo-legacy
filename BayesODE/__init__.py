@@ -5,5 +5,8 @@ from math import sqrt, pi, exp, erf
 from numba import jit
 
 # import local files
-from BayesODE.cov_fun import *
-from BayesODE.ode_bayes import *
+from BayesODE.bayes_ode import *
+from BayesODE.cov_exp import *
+from BayesODE.cov_rect import *
+from BayesODE.cov_square_exp import *
+from BayesODE.kalman_ode import kalman_ode
