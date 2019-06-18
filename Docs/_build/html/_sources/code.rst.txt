@@ -20,12 +20,17 @@ Square Exponential Kernel
 .. automodule:: BayesODE.cov_square_exp
     :members:
 
-Covariance Function
-+++++++++++++++++++
-.. automodule:: BayesODE.cov_fun
+Bayes ODE Solver
+++++++++++++++++
+.. automodule:: BayesODE.bayes_ode
     :members:
 
-ODE Bayes Solver
-++++++++++++++++
-.. automodule:: BayesODE.ode_bayes
+Kalman ODE Solver
++++++++++++++++++
+.. automodule:: BayesODE.kalman_ode
+    :members:
+
+Utils
++++++
+.. automodule:: BayesODE.utils
     :members:

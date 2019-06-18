@@ -1,6 +1,11 @@
 """
 .. module:: cov_rect
-    :synopsis: Covariance and cross-covariance functions for the solution process x_t and its derivative v_t = dx_t/dt under the rectangular-kernel correlation model.
+
+Covariance and cross-covariance functions for the solution process x_t and its derivative 
+
+.. math:: v_t = dx_t/dt 
+
+under the rectangular-kernel correlation model.
 """
 from numba import jit
 import numpy as np
@@ -9,16 +14,23 @@ import numpy as np
 def cov_vv_re(t,s,gamma,alpha):
     """Computes the covariance function for the derivative :math:`v_t`. 
 
-    :param t: Time point at t
-    :type t: float
-    :param s: Time point at s
-    :type s: float
-    :param gamma: Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
-    :type gamma: float
-    :param alpha: Covariance scale parameter.
-    :type alpha: float
-    :returns: Evaluates :math:`cov(v_t, v_s)`.
-    :rtype: float
+    Parameters
+    ----------
+    
+    t: [N] :obj:`numpy.ndarray` of float
+        Time vector t
+    s: [N] :obj:`numpy.ndarray` of float
+        Time vector s
+    gamma: float
+        Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
+    alpha: float 
+        Covariance scale parameter.
+    
+    Returns
+    -------
+    
+    float
+        Evaluates :math:`cov(v_t, v_s)`.
     """
     t_len = len(t)
     s_len = len(s)
@@ -32,18 +44,25 @@ def cov_vv_re(t,s,gamma,alpha):
 
 @jit
 def cov_xv_re(t,s,gamma,alpha):
-    """Computes the covariance function for the solution process :math:`x_t`. 
-
-    :param t: time point at t
-    :type t: float
-    :param s: time point at s
-    :type s: float
-    :param gamma: Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
-    :type gamma: float
-    :param alpha: Covariance scale parameter.
-    :type alpha: float
-    :returns: Evaluates :math:`cov(x_t, x_s)`.
-    :rtype: float
+    """Computes the cross-covariance function for the solution process :math:`x_t` and its derivative :math:`v_t`. 
+ 
+    Parameters
+    ----------
+    
+    t: [N] :obj:`numpy.ndarray` of float
+        Time vector t
+    s: [N] :obj:`numpy.ndarray` of float
+        Time vector s
+    gamma: float
+        Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
+    alpha: float 
+        Covariance scale parameter.
+    
+    Returns
+    -------
+    
+    float
+        Evaluates :math:`cov(x_t, v_s)`.
     """
     t_len = len(t)
     s_len = len(s)
@@ -62,18 +81,25 @@ def cov_xv_re(t,s,gamma,alpha):
 
 @jit
 def cov_xx_re(t,s,gamma,alpha):
-    """Computes the cross-covariance function for the solution process :math:`x_t` and its derivative :math:`v_t`. 
-
-    :param t: time point at t
-    :type t: float
-    :param s: time point at s
-    :type s: float
-    :param gamma: Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
-    :type gamma: float
-    :param alpha: Covariance scale parameter.
-    :type alpha: float
-    :returns: Evaluates :math:`cov(x_t, v_s)`.
-    :rtype: float
+    """Computes the covariance function for the solution process :math:`x_t`. 
+ 
+    Parameters
+    ----------
+    
+    t: [N] :obj:`numpy.ndarray` of float
+        Time vector t
+    s: [N] :obj:`numpy.ndarray` of float
+        Time vector s
+    gamma: float
+        Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
+    alpha: float 
+        Covariance scale parameter.
+    
+    Returns
+    -------
+    
+    float
+        Evaluates :math:`cov(x_t, x_s)`.
     """
     t_len = len(t)
     s_len = len(s)

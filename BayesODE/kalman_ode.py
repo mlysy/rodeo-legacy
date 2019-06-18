@@ -2,13 +2,10 @@
 .. module:: kalman_ode
 
 Probabilistic solver for 1st order ODE
-..math::
 
-v_t = dx_t/dt = f(x_t, t)
+.. math:: v_t = dx_t/dt = f(x_t, t)
 
 on the time interval :math:`t \in [0, 1]` with initial condition :math:`x_0 = x0`.
-
-Should eventually be added to module `BayesODE`.
 """
 
 import numpy as np
@@ -18,8 +15,8 @@ from math import sqrt
 import os
 os.chdir('../')
 from BayesODE.utils import mvCond
-from BayesODE.cov_fun import cov_vv_ex, cov_xv_ex, cov_xx_ex
-from Tests.test_exp_integrate import cov_yy_ex
+from BayesODE.cov_exp import cov_vv_ex, cov_xv_ex, cov_xx_ex
+from BayesODE.Tests.test_exp_integrate import cov_yy_ex
 #import pdb
 
 def filter_update_full(filtered_state_mean, filtered_state_covariance,
@@ -97,8 +94,7 @@ def filter_update_full(filtered_state_mean, filtered_state_covariance,
             filtered_state_covariance)
 
 def kalman_ode(fun, x0, N, A, V, v_star = None):
-    """
-    Probabilistic ODE solver based on the Kalman filter and smoother.
+    """Probabilistic ODE solver based on the Kalman filter and smoother.
 
     Returns an approximate solution to the ODE
 
@@ -116,16 +112,14 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     N : int
         Number of discretization points of the time interval,
         such that discretization timestep is `dt = 1/N`.
-    A : [2, 2] :obj:`numpy.ndarray`
+    A : [2, 2] 
         Transition matrix defining the solution prior (see below).
     V : [2, 2] :obj:`numpy.ndarray`
         Variance matrix defining the solution prior.  Namely,
         if :math:`y_n = (x_n, v_n)` is the solution and its derivative
         at time `t = n/N`, then
-        .. math::
 
-        y_{n+1} = A y_n + V^{1/2} \epsilon_n, \qquad \epsilon_n \stackrel{iid}{\sim} \mathcal N(0, I_2).
-        
+        .. math:: y_{n+1} = A y_n + V^{1/2} \epsilon_n, \qquad \epsilon_n \stackrel{iid}{\sim} \mathcal N(0, I_2).
     v_star : [N+1] :obj:`numpy.ndarray`, optional
         Pre-generated model interrogations.  Mainly useful for debugging.
 
@@ -135,7 +129,7 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     yn_mean : [N+1, 2] :obj:`numpy.ndarray`
         Posterior mean of the solution process and its derivative :math:`y_n = (x_n, v_n)` at times :math:`t = 0,1/N,\ldots,1`.
     yn_var : [N+1, 2, 2] :obj:`numpy.ndarray`
-    Posterior variance of the solution process and its derivative at times :math:`t = 0,1/N,\ldots,1`.
+        Posterior variance of the solution process and its derivative at times :math:`t = 0,1/N,\ldots,1`.
     """
     # notation consistent with pykalman package
     n_dim_obs = 1
@@ -170,7 +164,7 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     predicted_state_means = np.zeros((n_timesteps, n_dim_state))
     predicted_state_covariances = np.zeros((n_timesteps, n_dim_state, n_dim_state))
     # initialize things
-    y0 = np.array([x0, f(x0, 0.)]) # initial state
+    y0 = np.array([x0, fun(x0, 0.)]) # initial state
     mu[0] = y0
     vs[0] = y0[1]
     predicted_state_means[0] = mu[0]
@@ -216,22 +210,3 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     yn_mean = smoothed_state_means
     yn_var = smoothed_state_covariances
     return (yn_mean, yn_var)
-
-# ok let's check it out
-
-def f(x,t):
-    return  3*(t+1/4) - x/(t+1/4)
-
-'''
-x0 = 0
-gamma = 0.35
-alpha = 236
-N = 5
-tseq = np.linspace(0, 1, N+1)
-Sigma = cov_yy_ex(tseq[1:3], tseq[1:3], gamma, alpha)
-icond = np.array([True]*2 + [False]*2)
-mu = np.array([x0, 0, x0, 0])
-A, b, V = mvCond(mu, Sigma, icond)
-
-kalman_ode(f, x0, N, A, V)
-'''
