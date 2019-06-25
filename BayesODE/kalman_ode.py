@@ -12,11 +12,6 @@ import numpy as np
 from pykalman import standard as pks
 # from numba import jit
 from math import sqrt
-import os
-os.chdir('../')
-from BayesODE.utils import mvCond
-from BayesODE.cov_exp import cov_vv_ex, cov_xv_ex, cov_xx_ex
-from BayesODE.Tests.test_exp_integrate import cov_yy_ex
 #import pdb
 
 def filter_update_full(filtered_state_mean, filtered_state_covariance,
