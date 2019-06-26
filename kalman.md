@@ -81,3 +81,30 @@ Should be able to test this with "pre-generated" `v_star` the same way we tested
 	x_n = a x_{n-1} + c \eta_n.
 	$$
 	
+## Investigation of the CAR(p) process
+
+1.  Write a function
+
+    ```python
+	def car_var(tseq, roots)
+	```
+	
+	which computes the `N x p x p` tensor of variance matrices $\operatorname{var}(X_t)$ of the CAR(p) process and its derivatives, $X_t = (Z_t, Z_t^{(1)}, \ldots, Z_t^{(p-1)})$, at each time in `tseq`.
+	
+2.  Create plots of $\operatorname{var}(Z_t^{(k)})$ vs $t$ for each $k = 0, \ldots, p-1$.  
+
+
+3.  Create a function
+
+    ```python
+    def car_cov(tseq, roots, corr = False)
+    ```
+   
+    which computes `N x p x p` tensor of  $\operatorname{cov}(X_0, X_t)$  for each $t$ in `tseq`.  Note that this quantity only exists when $X_t$ is stationary, which should be when $r_k > 0$ or $-r_k > 0$, depending on how we've parametrized things.  
+	
+	With this function, please plot $\gamma_k(t) = \operatorname{cor}(Z_0^{(k)}, X_t^{(k)})$ as a function of $t$.  The goal is to relate the $r_k$ to the decorrelation time $\tau_k$ given by $\gamma_k(\tau_k) = 1/e$.  So for example, if we have $r_k = \exp{r_0 k}$, please plot $\tau_k$ as a function of $r_0$.  If we can control the $\tau_k$ this way, then we have a very simple way of parametrizing the CAR(p) process (for our purposes).
+
+4.  Please start by writing and checking `car_var` and `car_cov`.  You will also need to check various things in `buqDE-mou.tex`, namely:
+
+    - The formula for the decomposition $\Gamma = Q D Q^{-1}$ on page 3.
+	- The general mOU variance formula.  Please see `buqDE-mou.tex` for suggestions.
