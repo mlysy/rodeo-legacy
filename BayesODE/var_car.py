@@ -1,8 +1,33 @@
-import numpy as np
-# from math import exp
+"""
+.. module:: var_car
 
+Variance function for the CAR(p) process:
+
+.. math:: var(X_T, X_T)
+
+"""
+
+import numpy as np
 
 def var_car(tseq, roots, sigma=1.):
+    """Computes the variance function for the CAR(p) process :math: `var(X_T, X_T)`
+    
+    Parameters
+    ----------
+    
+    tseq: [N] :obj:`numpy.ndarray` of float
+        Time vector tseq
+    roots: [p] :obj:`numpy.ndarray` of float
+        Root vector roots; roots must be negative
+    sigma: float
+        Parameter in \Sigma
+
+    Returns
+    -------
+    
+    float
+        Evaluates :math:`var(X_T, X_T)`.
+    """
     delta = np.array(-roots)
     D = np.diag(delta)
     p = len(roots)

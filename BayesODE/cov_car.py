@@ -1,7 +1,35 @@
+"""
+.. module:: var_car
+
+Covariance function for the CAR(p) process:
+
+.. math:: cov(X_0, X_T)
+
+"""
+
 import numpy as np
 
-
 def cov_car(tseq, roots, sigma=1., corr=False):
+    """Computes the covariance function for the CAR(p) process :math: `cov(X_0, X_T)`
+    
+    Parameters
+    ----------
+    
+    tseq: [N] :obj:`numpy.ndarray` of float
+        Time vector tseq
+    roots: [p] :obj:`numpy.ndarray` of float
+        Root vector roots; roots must be negative
+    sigma: float
+        Parameter in \Sigma
+    corr: Bool
+        If true, returns correlation
+    
+    Returns
+    -------
+    
+    float
+        Evaluates :math:`cov(X_0, X_T)`.
+    """
     delta = np.array(-roots)
     # D = np.diag(delta)
     p = len(roots)
