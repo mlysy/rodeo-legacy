@@ -3,49 +3,37 @@
 
 Covariance function for the CAR(p) process:
 
-.. math:: cov(X_0, X_T)
+.. math:: cov(X_0, X_t)
 
 """
 
 import numpy as np
+import BayesODE._mou_car as mc
 
 def cov_car(tseq, roots, sigma=1., corr=False):
-    """Computes the covariance function for the CAR(p) process :math: `cov(X_0, X_T)`
+    """Computes the covariance function for the CAR(p) process :math: `cov(X_0, X_t)`
     
     Parameters
     ----------
     
     tseq: [N] :obj:`numpy.ndarray` of float
-        Time vector tseq
+        Time points at which :math: `x_t` is evaluated. 
     roots: [p] :obj:`numpy.ndarray` of float
-        Root vector roots; roots must be negative
+        Roots to the p-th order polynomial of the car(p) process (roots must be negative)
     sigma: float
-        Parameter in \Sigma
-    corr: Bool
-        If true, returns correlation
+        Parameter in mOU volatility matrix
     
     Returns
     -------
     
-    float
-        Evaluates :math:`cov(X_0, X_T)`.
+    C: [N, p, p]  numpy.ndarray
+        Evaluates :math:`cov(X_0, X_t)`.
     """
-    delta = np.array(-roots)
-    # D = np.diag(delta)
     p = len(roots)
-    Q = np.zeros((p, p))
-
-    row = np.ones(p)
-    for i in range(p):
-        Q[i] = row
-        row = row*roots
-
-    Sigma = np.zeros(p)
-    Sigma[p-1] = sigma * sigma
+    delta = np.array(-roots)
+    Sigma_tilde, Q = mc._mou_car(roots, sigma)
 
     Q_inv = np.linalg.pinv(Q)
-    # Gamma = np.linalg.multi_dot([Q, D, Q_inv])  # Q*D*Q^-1
-    Sigma_tilde = np.matmul(Q_inv * Sigma, Q_inv.T)  # Q^-1*Sigma*Q^-1'
     # V_tilde_inf
     V_tilde_inf = np.zeros((p, p))
     for i in range(p):
@@ -53,8 +41,9 @@ def cov_car(tseq, roots, sigma=1., corr=False):
             V_tilde_inf[i, j] = Sigma_tilde[i, j] / \
                 (delta[i] + delta[j])
             V_tilde_inf[j, i] = V_tilde_inf[i, j]
+    
+    V_inf = np.linalg.multi_dot([Q, V_tilde_inf, Q.T])
     if corr:
-        V_inf = np.linalg.multi_dot([Q, V_tilde_inf, Q.T])
         sd_inf = np.sqrt(np.diag(V_inf))  # stationary standard deviations
 
     # covariance matrix
