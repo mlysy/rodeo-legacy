@@ -3,51 +3,35 @@
 
 Variance function for the CAR(p) process:
 
-.. math:: var(X_T, X_T)
+.. math:: var(X_t)
 
 """
 
 import numpy as np
+import BayesODE._mou_car as mc
 
 def var_car(tseq, roots, sigma=1.):
-    """Computes the variance function for the CAR(p) process :math: `var(X_T, X_T)`
+    """Computes the variance function for the CAR(p) process :math: `var(X_t)`
     
     Parameters
     ----------
     
     tseq: [N] :obj:`numpy.ndarray` of float
-        Time vector tseq
+        Time points at which :math: `x_t` is evaluated. 
     roots: [p] :obj:`numpy.ndarray` of float
-        Root vector roots; roots must be negative
+        Roots to the p-th order polynomial of the car(p) process (roots must be negative)
     sigma: float
-        Parameter in \Sigma
+        Parameter in mOU volatility matrix
 
     Returns
     -------
     
-    float
-        Evaluates :math:`var(X_T, X_T)`.
+    V: [N, p, p]  numpy.ndarray
+        Evaluates :math:`var(X_t)`.
     """
-    delta = np.array(-roots)
-    D = np.diag(delta)
     p = len(roots)
-    Q = np.zeros((p, p))
-
-    row = np.ones(p)
-    for i in range(p):
-        Q[i] = row
-        row = row*roots
-
-    # Sigma = np.zeros((p, p))
-    # Sigma[p-1, p-1] = sigma**2
-    Sigma = np.zeros(p)
-    Sigma[p-1] = sigma * sigma
-
-    Q_inv = np.linalg.pinv(Q)
-    # Gamma = np.linalg.multi_dot([Q, D, Q_inv])  # Q*D*Q^-1
-    # Sigma_tilde = np.linalg.multi_dot(
-    #     [Q_inv, Sigma, Q_inv.T])  # Q^-1*Sigma*Q^-1'
-    Sigma_tilde = np.matmul(Q_inv * Sigma, Q_inv.T)  # Q^-1*Sigma*Q^-1'
+    delta = np.array(-roots)
+    Sigma_tilde, Q = mc._mou_car(roots, sigma)
 
     V = np.zeros((len(tseq), p, p))
     for t in range(len(tseq)):

@@ -172,7 +172,7 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
         # Sigma_tt = var(y_t | vs_0:t-1)
         mu_tt = np.dot(A, mu[t]) # np.array((A*np.matrix(mu[n]).T))
         Sigma_tt = np.linalg.multi_dot([A, Sigma[t], A.T]) + V #A*Sigma[n]*A.T + V
-        sig2[t+1] = Sigma_tt[1,1] # new observation_covariance (For some reason 0,0 works a lot better than 1,1)
+        sig2[t+1] = Sigma_tt[1,1] # new observation_covariance
 
         # Model Interrogation Step
         if has_vs is False:
