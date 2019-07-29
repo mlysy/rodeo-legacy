@@ -10,7 +10,7 @@ Covariance function for the CAR(p) process:
 import numpy as np
 import BayesODE._mou_car as mc
 
-def cov_car(tseq, roots, sigma=1., corr=False):
+def cov_car(tseq, roots, sigma=1., corr=False, v_infinity=False):
     """Computes the covariance function for the CAR(p) process :math: `cov(X_0, X_t)`
     
     Parameters
@@ -27,7 +27,7 @@ def cov_car(tseq, roots, sigma=1., corr=False):
     -------
     
     C: [N, p, p]  numpy.ndarray
-        Evaluates :math:`cov(X_0, X_t)`.
+        Evaluates :math:`cov(X_0, X_t)` or :math:`corr(X_0, X_t)` or :math:`V_{\infty}`.
     """
     p = len(roots)
     delta = np.array(-roots)
@@ -45,6 +45,8 @@ def cov_car(tseq, roots, sigma=1., corr=False):
     V_inf = np.linalg.multi_dot([Q, V_tilde_inf, Q.T])
     if corr:
         sd_inf = np.sqrt(np.diag(V_inf))  # stationary standard deviations
+    if v_infinity:
+        return V_inf
 
     # covariance matrix
     C = np.zeros((len(tseq), p, p))
