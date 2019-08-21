@@ -12,3 +12,4 @@ from BayesODE.cov_square_exp import *
 from BayesODE.kalman_ode import kalman_ode
 from BayesODE.var_car import *
 from BayesODE.cov_car import *
+from BayesODE.kalman_ode_higher import *

@@ -1,11 +1,41 @@
+"""
+.. module:: _mou_car
+
+Calculates parameters for the mOU CAR(p) process.
+
+"""
+
 import numpy as np
 from math import exp
         
 def _mou_car(roots, sigma=1., test=False):
+    """Computes the variance function for the CAR(p) process :math: `var(X_t)`
+    
+    Parameters
+    ----------
+
+    roots: [p] :obj:`numpy.ndarray` of float
+        Roots to the p-th order polynomial of the car(p) process (roots must be negative)
+    sigma: float
+        Parameter in mOU volatility matrix
+    test: bool
+        If True, return Sigma, and Gamma.
+
+    Returns
+    -------
+    Gamma: [p, p]  numpy.ndarray
+        :math: `\Gamma` in CAR process.
+
+    Sigma: [p, p]  numpy.ndarray
+        :math: `\Sigma` in CAR process.
+    
+    Sigma_tilde: [p, p] numpy.ndarray
+        :math: `\widetilde{\Sigma}` in CAR process.
+
+    Q: [p, p] numpy.ndarray
+        :math: `Q` in CAR process.
     """
-    Construct the `Gamma`, `Sigma`, `Sigma_tilde` and Q matrices out of the CAR specification.
-    Return `Gamma` and `Sigma` for tests.
-    """
+
     delta = np.array(-roots)
     D = np.diag(delta)
     p = len(roots)
