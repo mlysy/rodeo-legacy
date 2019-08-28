@@ -116,7 +116,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
                                         transition_covariance = transition_covariance,
                                         observation_matrix = observation_matrix,
                                         observation_offset = observation_offset,
-                                        observation_covariance = observation_covariances[t])
+                                        observation_covariance = observation_covariances[t+1])
                  )
     # backward pass
     (smoothed_state_means, smoothed_state_covariances, _) = (
