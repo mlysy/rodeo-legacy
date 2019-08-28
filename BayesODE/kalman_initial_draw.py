@@ -31,6 +31,9 @@ def kalman_initial_draw(roots, sigma, x0, p):
         Simulate :math: `Y0 ~ N(0, V_{\infty}) conditioned on x0.
     """
     q = len(x0) - 1
+    if p == q+1:
+        return x0
+        
     X0 = np.zeros(p)    #Initialize p sized initial X0
     V_inf = cov_car([], roots, sigma, v_infinity=True)    #Get V_inf to draw X^{{q+1} ... (p-1)}_0
     icond = np.array([True]*(q+1) + [False]*(p-q-1))   #Conditioned on all but X^{{q+1} ... (p-1)}_0

@@ -46,9 +46,9 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
     -------
 
     Yn_mean : [N+1, p] :obj:`numpy.ndarray`
-        Posterior mean of the solution process and its derivative :math:`y_n = (x_n, v_n)` at times :math:`t = 0,1/N,\ldots,1`.
+        Posterior mean of the solution process :math:`Y_n = (X_n, Z_n)` at times :math:`t = 0,1/N,\ldots,1`.
     Yn_var : [N+1, p, p] :obj:`numpy.ndarray`
-        Posterior variance of the solution process and its derivatives at times :math:`t = 0,1/N,\ldots,1`.
+        Posterior variance of the solution process at times :math:`t = 0,1/N,\ldots,1`.
     """
     
     # notation consistent with pykalman package
@@ -59,13 +59,13 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
     # allocate memory
     us = np.zeros((n_timesteps,n_dim_obs)) 
 
-    # var(vs_n | y_n), to be determined during the interrogation process
+    # var(us_n | y_n), to be determined during the interrogation process
     sig2 = np.zeros((n_timesteps, n_dim_obs, n_dim_obs))
     
     # solution process
     # forward mean and variance.
-    mu = np.zeros((n_timesteps, n_dim_state)) # E[y_n | vs_0:n]
-    # var(y_n | vs_0:n)
+    mu = np.zeros((n_timesteps, n_dim_state)) # E[y_n | us_0:n]
+    # var(y_n | us_0:n)
     Sigma = np.zeros((n_timesteps, n_dim_state, n_dim_state))
     
     #a padde with 0s
@@ -93,8 +93,8 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
 
     # forward pass: merging pks._filter to accommodate multiple
     # observation_covariances
-    # calculate mu_tt = E[y_t | vs_0:t-1] and
-    # Sigma_tt = var(y_t | vs_0:t-1)
+    # calculate mu_tt = E[y_t | us_0:t-1] and
+    # Sigma_tt = var(y_t | us_0:t-1)
 
     for t in range(N):
         mu_tt = np.dot(A, mu[t]) + b
@@ -103,7 +103,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
         Z_tt = np.random.multivariate_normal(np.zeros(p), np.eye(p))
         D_tt = np.linalg.cholesky(np.absolute(Sigma_tt, where=np.eye(p, dtype=bool)))
         Yt1 = mu_tt + D_tt.dot(Z_tt) #Y_{n+1} ~ p(Y_{n+1} | Y_n)
-        us[t+1] = fun(Yt1,(t+1)/N) #new observation (v_{n+1})
+        us[t+1] = fun(Yt1,(t+1)/N) #new observation (u_{n+1})
 
         (predicted_state_means[t+1], predicted_state_covariances[t+1],
                  _, filtered_state_means[t+1],
@@ -116,7 +116,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
                                         transition_covariance = transition_covariance,
                                         observation_matrix = observation_matrix,
                                         observation_offset = observation_offset,
-                                        observation_covariance = observation_covariances[t+1])
+                                        observation_covariance = observation_covariances[t])
                  )
     # backward pass
     (smoothed_state_means, smoothed_state_covariances, _) = (
