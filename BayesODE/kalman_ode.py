@@ -9,8 +9,9 @@ on the time interval :math:`t \in [0, 1]` with initial condition :math:`x_0 = x0
 """
 
 import numpy as np
-from BayesODE.filter_update_full import filter_update_full
-from pykalman import standard as pks
+from BayesODE.kalman_filter import kalman_filter
+from BayesODE.kalman_smooth import kalman_smooth
+from math import sqrt
 
 def kalman_ode(fun, x0, N, A, V, v_star = None):
     """Probabilistic ODE solver based on the Kalman filter and smoother.
@@ -70,7 +71,9 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     mu = np.zeros((n_timesteps, n_dim_state)) # E[y_n | vs_0:n]
     # var(y_n | vs_0:n)
     Sigma = np.zeros((n_timesteps, n_dim_state, n_dim_state))
+    
     # arguments to use low-level pykalman functions
+    """
     observations = vs
     observation_matrix = np.array([[0., 1.]])
     observation_offset = np.array([0.])
@@ -82,12 +85,24 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     filtered_state_covariances = Sigma
     predicted_state_means = np.zeros((n_timesteps, n_dim_state))
     predicted_state_covariances = np.zeros((n_timesteps, n_dim_state, n_dim_state))
+    """
+
+    # argumgents for kalman_filter and kalman_smooth
+    b = np.array([0., 0.])
+    D = np.array([[0., 1.]])
+    e = np.array([0.])
+    F = sig2
+    mu_currs = mu
+    Sigma_currs = Sigma
+    mu_preds = np.zeros((n_timesteps, n_dim_state))
+    Sigma_preds = np.zeros((n_timesteps, n_dim_state, n_dim_state))
+
     # initialize things
     y0 = np.array([x0, fun(x0, 0.)]) # initial state
     mu[0] = y0
     vs[0] = y0[1]
-    predicted_state_means[0] = mu[0]
-    predicted_state_covariances[0] = Sigma[0]
+    mu_preds[0] = mu[0]
+    Sigma_preds[0] = Sigma[0]
     
     # forward pass: merging pks._filter to accommodate multiple
     # observation_covariances
@@ -104,28 +119,28 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
             vs[t+1] = fun(xs, (t+1)/N)
 
         # kalman filter update
-        (predicted_state_means[t+1], predicted_state_covariances[t+1],
-         _, filtered_state_means[t+1],
-         filtered_state_covariances[t+1]) = (
-             filter_update_full(filtered_state_mean = filtered_state_means[t],
-                                filtered_state_covariance = filtered_state_covariances[t],
-                                observation = observations[t+1],
-                                transition_matrix = transition_matrix,
-                                transition_offset = transition_offset,
-                                transition_covariance = transition_covariance,
-                                observation_matrix = observation_matrix,
-                                observation_offset = observation_offset,
-                                observation_covariance = observation_covariances[t+1])
-         )
-
+        (mu_preds[t+1], Sigma_preds[t+1], mu_currs[t+1], Sigma_currs[t+1]) = (
+            kalman_filter(mu_curr = mu_currs[t],
+                        Sigma_curr = Sigma_currs[t],
+                        u_star = vs[t+1],
+                        A = A,
+                        b = b,
+                        V = V,
+                        D = D,
+                        e = e,
+                        F = F[t+1]
+                        )
+        )
     # backward pass
-    (smoothed_state_means, smoothed_state_covariances, _) = (
-        pks._smooth(
-            transition_matrix, filtered_state_means,
-            filtered_state_covariances, predicted_state_means,
-            predicted_state_covariances
+    (mu_smooth, Sigma_smooth) = (
+        kalman_smooth(
+            A = A, 
+            mu_currs = mu_currs,
+            Sigma_currs = Sigma_currs, 
+            mu_preds = mu_preds,
+            Sigma_preds = Sigma_preds
         )
     )
-    yn_mean = smoothed_state_means
-    yn_var = smoothed_state_covariances
+    yn_mean = mu_smooth
+    yn_var = Sigma_smooth
     return (yn_mean, yn_var)
