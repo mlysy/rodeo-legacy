@@ -12,7 +12,7 @@ import numpy as np
 from BayesODE.kalman_filter import kalman_filter
 from BayesODE.kalman_smooth import kalman_smooth
 
-def kalman_ode_higher(fun, Y0, N, A, b, V, a):
+def kalman_ode_higher(fun, Y0, N, A, b, V, a, test = False):
     """Probabilistic ODE solver based on the Kalman filter and smoother.
 
     Returns an approximate solution to the higher order ODE
@@ -44,7 +44,8 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
     
     Returns
     -------
-
+    Yn : [n_timesteps, n_dim_state] :obj:`numpy.ndarray`
+        Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
     Yn_mean : [N+1, p] :obj:`numpy.ndarray`
         Posterior mean of the solution process :math:`Y_n = (X_n, Z_n)` at times :math:`t = 0,1/N,\ldots,1`.
     Yn_var : [N+1, p, p] :obj:`numpy.ndarray`
@@ -71,7 +72,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
     #a padde with 0s
     p = len(b)
     q = len(a) - 1
-    a0 = np.pad(a, (0, p-q-1), 'constant', constant_values=(0,0))
+    a_star = np.pad(a, (0, p-q-1), 'constant', constant_values=(0,0))
 
     # arguments to use low-level pykalman functions
     """
@@ -89,7 +90,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
     """
 
     # argumgents for kalman_filter and kalman_smooth
-    D = np.array([a0])
+    D = np.array([a_star])
     e = np.array([0.])
     F = sig2
     mu_currs = mu
@@ -99,7 +100,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
 
     # initialize things
     mu[0] = Y0
-    us[0] = Y0.dot(a0)
+    us[0] = Y0.dot(a_star)
     mu_preds[0] = mu[0]
     Sigma_preds[0] = Sigma[0]
 
@@ -111,10 +112,10 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
     for t in range(N):
         mu_tt = np.dot(A, mu[t]) + b
         Sigma_tt = np.linalg.multi_dot([A, Sigma[t], A.T]) + V #A*Sigma[t]*A.T + V 
-        sig2[t+1] = np.linalg.multi_dot([a0, Sigma_tt, a0.T]) # new observation_covariance
-        Z_tt = np.random.multivariate_normal(np.zeros(p), np.eye(p))
+        sig2[t+1] = np.linalg.multi_dot([a_star, Sigma_tt, a_star.T]) # new observation_covariance
+        I_tt = np.random.multivariate_normal(np.zeros(p), np.eye(p))
         D_tt = np.linalg.cholesky(np.absolute(Sigma_tt, where=np.eye(p, dtype=bool)))
-        Yt1 = mu_tt + D_tt.dot(Z_tt) #Y_{t+1} ~ p(Y_{t+1} | Y_t)
+        Yt1 = mu_tt + D_tt.dot(I_tt) #Y_{t+1} ~ p(Y_{t+1} | Y_t)
         us[t+1] = fun(Yt1,(t+1)/N) #new observation (u_{t+1})
 
         (mu_preds[t+1], Sigma_preds[t+1], mu_currs[t+1], Sigma_currs[t+1]) = (
@@ -130,7 +131,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
                         )
         )
     # backward pass
-    (mu_smooth, Sigma_smooth) = (
+    (Yn, mu_smooth, Sigma_smooth) = (
         kalman_smooth(
             A = A, 
             mu_currs = mu_currs,
@@ -141,4 +142,7 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a):
     )
     Yn_mean = mu_smooth
     Yn_var = Sigma_smooth
-    return Yn_mean, Yn_var
+    if test:
+        return Yn_mean, Yn_var, Sigma_preds
+
+    return Yn, Yn_mean, Yn_var

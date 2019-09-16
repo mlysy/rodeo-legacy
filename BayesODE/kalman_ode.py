@@ -45,7 +45,8 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
 
     Returns
     -------
-
+    Yn : [n_timesteps, n_dim_state] :obj:`numpy.ndarray`
+        Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
     yn_mean : [N+1, 2] :obj:`numpy.ndarray`
         Posterior mean of the solution process and its derivative :math:`y_n = (x_n, v_n)` at times :math:`t = 0,1/N,\ldots,1`.
     yn_var : [N+1, 2, 2] :obj:`numpy.ndarray`
@@ -132,7 +133,7 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
                         )
         )
     # backward pass
-    (mu_smooth, Sigma_smooth) = (
+    (Yn, mu_smooth, Sigma_smooth) = (
         kalman_smooth(
             A = A, 
             mu_currs = mu_currs,
@@ -143,4 +144,4 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     )
     yn_mean = mu_smooth
     yn_var = Sigma_smooth
-    return (yn_mean, yn_var)
+    return (Yn, yn_mean, yn_var)
