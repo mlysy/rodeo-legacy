@@ -42,10 +42,10 @@ def kalman_filter(mu_curr, Sigma_curr, u_star, A, b, V, D, e, F):
     -------
     mu_pred : [n_dim_state] :obj:`numpy.ndarray`
         mean of hidden state at time t+1 given observations from 
-        times [0...t+1]
+        times [0...t]
     Sigma_pred : [n_dim_state, n_dim_state] :obj:`numpy.ndarray`
         covariance of hidden state at time t+1 given observations from 
-        times [0...t+1]
+        times [0...t]
     mu_next : [n_dim_state] :obj:`numpy.ndarray`
         mean of hidden state at time t+1 given observations from 
         times [0...t+1]
