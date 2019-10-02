@@ -5,8 +5,8 @@ Calculates parameters used in kalman_ode_higher.
 
 """
 import numpy as np
-from BayesODE.var_car import var_car
-from BayesODE._mou_car import _mou_car
+from BayesODE.Kalman.var_car import var_car
+from BayesODE.Kalman._mou_car import _mou_car
 
 def higher_mvCond(delta_t, roots, sigma):
     
