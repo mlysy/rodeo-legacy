@@ -3,121 +3,103 @@
 
 Probabilistic solver for higher order ODE
 
-.. math:: a'X_t = F(X_t, t)
+.. math:: a'x_t = F(x_t, t)
 
-on the time interval :math:`t \in [0, 1]` with initial condition :math:`Y_0 = Y0` and :math: `Y_t = (X_t, Z_t)`.
+on the time interval :math:`t \in [0, 1]` with initial condition :math:`x_0 = x_0`.
+
+Model is
+
+.. :math: `x_n = c_n + T_n x_n-1 + R_n^{1/2} \eps_n`
+.. :math: `y_n = d_n + W_n x_n + H_n^{1/2} \eta_n`
 """
 
 import numpy as np
-from BayesODE.kalman_filter import kalman_filter
-from BayesODE.kalman_smooth import kalman_smooth
+from BayesODE.KalmanTV import KalmanTV
 
-def kalman_ode_higher(fun, Y0, N, A, b, V, a, test = False):
+def kalman_ode_higher(fun, x_0, N, wgtState, muState, varState, a):
     """Probabilistic ODE solver based on the Kalman filter and smoother.
 
     Returns an approximate solution to the higher order ODE
 
     .. math:: a' x_t = F(x_t, t)
     
-    on the time interval :math:`t \in [0, 1]` with initial condition :math:`Y_0 = Y0` and :math: `Y_t = (X_t, Z_t)`.
+    on the time interval :math:`t \in [0, 1]` with initial condition :math:`x_0 = x_0`.
 
     Parameters
     ----------
 
     fun : function 
-        Higher order ODE function :math: a' y_t = F(y_t, t) taking arguments `y` and `t`.
-    Y0 : float
+        Higher order ODE function :math: a' x_t = F(x_t, t) taking arguments `x` and `t`.
+    x_0 : float
         Initial value of :math:`x_t` at time :math:`t = 0`.
     N : int
         Number of discretization points of the time interval,
         such that discretization timestep is `dt = 1/N`.
-    A : [p, p] :obj:`numpy.ndarray` of float
-        Transition matrix defining the solution prior (see below).
-    b : [p] :obj:`numpy.ndarray` of float
-        transition_offsets defining the solution prior (see below).
-    V : [p, p] :obj:`numpy.ndarray`
+    wgtState : [p, p] :obj:`numpy.ndarray`
+        Transition matrix defining the solution prior.
+    muState : [p] :obj:`numpy.ndarray`
+        Transition_offsets defining the solution prior.
+    varState : [p, p] :obj:`numpy.ndarray`
         Variance matrix defining the solution prior. 
-        
-        .. math:: y_{n+1} = A y_n + b + V^{1/2} \epsilon_n, \qquad \epsilon_n \stackrel{iid}{\sim} \mathcal N(0, I_2).
     a : [q+1]
-        Observation vector
+        Measure vector
     
     Returns
     -------
-    Yn : [n_timesteps, n_dim_state] :obj:`numpy.ndarray`
+    xStates : [n_timesteps, n_dim_state] :obj:`numpy.ndarray`
         Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
-    Yn_mean : [N+1, p] :obj:`numpy.ndarray`
-        Posterior mean of the solution process :math:`Y_n = (X_n, Z_n)` at times :math:`t = 0,1/N,\ldots,1`.
-    Yn_var : [N+1, p, p] :obj:`numpy.ndarray`
+    muState_smooths : [N+1, p] :obj:`numpy.ndarray`
+        Posterior mean of the solution process :math: `y_n` at times :math:`t = 0,1/N,\ldots,1`.
+    varState_smooths : [N+1, p, p] :obj:`numpy.ndarray`
         Posterior variance of the solution process at times :math:`t = 0,1/N,\ldots,1`.
     """
     
-    # notation consistent with pykalman package
-    n_dim_obs = 1
-    n_dim_state = len(Y0)
+    # Dimensions of state and measure variables
+    n_dim_meas = 1
+    n_dim_state = len(x_0)
     n_timesteps = N+1
 
-    # allocate memory
-    us = np.zeros((n_timesteps,n_dim_obs)) 
+    # allocate memory for observations
+    xMeass = np.zeros((n_timesteps,n_dim_meas))
 
-    # var(us_n | y_n), to be determined during the interrogation process
-    sig2 = np.zeros((n_timesteps, n_dim_obs, n_dim_obs))
-    
-    # solution process
-    # forward mean and variance.
-    mu = np.zeros((n_timesteps, n_dim_state)) # E[y_n | us_0:n]
-    # var(y_n | us_0:n)
-    Sigma = np.zeros((n_timesteps, n_dim_state, n_dim_state))
-    
     #a padde with 0s
-    p = len(b)
+    p = len(muState)
     q = len(a) - 1
     a_star = np.pad(a, (0, p-q-1), 'constant', constant_values=(0,0))
 
-    # arguments to use low-level pykalman functions
-    """
-    observations = us
-    observation_matrix = np.array([a0])
-    observation_offset = np.array([0.])
-    observation_covariances = sig2 # multidimensional
-    transition_matrix = A
-    transition_offset = b
-    transition_covariance = V # single dimensional
-    filtered_state_means = mu
-    filtered_state_covariances = Sigma
-    predicted_state_means = np.zeros((n_timesteps, n_dim_state))
-    predicted_state_covariances = np.zeros((n_timesteps, n_dim_state, n_dim_state))
-    """
-
     # argumgents for kalman_filter and kalman_smooth
-    D = np.array([a_star])
-    e = np.array([0.])
-    F = sig2
-    mu_currs = mu
-    Sigma_currs = Sigma
-    mu_preds = np.zeros((n_timesteps, n_dim_state))
-    Sigma_preds = np.zeros((n_timesteps, n_dim_state, n_dim_state))
+    wgtMeas = np.array([a_star])
+    muMeas = np.array([0.])
+    varMeass = np.zeros((n_timesteps, n_dim_meas, n_dim_meas))
+    muState_filts = np.zeros((n_timesteps, n_dim_state))
+    varState_filts = np.zeros((n_timesteps, n_dim_state, n_dim_state))
+    muState_preds = np.zeros((n_timesteps, n_dim_state))
+    varState_preds = np.zeros((n_timesteps, n_dim_state, n_dim_state))
+    muState_smooths = np.zeros((n_timesteps, n_dim_state))
+    varState_smooths = np.zeros((n_timesteps, n_dim_state, n_dim_state))
+    xStates = np.zeros((n_timesteps, n_dim_state))
 
     # initialize things
-    mu[0] = Y0
-    us[0] = Y0.dot(a_star)
-    mu_preds[0] = mu[0]
-    Sigma_preds[0] = Sigma[0]
+    muState_filts[0] = x_0
+    xMeass[0] = x_0.dot(a_star)
+    muState_preds[0] = muState_filts[0]
+    varState_preds[0] = varState_filts[0]
 
     # forward pass: merging pks._filter to accommodate multiple
     # observation_covariances
     # calculate mu_tt = E[y_t | us_0:t-1] and
     # Sigma_tt = var(y_t | us_0:t-1)
 
+    KFS = KalmanTV(n_dim_meas, n_dim_state)
     for t in range(N):
-        mu_tt = np.dot(A, mu[t]) + b
-        Sigma_tt = np.linalg.multi_dot([A, Sigma[t], A.T]) + V #A*Sigma[t]*A.T + V 
-        sig2[t+1] = np.linalg.multi_dot([a_star, Sigma_tt, a_star.T]) # new observation_covariance
+        mu_tt = np.dot(wgtState, muState_filts[t]) + muState
+        Sigma_tt = np.linalg.multi_dot([wgtState, varState_filts[t], wgtState.T]) + varState #A*Sigma[t]*A.T + V 
+        varMeass[t+1] = np.linalg.multi_dot([a_star, Sigma_tt, a_star.T]) # new observation_covariance
         I_tt = np.random.multivariate_normal(np.zeros(p), np.eye(p))
         D_tt = np.linalg.cholesky(np.absolute(Sigma_tt, where=np.eye(p, dtype=bool)))
-        Yt1 = mu_tt + D_tt.dot(I_tt) #Y_{t+1} ~ p(Y_{t+1} | Y_t)
-        us[t+1] = fun(Yt1,(t+1)/N) #new observation (u_{t+1})
-
+        xState_t1 = mu_tt + D_tt.dot(I_tt) #x_{t+1} ~ p(x_{t+1} | x_t)
+        xMeass[t+1] = fun(xState_t1,(t+1)/N) #new observation (y_{t+1})
+        """
         (mu_preds[t+1], Sigma_preds[t+1], mu_currs[t+1], Sigma_currs[t+1]) = (
             kalman_filter(mu_curr = mu_currs[t],
                         Sigma_curr = Sigma_currs[t],
@@ -130,7 +112,22 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a, test = False):
                         F = F[t+1]
                         )
         )
+        """
+        (muState_preds[t+1], varState_preds[t+1], muState_filts[t+1], varState_filts[t+1]) = (
+            KFS.filter(muState_past = muState_filts[t],
+                    varState_past = varState_filts[t],
+                    muState = muState,
+                    wgtState = wgtState,
+                    varState = varState,
+                    xMeas = xMeass[t+1],
+                    muMeas = muMeas,
+                    wgtMeas = wgtMeas,
+                    varMeas = varMeass[t+1])
+            
+        )
+
     # backward pass
+    """
     (Yn, mu_smooth, Sigma_smooth) = (
         kalman_smooth(
             A = A, 
@@ -140,9 +137,20 @@ def kalman_ode_higher(fun, Y0, N, A, b, V, a, test = False):
             Sigma_preds = Sigma_preds
         )
     )
-    Yn_mean = mu_smooth
-    Yn_var = Sigma_smooth
-    if test:
-        return Yn_mean, Yn_var, Sigma_preds
-
-    return Yn, Yn_mean, Yn_var
+    """
+    muState_smooths[-1] = muState_filts[-1]
+    varState_smooths[-1] = varState_filts[-1]
+    xStates[-1] = np.random.multivariate_normal(muState_smooths[-1], varState_smooths[-1])
+    for t in reversed(range(N)):
+        (muState_smooths[t], varState_smooths[t], xStates[t]) = (
+            KFS.smooth(xState_next = xStates[t+1],
+                    muState_next = muState_smooths[t+1],
+                    varState_next = varState_smooths[t+1],
+                    muState_filt = muState_filts[t],
+                    varState_filt = varState_filts[t],
+                    muState_pred = muState_preds[t+1],
+                    varState_pred = varState_preds[t+1],
+                    wgtState = wgtState)
+        )
+    
+    return xStates, muState_smooths, varState_smooths
