@@ -61,7 +61,7 @@ def kalman_smooth(A, mu_currs, Sigma_currs, mu_preds, Sigma_preds):
         #\tilde{B} = \Sigma{t|t}A'_{t+1} \Sigma_{t+1|t}^{-1}
         B_tilde = B.dot(np.linalg.pinv(Sigma_preds[t+1]))
         
-        #h_t = \mu_{t|t} + B \mu_{t+1|t}^{-1} (Z_{t+1} - \mu{t+1|t})
+        #h_t = \mu_{t|t} + B \Sigma_{t+1|t}^{-1} (Z_{t+1} - \mu{t+1|t})
         h_tt[t] = mu_currs[t] + B_tilde.dot(Y_tt[t+1] - mu_preds[t+1])
         
         #W_t = \Sigma{t|t} - B \Sigma{t+1|t}^{-1} B'
@@ -73,7 +73,7 @@ def kalman_smooth(A, mu_currs, Sigma_currs, mu_preds, Sigma_preds):
         #\mu_{t|N} = \mu_{t|t} + \tilde{B} (\mu_{t+1|N} - \mu_{t+1|t})
         mu_smooth[t] = mu_currs[t] + B_tilde.dot(mu_smooth[t+1] - mu_preds[t+1])
         
-        #\Sigma_{t+1|N} = \Sigma_{t|t} + \tilde{B} (\Sigma_{t+1|N} - \Sigma_{t+1|t}) \tilde{B}'
+        #\Sigma_{t|N} = \Sigma_{t|t} + \tilde{B} (\Sigma_{t+1|N} - \Sigma_{t+1|t}) \tilde{B}'
         Sigma_smooth[t] = Sigma_currs[t] + np.linalg.multi_dot([B_tilde, (Sigma_smooth[t+1] - Sigma_preds[t+1]), B_tilde.T])
         
     return (Y_tt, mu_smooth, Sigma_smooth)
