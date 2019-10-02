@@ -7,8 +7,8 @@ import os
 from math import exp, erf, sqrt, pi
 
 sys.path.insert(0, os.path.abspath('../'))
-from BayesODE import cov_vv_ex, cov_xv_ex, cov_xx_ex
-from BayesODE.utils import mvCond
+from BayesODE.Bayesian import cov_vv_ex, cov_xv_ex, cov_xx_ex
+from BayesODE.utils.utils import mvCond
 
 def cov_yy_ex(t1, t2, gamma, alpha):
     n1 = len(t1)

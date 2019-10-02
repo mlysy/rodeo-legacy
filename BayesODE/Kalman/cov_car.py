@@ -8,7 +8,7 @@ Covariance function for the CAR(p) process:
 """
 
 import numpy as np
-import BayesODE._mou_car as mc
+import BayesODE.Kalman._mou_car as mc
 
 def cov_car(tseq, roots, sigma=1., corr=False, v_infinity=False):
     """Computes the covariance function for the CAR(p) process :math: `cov(X_0, X_t)`

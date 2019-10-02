@@ -14,7 +14,7 @@ Model is
 """
 
 import numpy as np
-from BayesODE.KalmanTV import KalmanTV
+from BayesODE.Kalman.KalmanTV import KalmanTV
 
 def kalman_ode_higher(fun, x_0, N, wgtState, muState, varState, a):
     """Probabilistic ODE solver based on the Kalman filter and smoother.
