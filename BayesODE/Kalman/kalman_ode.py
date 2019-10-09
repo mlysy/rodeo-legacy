@@ -26,30 +26,30 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     ----------
 
     fun : function 
-        ODE function :math:`f(x, t)` taking arguments `x` and `t`.
+        ODE function :math:`f(x, t)` taking arguments :math:`x` and :math:`t`.
     x0 : float
         Initial value of :math:`x_t` at time :math:`t = 0`.
     N : int
         Number of discretization points of the time interval,
-        such that discretization timestep is `dt = 1/N`.
-    A : [2, 2] 
+        such that discretization timestep is :math:`dt = 1/N`.
+    A : ndarray(n_dim_state, n_dim_state) 
         Transition matrix defining the solution prior (see below).
-    V : [2, 2] :obj:`numpy.ndarray`
+    V : ndarray(n_dim_state, n_dim_state)
         Variance matrix defining the solution prior.  Namely,
         if :math:`y_n = (x_n, v_n)` is the solution and its derivative
-        at time `t = n/N`, then
+        at time :math:`t = n/N`, then
 
         .. math:: y_{n+1} = A y_n + V^{1/2} \epsilon_n, \qquad \epsilon_n \stackrel{iid}{\sim} \mathcal N(0, I_2).
-    v_star : [N+1] :obj:`numpy.ndarray`, optional
+    v_star : ndarray(n_timesteps), optional
         Pre-generated model interrogations.  Mainly useful for debugging.
 
     Returns
     -------
-    Yn : [n_timesteps, n_dim_state] :obj:`numpy.ndarray`
+    Yn : ndarray(n_timesteps, n_dim_state)
         Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
-    yn_mean : [N+1, 2] :obj:`numpy.ndarray`
+    yn_mean : ndarray(n_timesteps, n_dim_state)
         Posterior mean of the solution process and its derivative :math:`y_n = (x_n, v_n)` at times :math:`t = 0,1/N,\ldots,1`.
-    yn_var : [N+1, 2, 2] :obj:`numpy.ndarray`
+    yn_var : ndarray(n_timesteps, n_dim_state, n_dim_state)
         Posterior variance of the solution process and its derivative at times :math:`t = 0,1/N,\ldots,1`.
     """
     # notation consistent with pykalman package

@@ -13,28 +13,28 @@ def bayes_ode(fun, tseq, x0, Sigma_vv, Sigma_xx, Sigma_xv, vstar=None):
 
     fun: function
         ODE function, taking two `float` parameters and returning a `float`.
-    tseq: [N] arrary of floats
+    tseq: ndarray(dim_x)
         Vector of `N` timepoints at which :math:`x_t` will be calculated.
     x0: float
         Initial condition :math:`x(t_0) = x_0`.
-    Sigma_vv: [N, N] :obj:`numpy.ndarray` of floats
-        `N x N` prior covariance matrix **cov(v(tseq), v(tseq))**.
-    Sigma_xx: [N, N] :obj:`numpy.ndarray` of floats
-        `N x N` prior covariance matrix **cov(x(tseq), x(tseq))**.    
-    Sigma_xv: [N, N] :obj:`numpy.ndarray` of floats
-        `N x N` prior cross-covariance matrix **cov(x(tseq), v(tseq))**, where :math:`v_t = dx_t/dt`.
-    vstar: None, [N] :obj:`numpy.ndarray` of floats 
-        default None, predetermined V_t after N interrogations
+    Sigma_vv: ndarray(dim_x, dim_x)
+        `N x N` prior covariance matrix :math:`cov(v(tseq), v(tseq))`.
+    Sigma_xx: ndarray(dim_x, dim_x)
+        `N x N` prior covariance matrix :math:`cov(x(tseq), x(tseq))`.    
+    Sigma_xv: ndarray(dim_x, dim_x)
+        `N x N` prior cross-covariance matrix :math:`cov(x(tseq), v(tseq))`, where :math:`v_t = dx_t/dt`.
+    vstar: None, ndarray(dim_x) 
+        default None, predetermined :math:`V_t` after N interrogations
     
     Returns
     -------
 
-    solution: [N] :obj:`numpy.ndarray` of floats
-        vector of length `N` corresponding to the probabilistic solution **x(tseq)**
-    mu_x: [N] :obj:`numpy.ndarray` of floats
+    solution: ndarray(dim_x)
+        vector of length `N` corresponding to the probabilistic solution :math:`x(tseq)`
+    mu_x: ndarray(dim_x)
         vector of length `N` corresponding to the mean of x(tseq)
-    Sigma_xx: [N, N] :obj:`numpy.ndarray` of floats
-        `N x N` prior covariance matrix **cov(x(tseq), x(tseq))**.  
+    Sigma_xx: ndarray(dim_x, dim_x)
+        `N x N` prior covariance matrix :math:`cov(x(tseq), x(tseq))`.  
 
     """
     N = len(tseq)

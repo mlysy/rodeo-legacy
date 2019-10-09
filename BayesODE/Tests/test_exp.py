@@ -5,8 +5,7 @@ import os
 from math import exp, erf, sqrt, pi
 
 #Local file
-sys.path.insert(0, os.path.abspath('../'))
-from BayesODE.cov_fun import cov_vv_ex, cov_xv_ex, cov_xx_ex
+from BayesODE.Bayesian.cov_exp import cov_vv_ex, cov_xv_ex, cov_xx_ex
 
 def cov_vv_ex2(t, s, gamma, alpha):
     return exp(-abs(t-s)/gamma)/alpha

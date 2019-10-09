@@ -1,8 +1,7 @@
 import sys
 import os
 import numpy as np
-sys.path.insert(0, os.path.abspath('../'))
-import BayesODE._mou_car as mc
+import BayesODE.Kalman._mou_car as mc
 
 def V_euler(roots, sigma, delta_t, N, B, X0=None):
     """

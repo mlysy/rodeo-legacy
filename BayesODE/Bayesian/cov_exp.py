@@ -18,9 +18,9 @@ def cov_vv_ex(t,s,gamma,alpha):
     Parameters
     ----------
     
-    t: [N] :obj:`numpy.ndarray` of float
+    t: ndarray(dim_x)
         Time vector t
-    s: [N] :obj:`numpy.ndarray` of float
+    s: ndarray(dim_x)
         Time vector s
     gamma: float
         Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
@@ -50,9 +50,9 @@ def cov_xv_ex(t,s,gamma,alpha):
     Parameters
     ----------
     
-    t: [N] :obj:`numpy.ndarray` of float
+    t: ndarray(dim_x)
         Time vector t
-    s: [N] :obj:`numpy.ndarray` of float
+    s: ndarray(dim_x)
         Time vector s
     gamma: float
         Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
@@ -85,9 +85,9 @@ def cov_xx_ex(t,s,gamma,alpha):
     Parameters
     ----------
     
-    t: [N] :obj:`numpy.ndarray` of float
+    t: ndarray(dim_x)
         Time vector t
-    s: [N] :obj:`numpy.ndarray` of float
+    s: ndarray(dim_x)
         Time vector s
     gamma: float
         Decorrelation time, such that :math:`cov(v_t, v_{t+\gamma}) = 1/e`.
