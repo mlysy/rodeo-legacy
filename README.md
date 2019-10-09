@@ -23,6 +23,9 @@ the installation.
 Usage
 =====
 
+Kalman
+------
+
 Read the full documentation in Docs which includes latex.
 
 As a simple example, consider the second order initial value ODE problem,
@@ -75,4 +78,39 @@ solution prior. If we assume the prior is CAR(p) then we can compute them as fol
 Finally, to run the solver:
 ```
 Yn, Yn_chk_mean, Yn_chk_var = kalman_ode_higher(chk_F, x_0, N-1, wgtState, muState, varState, a)
+```
+
+Bayesian
+--------
+
+For the Bayesian method, we use this simple example:
+```
+    def f(x,t):
+        return  3*(t+1/4) - x/(t+1/4)
+```
+The initial values of the problem and the grid size can be defined as follows:
+```
+    a = 0
+    b = 4.75
+    x0_f1 = 10
+    N = 100
+    tseq1 = np.linspace(a, b, N)
+```
+The two parameters *alpha* and *gamma* can be tuned. The Tuning jupyter notebook
+shows an example of how to tune these parameters based on the kernel. For this example, we can use:
+```
+    gamma = 1.67
+    alpha = 1000
+```
+Now, all we need to do is choose the kernel we want and get the initial *Sigma* matrix. For 
+example, we can use the square exponential kernel:
+```
+    import BayesODE.Bayesian as bo
+    Sigma_vv = bo.cov_vv_se(tseq1, tseq1, gamma, alpha)
+    Sigma_xx = bo.cov_xx_se(tseq1, tseq1, gamma, alpha)
+    Sigma_xv = bo.cov_xv_se(tseq1, tseq1, gamma, alpha)
+```
+Finally, we run the solver to get an approximate solution, the mean and the variance of the approximation:
+```
+    xt1,mu_x,var_x = bo.bayes_ode(f, tseq1, x0_f1, Sigma_vv, Sigma_xx, Sigma_xv)
 ```

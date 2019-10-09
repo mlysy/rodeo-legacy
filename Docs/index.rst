@@ -30,6 +30,9 @@ the installation.
 Usage
 =====
 
+Kalman
+------
+
 As a simple example, consider the second order initial value ODE problem,
 
 .. math::
@@ -91,6 +94,50 @@ Finally, to run the solver:
 .. code-block:: Python
 
    Yn, Yn_chk_mean, Yn_chk_var = kalman_ode_higher(chk_F, x_0, N-1, wgtState, muState, varState, a)
+
+Bayesian
+--------
+
+For the Bayesian method, we use this simple example:
+
+.. code-block:: Python
+
+    def f(x,t):
+        return  3*(t+1/4) - x/(t+1/4)
+
+The initial values of the problem and the grid size can be defined as follows:
+
+.. code-block:: Python
+
+    a = 0
+    b = 4.75
+    x0_f1 = 10
+    N = 100
+    tseq1 = np.linspace(a, b, N)
+
+The two parameters :math:`\alpha` and :math:`\gamma` can be tuned. The Tuning jupyter notebook
+shows an example of how to tune these parameters based on the kernel. For this example, we can use:
+
+.. code-block:: Python
+
+    gamma = 1.67
+    alpha = 1000
+
+Now, all we need to do is choose the kernel we want and get the initial :math:`\Sigma` matrix. For 
+example, we can use the square exponential kernel:
+
+.. code-block:: Python
+
+    import BayesODE.Bayesian as bo
+    Sigma_vv = bo.cov_vv_se(tseq1, tseq1, gamma, alpha)
+    Sigma_xx = bo.cov_xx_se(tseq1, tseq1, gamma, alpha)
+    Sigma_xv = bo.cov_xv_se(tseq1, tseq1, gamma, alpha)
+
+Finally, we run the solver to get an approximate solution, the mean and the variance of the approximation:
+
+.. code-block:: Python
+
+    xt1,mu_x,var_x = bo.bayes_ode(f, tseq1, x0_f1, Sigma_vv, Sigma_xx, Sigma_xv)
 
 Functions Documentation
 =======================
