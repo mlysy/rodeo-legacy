@@ -94,7 +94,7 @@ def kalman_ode_higher(fun, x_0, N, wgtState, muState, varState, a):
         Sigma_tt = np.linalg.multi_dot([wgtState, varState_filts[t], wgtState.T]) + varState #A*Sigma[t]*A.T + V 
         varMeass[t+1] = np.linalg.multi_dot([a_star, Sigma_tt, a_star.T]) # new observation_covariance
         I_tt = np.random.multivariate_normal(np.zeros(p), np.eye(p))
-        D_tt = np.linalg.cholesky(np.absolute(Sigma_tt, where=np.eye(p, dtype=bool)))
+        D_tt = np.linalg.cholesky(Sigma_tt)
         xState_t1 = mu_tt + D_tt.dot(I_tt) #x_{t+1} ~ p(x_{t+1} | x_t)
         xMeass[t+1] = fun(xState_t1,(t+1)/N) #new observation (y_{t+1})
         """
