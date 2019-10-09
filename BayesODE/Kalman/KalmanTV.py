@@ -3,8 +3,11 @@ Time-Varying Kalman Filter and Smoother.
 
 Model is
 
-`x_n = c_n + T_n x_n-1 + R_n^{1/2} eps_n`
-`y_n = d_n + W_n x_n + H_n^{1/2} eta_n`
+.. math:: 
+
+   x_n = c_n + T_n x_n-1 + R_n^{1/2} \epsilon_n
+
+   y_n = d_n + W_n x_n + H_n^{1/2} \eta_n
 
 Naming conventions:
 
@@ -36,44 +39,44 @@ class KalmanTV(object):
 
     Parameters
     ----------
-    muState_past : [nState] :obj:`numpy.ndarray`
+    muState_past : ndarray(nState)
         Mean estimate for state at time n-1 given observations from 
-        times [0...n-1]; :math: \mu_{n-1|n-1}. 
-    varState_past : [nState, nState] :obj:`numpy.ndarray`
+        times [0...n-1]; :math:`\mu_{n-1|n-1}`. 
+    varState_past : ndarray(nState, nState)
         Covariance of estimate for state at time n-1 given observations from
-        times [0...n-1]; :math: \Sigma_{n-1|n-1}.
-    muState_pred : [nState] :obj:`numpy.ndarray`
+        times [0...n-1]; :math:`\Sigma_{n-1|n-1}`.
+    muState_pred : ndarray(nState)
         Mean estimate for state at time n given observations from 
-        times [0...n-1]; :math: \mu_{n|n-1}. 
-    varState_pred : [nState, nState] :obj:`numpy.ndarray`
+        times [0...n-1]; :math:`\mu_{n|n-1}`. 
+    varState_pred : ndarray(nState, nState)
         Covariance of estimate for state at time n given observations from
-        times [0...n-1]; :math: \Sigma_{n|n-1}.
-    muState_filt : [nState] :obj:`numpy.ndarray`
+        times [0...n-1]; :math:`\Sigma_{n|n-1}`.
+    muState_filt : ndarray(nState)
         Mean estimate for state at time n given observations from 
-        times [0...n]; :math: \mu_{n|n}. 
-    varState_filt : [nState, nState] :obj:`numpy.ndarray`
+        times [0...n]; :math:`\mu_{n|n}`. 
+    varState_filt : ndarray(nState, nState)
         Covariance of estimate for state at time n given observations from
-        times [0...n]; :math: \Sigma_{n|n}.
-    muState_next : [nState] :obj:`numpy.ndarray`
+        times [0...n]; :math:`\Sigma_{n|n}`.
+    muState_next : ndarray(nState)
         Mean estimate for state at time n+1 given observations from 
-        times [0...N]; :math: \mu_{n+1|N}. 
-    varState_next : [nState, nState] :obj:`numpy.ndarray`
+        times [0...N]; :math:`\mu_{n+1|N}`. 
+    varState_next : ndarray(nState, nState)
         Covariance of estimate for state at time n+1 given observations from
-        times [0...N]; :math: \Sigma_{n+1|N}.
-    muState : [nState] :obj:`numpy.ndarray`
-        Transition_offsets defining the solution prior; :math: c_n.
-    wgtState : [nState, nState] :obj:`numpy.ndarray`
-        Transition matrix defining the solution prior; :math: T_n.
-    varState : [nState, nState] :obj:`numpy.ndarray`
-        Variance matrix defining the solution prior; :math: R_n.
-    xMeas : [nMeas] :obj:`numpy.ndarray`
-        Measure at time n+1; :math: y_{n+1}.
-    muMeas : [nMeas] :obj:`numpy.ndarray`
-        Transition_offsets defining the measure prior; :math: d_n.
-    wgtMeas : [nMeas, nMeas] :obj:`numpy.ndarray`
-        Transition matrix defining the measure prior; :math: W_n.
-    varMeas : [nMeas, nMeas] :obj:`numpy.ndarray`
-        Variance matrix defining the measure prior; :math: H_n.
+        times [0...N]; :math:`\Sigma_{n+1|N}`.
+    muState : ndarray(nState)
+        Transition_offsets defining the solution prior; :math:`c_n`.
+    wgtState : ndarray(nState, nState)
+        Transition matrix defining the solution prior; :math:`T_n`.
+    varState : ndarray(nState, nState)
+        Variance matrix defining the solution prior; :math:`R_n`.
+    xMeas : ndarray(nMeas)
+        Measure at time n+1; :math:`y_{n+1}`.
+    muMeas : ndarray(nMeas)
+        Transition_offsets defining the measure prior; :math:`d_n`.
+    wgtMeas : ndarray(nMeas, nMeas)
+        Transition matrix defining the measure prior; :math:`W_n`.
+    varMeas : ndarray(nMeas, nMeas)
+        Variance matrix defining the measure prior; :math:`H_n`.
     """
     def __init__(self, nMeas, nState):
         self._nMeas = nMeas
@@ -87,7 +90,7 @@ class KalmanTV(object):
                 varState):
         """
         Perform one prediction step of the Kalman filter.
-        Calculates `theta_n|n-1`from `theta_n-1|n-1`.
+        Calculates :math:`\\theta_{n|n-1}` from :math:`\\theta_{n-1|n-1}`.
         """
         
         muState_pred = wgtState.dot(muState_past) + muState
@@ -104,7 +107,7 @@ class KalmanTV(object):
                varMeas):
         """
         Perform one update step of the Kalman filter.
-        Calculates `theta_n|n` from `theta_n|n-1`.
+        Calculates :math:`\\theta_{n|n}` from :math:`\\theta_{n|n-1}`.
         """
         muMeas_pred = wgtMeas.dot(muState_pred) + muMeas 
         varMeasState_pred = wgtMeas.dot(varState_pred)
@@ -129,7 +132,7 @@ class KalmanTV(object):
                varMeas):
         """
         Perform one step of the Kalman filter.
-        Combines `predict` and `update` steps to get `theta_n|n` from `theta_n-1|n-1`.
+        Combines :func:`KalmanTV.predict` and :func:`KalmanTV.update` steps to get :math:`\\theta_{n|n}` from :math:`\\theta_{n-1|n-1}`.
         """
         muState_pred, varState_pred = self.predict(muState_past = muState_past, 
                                                    varState_past = varState_past,
@@ -156,7 +159,7 @@ class KalmanTV(object):
                   wgtState):
         """
         Perform one step of the Kalman mean/variance smoother.
-        Calculates `theta_n|N` from `theta_n+1|N`, `theta_n|n`, and `theta_n+1|n`.
+        Calculates :math:`\\theta_{n|N}` from :math:`\\theta_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`.
         """
         varState_temp = varState_filt.dot(wgtState.T)
         varState_temp_tilde = varState_temp.dot(np.linalg.pinv(varState_pred))
@@ -174,7 +177,7 @@ class KalmanTV(object):
                    wgtState):
         """
         Perform one step of the Kalman sampling smoother.
-        Calculates a draw `x_n|N` from `x_n+1|N`, `theta_n|n`, and `theta_n+1|n`. 
+        Calculates a draw :math:`x_{n|N}` from :math:`x_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`. 
         """
         varState_temp = varState_filt.dot(wgtState.T)
         varState_temp_tilde = varState_temp.dot(np.linalg.pinv(varState_pred))
@@ -195,7 +198,8 @@ class KalmanTV(object):
                wgtState):
         """
         Perfrom one step of both Kalman mean/variance and sampling smoothers.
-        Combines `smooth_mv` and `smooth_sim` steps to get `x_n|N` and `theta_n|N` from `theta_n+1|N`, `theta_n|n`, and `theta_n+1|n`.
+        Combines :func:`KalmanTV.smooth_mv` and :func:`KalmanTV.smooth_sim` steps to get :math:`x_{n|N}` and 
+        :math:`\\theta_{n|N}` from :math:`\\theta_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`.
         """
         muState_smooth, varState_smooth = self.smooth_mv(muState_next = muState_next,
                                                          varState_next = varState_next,

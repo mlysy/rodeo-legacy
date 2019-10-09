@@ -1,16 +1,14 @@
 """
 .. module:: kalman_ode_higher
 
-Probabilistic solver for higher order ODE
-
-.. math:: a'x_t = F(x_t, t)
-
-on the time interval :math:`t \in [0, 1]` with initial condition :math:`x_0 = x_0`.
-
 Model is
 
-.. :math: `x_n = c_n + T_n x_n-1 + R_n^{1/2} \eps_n`
-.. :math: `y_n = d_n + W_n x_n + H_n^{1/2} \eta_n`
+.. math:: 
+
+   x_n = c_n + T_n x_n-1 + R_n^{1/2} \epsilon_n
+
+   y_n = d_n + W_n x_n + H_n^{1/2} \eta_n
+
 """
 
 import numpy as np
@@ -29,28 +27,28 @@ def kalman_ode_higher(fun, x_0, N, wgtState, muState, varState, a):
     ----------
 
     fun : function 
-        Higher order ODE function :math: a' x_t = F(x_t, t) taking arguments `x` and `t`.
+        Higher order ODE function :math:`a' x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
     x_0 : float
         Initial value of :math:`x_t` at time :math:`t = 0`.
     N : int
         Number of discretization points of the time interval,
-        such that discretization timestep is `dt = 1/N`.
-    wgtState : [p, p] :obj:`numpy.ndarray`
+        such that discretization timestep is :math:`dt = 1/N`.
+    wgtState : ndarray(n_dim_state, n_dim_state)
         Transition matrix defining the solution prior.
-    muState : [p] :obj:`numpy.ndarray`
-        Transition_offsets defining the solution prior.
-    varState : [p, p] :obj:`numpy.ndarray`
+    muState : ndarray(n_dim_state)
+        Transition offsets defining the solution prior.
+    varState : ndarray(n_dim_state, n_dim_state)
         Variance matrix defining the solution prior. 
-    a : [q+1]
+    a : ndarray(q+1)
         Measure vector
     
     Returns
     -------
-    xStates : [n_timesteps, n_dim_state] :obj:`numpy.ndarray`
+    xStates : ndarray(n_timesteps, n_dim_state)
         Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
-    muState_smooths : [N+1, p] :obj:`numpy.ndarray`
+    muState_smooths : ndarray(n_timesteps, n_dim_state)
         Posterior mean of the solution process :math: `y_n` at times :math:`t = 0,1/N,\ldots,1`.
-    varState_smooths : [N+1, p, p] :obj:`numpy.ndarray`
+    varState_smooths : ndarray(n_timesteps, n_dim_state, n_dim_state)
         Posterior variance of the solution process at times :math:`t = 0,1/N,\ldots,1`.
     """
     
