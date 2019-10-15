@@ -79,6 +79,13 @@ Finally, to run the solver:
 ```
 Yn, Yn_chk_mean, Yn_chk_var = kalman_ode_higher(chk_F, x_0, N-1, wgtState, muState, varState, a)
 ```
+We can look at the results of the solver compared to the exact solution to the problem. 
+
+For x^(0):
+![chkrebtii_x0](https://github.com/mlysy/probDE/tree/develop/Docs/Kalman/chkrebtii_x0.png)
+
+For x^(1):
+![chkrebtii_x1](https://github.com/mlysy/probDE/tree/develop/Docs/Kalman/chkrebtii_x1.png)
 
 Bayesian
 --------
@@ -114,3 +121,5 @@ Finally, we run the solver to get an approximate solution, the mean and the vari
 ```
     xt1,mu_x,var_x = bo.bayes_ode(f, tseq1, x0_f1, Sigma_vv, Sigma_xx, Sigma_xv)
 ```
+We can look at the results of all three kernels compared to the exact solution.
+![simple_ode](https://github.com/mlysy/probDE/tree/develop/Docs/Bayesian/simple_ode.png)
