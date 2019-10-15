@@ -82,9 +82,11 @@ Yn, Yn_chk_mean, Yn_chk_var = kalman_ode_higher(chk_F, x_0, N-1, wgtState, muSta
 We can look at the results of the solver compared to the exact solution to the problem. 
 
 For x^(0):
+
 ![chkrebtii_x0](/Docs/Kalman/chkrebtii_x0.png)
 
 For x^(1):
+
 ![chkrebtii_x1](/Docs/Kalman/chkrebtii_x1.png)
 
 Bayesian
