@@ -30,6 +30,7 @@ So for example we have:
 """
 
 import numpy as np
+import scipy as sp
 
 class KalmanTV(object):
     """Create a Kalman Time-Varying object.
@@ -82,6 +83,11 @@ class KalmanTV(object):
         self._nMeas = nMeas
         self._nState = nState
     
+    def solveV(self, V, B):
+        """Computes X = V^{-1}B where V is a variance matrix."""
+        L, low = sp.linalg.cho_factor(V)
+        return sp.linalg.cho_solve((L, low), B)
+    
     def predict(self, 
                 muState_past,
                 varState_past,
@@ -114,7 +120,7 @@ class KalmanTV(object):
         varMeasMeas_pred = np.linalg.multi_dot([wgtMeas, varState_pred, wgtMeas.T]) + varMeas
         varStateMeas_pred = varState_pred.dot(wgtMeas.T)
         
-        varState_temp = varStateMeas_pred.dot(np.linalg.pinv(varMeasMeas_pred)) 
+        varState_temp = self.solveV(varMeasMeas_pred, varStateMeas_pred.T).T
         muState_filt = muState_pred + varState_temp.dot(xMeas - muMeas_pred)
         varState_filt = varState_pred - varState_temp.dot(varMeasState_pred)
 
@@ -162,7 +168,7 @@ class KalmanTV(object):
         Calculates :math:`\\theta_{n|N}` from :math:`\\theta_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`.
         """
         varState_temp = varState_filt.dot(wgtState.T)
-        varState_temp_tilde = varState_temp.dot(np.linalg.pinv(varState_pred))
+        varState_temp_tilde = self.solveV(varState_pred, varState_temp.T).T
         muState_smooth = muState_filt + varState_temp_tilde.dot(muState_next - muState_pred)
         varState_smooth = varState_filt + np.linalg.multi_dot([varState_temp_tilde, (varState_next - varState_pred), varState_temp_tilde.T])
 
@@ -180,7 +186,7 @@ class KalmanTV(object):
         Calculates a draw :math:`x_{n|N}` from :math:`x_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`. 
         """
         varState_temp = varState_filt.dot(wgtState.T)
-        varState_temp_tilde = varState_temp.dot(np.linalg.pinv(varState_pred))
+        varState_temp_tilde = self.solveV(varState_pred, varState_temp.T).T
         muState_sim = muState_filt + varState_temp_tilde.dot(xState_next - muState_pred)
         varState_sim = varState_filt - varState_temp_tilde.dot(varState_temp.T)
         xState_smooth = np.random.multivariate_normal(muState_sim, varState_sim)

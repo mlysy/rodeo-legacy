@@ -79,7 +79,7 @@ Finally, to run the solver:
 ```
 Yn, Yn_chk_mean, Yn_chk_var = kalman_ode_higher(chk_F, x_0, N-1, wgtState, muState, varState, a)
 ```
-We can look at the results of the solver compared to the exact solution to the problem. 
+We drew 100 samples from the solver to compare them to the exact solution and the Euler approximation to the problem. 
 
 For x^(0):
 
