@@ -1,3 +1,5 @@
 .ipynb_checkpoints
 Docs/build
 /build
+/dist
+/BayesODE.egg-info

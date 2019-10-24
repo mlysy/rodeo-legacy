@@ -7,10 +7,10 @@ Covariance and cross-covariance functions for the solution process x_t and its d
 
 under the rectangular-kernel correlation model.
 """
-from numba import jit
+#from numba import jit
 import numpy as np
 
-@jit
+#@jit
 def cov_vv_re(t,s,gamma,alpha):
     """Computes the covariance function for the derivative :math:`v_t`. 
 
@@ -42,7 +42,7 @@ def cov_vv_re(t,s,gamma,alpha):
     
     return Sigma_vv
 
-@jit
+#@jit
 def cov_xv_re(t,s,gamma,alpha):
     """Computes the cross-covariance function for the solution process :math:`x_t` and its derivative :math:`v_t`. 
  
@@ -79,7 +79,7 @@ def cov_xv_re(t,s,gamma,alpha):
             
     return Sigma_xv
 
-@jit
+#@jit
 def cov_xx_re(t,s,gamma,alpha):
     """Computes the covariance function for the solution process :math:`x_t`. 
  

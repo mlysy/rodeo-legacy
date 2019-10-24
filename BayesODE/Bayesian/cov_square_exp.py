@@ -6,11 +6,11 @@ Covariance and cross-covariance functions for the solution process x_t and its d
 .. math:: cov(v_t, v_s) = e^{-|t-s|^2/ \gamma^2}.
 """
 
-from numba import jit
+#from numba import jit
 from math import exp, sqrt, pi, erf
 import numpy as np
 
-@jit
+#@jit
 def cov_vv_se(t, s, gamma, alpha):
     """Computes the covariance function for the derivative :math:`v_t`. 
 
@@ -44,7 +44,7 @@ def cov_vv_se(t, s, gamma, alpha):
 
     return Sigma_vv
 
-@jit
+#@jit
 def cov_xv_se(t, s, gamma, alpha):
     """Computes the cross-covariance function for the solution process :math:`x_t` and its derivative :math:`v_t`. 
  
@@ -79,7 +79,7 @@ def cov_xv_se(t, s, gamma, alpha):
     
     return Sigma_xv
 
-@jit
+#@jit
 def cov_xx_se(t, s, gamma, alpha):
     """Computes the covariance function for the solution process :math:`x_t`. 
  
