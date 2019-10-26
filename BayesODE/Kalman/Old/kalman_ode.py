@@ -13,10 +13,9 @@ from BayesODE.Kalman.Old.kalman_filter import kalman_filter
 from BayesODE.Kalman.Old.kalman_smooth import kalman_smooth
 from math import sqrt
 
-def kalman_ode(fun, x0, N, A, V, v_star = None):
-    """Probabilistic ODE solver based on the Kalman filter and smoother.
-
-    Returns an approximate solution to the ODE
+def kalman_ode(fun, x0State, n_eval, wgtState, varState, obs=None):
+    """
+    Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the ODE
 
     .. math:: dx_t/dt = f(x_t, t)
 
@@ -24,45 +23,47 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     
     Parameters
     ----------
-
     fun : function 
         ODE function :math:`f(x, t)` taking arguments :math:`x` and :math:`t`.
-    x0 : float
+    x0State : float
         Initial value of :math:`x_t` at time :math:`t = 0`.
-    N : int
+    n_eval : int
         Number of discretization points of the time interval,
         such that discretization timestep is :math:`dt = 1/N`.
-    A : ndarray(n_dim_state, n_dim_state) 
+    wgtState : ndarray(n_dim_state, n_dim_state) 
         Transition matrix defining the solution prior (see below).
-    V : ndarray(n_dim_state, n_dim_state)
+    varState : ndarray(n_dim_state, n_dim_state)
         Variance matrix defining the solution prior.  Namely,
         if :math:`y_n = (x_n, v_n)` is the solution and its derivative
         at time :math:`t = n/N`, then
 
         .. math:: y_{n+1} = A y_n + V^{1/2} \epsilon_n, \qquad \epsilon_n \stackrel{iid}{\sim} \mathcal N(0, I_2).
-    v_star : ndarray(n_timesteps), optional
+    obs : ndarray(n_timesteps), optional
         Pre-generated model interrogations.  Mainly useful for debugging.
 
     Returns
     -------
-    Yn : ndarray(n_timesteps, n_dim_state)
+    Xn : ndarray(n_timesteps, n_dim_state)
         Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
-    yn_mean : ndarray(n_timesteps, n_dim_state)
+    Xn_mean : ndarray(n_timesteps, n_dim_state)
         Posterior mean of the solution process and its derivative :math:`y_n = (x_n, v_n)` at times :math:`t = 0,1/N,\ldots,1`.
-    yn_var : ndarray(n_timesteps, n_dim_state, n_dim_state)
+    Xn_var : ndarray(n_timesteps, n_dim_state, n_dim_state)
         Posterior variance of the solution process and its derivative at times :math:`t = 0,1/N,\ldots,1`.
+
     """
     # notation consistent with pykalman package
     n_dim_obs = 1
     n_dim_state = 2
-    n_timesteps = N+1
+    n_timesteps = n_eval + 1
+
     # allocate memory
-    has_vs = v_star is not None
+    has_vs = obs is not None
     if has_vs is False:
         # model interrogations vs = v_star
         vs = np.zeros((n_timesteps,n_dim_obs)) 
     else:
-        vs = np.array(v_star)
+        vs = np.array(obs)
+
     # var(vs_n | y_n), to be determined during the interrogation process
     sig2 = np.zeros((n_timesteps, n_dim_obs, n_dim_obs))
     # solution process
@@ -72,25 +73,10 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
     mu = np.zeros((n_timesteps, n_dim_state)) # E[y_n | vs_0:n]
     # var(y_n | vs_0:n)
     Sigma = np.zeros((n_timesteps, n_dim_state, n_dim_state))
-    
-    # arguments to use low-level pykalman functions
-    """
-    observations = vs
-    observation_matrix = np.array([[0., 1.]])
-    observation_offset = np.array([0.])
-    observation_covariances = sig2 # multidimensional
-    transition_matrix = np.array(A)
-    transition_offset = np.array([0., 0.])
-    transition_covariance = np.array(V) # single dimensional
-    filtered_state_means = mu
-    filtered_state_covariances = Sigma
-    predicted_state_means = np.zeros((n_timesteps, n_dim_state))
-    predicted_state_covariances = np.zeros((n_timesteps, n_dim_state, n_dim_state))
-    """
 
     # argumgents for kalman_filter and kalman_smooth
-    b = np.array([0., 0.])
-    D = np.array([[0., 1.]])
+    muState = np.array([0., 0.])
+    wgtMeas = np.array([[0., 1.]])
     e = np.array([0.])
     F = sig2
     mu_currs = mu
@@ -133,7 +119,7 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
                         )
         )
     # backward pass
-    (Yn, mu_smooth, Sigma_smooth) = (
+    (Xn, mu_smooth, Sigma_smooth) = (
         kalman_smooth(
             A = A, 
             mu_currs = mu_currs,
@@ -142,6 +128,6 @@ def kalman_ode(fun, x0, N, A, V, v_star = None):
             Sigma_preds = Sigma_preds
         )
     )
-    yn_mean = mu_smooth
-    yn_var = Sigma_smooth
-    return (Yn, yn_mean, yn_var)
+    Xn_mean = mu_smooth
+    Xn_var = Sigma_smooth
+    return (Xn, Xn_mean, Xn_var)

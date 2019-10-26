@@ -27,13 +27,14 @@ So for example we have:
 - `W_n = wgtMeas[n]`
 - `E[x_n | y_0:n] = muState_filt`
 - `var(x_n | y_0:N) = varState_smooth`
-"""
 
+"""
 import numpy as np
 import scipy as sp
 
 class KalmanTV(object):
-    """Create a Kalman Time-Varying object.
+    """
+    Create a Kalman Time-Varying object.
     The methods of the object can predict, update, sample and smooth the
     mean and variance of the Kalman Filter. This method is useful if one 
     wants to track an object with streaming observations.
@@ -83,8 +84,10 @@ class KalmanTV(object):
         self._nMeas = nMeas
         self._nState = nState
     
-    def solveV(self, V, B):
-        """Computes X = V^{-1}B where V is a variance matrix."""
+    def _solveV(self, V, B):
+        """
+        Computes X = V^{-1}B where V is a variance matrix.
+        """
         L, low = sp.linalg.cho_factor(V)
         return sp.linalg.cho_solve((L, low), B)
     
@@ -98,11 +101,9 @@ class KalmanTV(object):
         Perform one prediction step of the Kalman filter.
         Calculates :math:`\\theta_{n|n-1}` from :math:`\\theta_{n-1|n-1}`.
         """
-        
         muState_pred = wgtState.dot(muState_past) + muState
         varState_pred = np.linalg.multi_dot([wgtState, varState_past, wgtState.T]) + varState
-
-        return (muState_pred, varState_pred)
+        return muState_pred, varState_pred
 
     def update(self,
                muState_pred,
@@ -119,12 +120,10 @@ class KalmanTV(object):
         varMeasState_pred = wgtMeas.dot(varState_pred)
         varMeasMeas_pred = np.linalg.multi_dot([wgtMeas, varState_pred, wgtMeas.T]) + varMeas
         varStateMeas_pred = varState_pred.dot(wgtMeas.T)
-        
-        varState_temp = self.solveV(varMeasMeas_pred, varStateMeas_pred.T).T
+        varState_temp = self._solveV(varMeasMeas_pred, varStateMeas_pred.T).T
         muState_filt = muState_pred + varState_temp.dot(xMeas - muMeas_pred)
         varState_filt = varState_pred - varState_temp.dot(varMeasState_pred)
-
-        return (muState_filt, varState_filt)
+        return muState_filt, varState_filt
         
     def filter(self,
                muState_past,
@@ -145,15 +144,13 @@ class KalmanTV(object):
                                                    muState = muState,
                                                    wgtState = wgtState,
                                                    varState = varState)
-
         muState_filt, varState_filt = self.update(muState_pred = muState_pred,
                                                   varState_pred = varState_pred,
                                                   xMeas = xMeas,
                                                   muMeas = muMeas,
                                                   wgtMeas = wgtMeas,
                                                   varMeas = varMeas)
-        
-        return (muState_pred, varState_pred, muState_filt, varState_filt)
+        return muState_pred, varState_pred, muState_filt, varState_filt
     
     def smooth_mv(self,
                   muState_next,
@@ -168,11 +165,10 @@ class KalmanTV(object):
         Calculates :math:`\\theta_{n|N}` from :math:`\\theta_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`.
         """
         varState_temp = varState_filt.dot(wgtState.T)
-        varState_temp_tilde = self.solveV(varState_pred, varState_temp.T).T
+        varState_temp_tilde = self._solveV(varState_pred, varState_temp.T).T
         muState_smooth = muState_filt + varState_temp_tilde.dot(muState_next - muState_pred)
         varState_smooth = varState_filt + np.linalg.multi_dot([varState_temp_tilde, (varState_next - varState_pred), varState_temp_tilde.T])
-
-        return (muState_smooth, varState_smooth)
+        return muState_smooth, varState_smooth
 
     def smooth_sim(self,
                    xState_next,
@@ -186,11 +182,10 @@ class KalmanTV(object):
         Calculates a draw :math:`x_{n|N}` from :math:`x_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`. 
         """
         varState_temp = varState_filt.dot(wgtState.T)
-        varState_temp_tilde = self.solveV(varState_pred, varState_temp.T).T
+        varState_temp_tilde = self._solveV(varState_pred, varState_temp.T).T
         muState_sim = muState_filt + varState_temp_tilde.dot(xState_next - muState_pred)
         varState_sim = varState_filt - varState_temp_tilde.dot(varState_temp.T)
         xState_smooth = np.random.multivariate_normal(muState_sim, varState_sim)
-
         return xState_smooth
     
     def smooth(self,
@@ -213,14 +208,12 @@ class KalmanTV(object):
                                                          varState_filt = varState_filt,
                                                          muState_pred = muState_pred,
                                                          varState_pred = varState_pred,
-                                                         wgtState = wgtState)
-        
+                                                         wgtState = wgtState) 
         xState_smooth = self.smooth_sim(xState_next = xState_next,
                                         muState_filt = muState_filt,
                                         varState_filt = varState_filt,
                                         muState_pred = muState_pred,
                                         varState_pred = varState_pred,
                                         wgtState = wgtState)
-        
-        return (muState_smooth, varState_smooth, xState_smooth)
+        return muState_smooth, varState_smooth, xState_smooth
     
