@@ -1,42 +1,86 @@
-Bayesian Solver for Univariate ODEs
-===================================
+# Bayesian Solver for Univariate ODEs
 
-probDE is a Python library that implements a couple of ODE solvers including
-Bayesian methods and Kalman methods. The main focus of this library is using
-Kalman Filter and Kalman Smoother to solve higher ordered ODE problems. 
+*Mohan Wu, Martin Lysy*
 
-This is accomplished by starting with an initial value. Then at each time 
-point, the mean and variance is updated using Kalman Filter so that a new 
-observation can be interrogated. After interrogating all the required
-observations, they are smoothed over with Kalman Smoother.  
+---
 
-Installation
-============
+## Description
 
-You can get the very latest code by getting it from GitHub and then performing
-the installation.
+**probDE** is a Python library that uses [probabilistic numerics](http://probabilistic-numerics.org/) to solve ordinary differential equations (ODEs).  That is, most ODE solvers (such as [Euler's method](https://en.wikipedia.org/wiki/Euler_method)) produce a deterministic approximation to the ODE on a grid of size `delta`.  As `delta` goes to zero, the approximation converges to the true ODE solution.  Probabilistic solvers such as **probDE** also output a solution an a grid of size `delta`; however, the solution is random.  Still, as `delta` goes to zero we get the correct answer.
+
+Currently, **probDE** implements the probabilistic solver of [Chkrebtii et al (2016)](https://projecteuclid.org/euclid.ba/1473276259).  This begins by putting a [Gaussian process](https://en.wikipedia.org/wiki/Gaussian_process) prior on the ODE solution, and updating it sequentially as the solver steps through the grid.
+
+## Installation
+
+Download the repo from GitHub and then install with the `setup.py` script:
 
 ```bash
 git clone https://github.com/mlysy/probDE.git
-cd filterpy
+cd probDE
 python setup.py install
 ```
 
-Usage
-=====
+## Usage
 
-Kalman
+**probDE** currently supports two types of Gaussian process priors: [Continuous Autoregressive](https://CRAN.R-project.org/package=cts/vignettes/kf.pdf) (CAR(p)) processes, and non-Markov priors described below.
+
+### CAR(p) Processes
 ------
 
-Read the full documentation in Docs which includes latex.
+The advantage of CAR(p) processes is that they are Markov, and so the probabilistic solver can be efficiently implemented in linear time using the [Kalman](https://en.wikipedia.org/wiki/Kalman_filter) filtering and smoothing recursions.  For more information, please see full documentation in `Docs/Kalman`, which contains math formatting.
 
-As a simple example, consider the second order initial value ODE problem,
+As present, **probDE** can be used to solve any ODE initial value problem of the form 
 
-x_t'' = sin(2t) - x<br/>
-x_0' = 0 <br/>
-x_0 = -1
+```
+a' X_t = F(X_t, t)
+X_0 = x0
+```
 
-Its exact solution is x_t = (-3cos(t) + 2sin(t) - sin(2t))/3.
+where `X_t = (x_t^{(0)}, x_t^{(1)}, ..., x_t^{(q)})` consists of the first q derivatives of the process, and a solution is sought on the interval `t \in [0, 1]`.
+
+As a simple example, consider the second order ODE initial value problem
+
+```
+x_t^{(2)} = sin(2t) - x_t^{(0)}
+x_0^{(1)} = 0
+x_0^{(0)} = -1
+```
+
+Its exact solution is 
+
+```
+x_t = (-3cos(t) + 2sin(t) - sin(2t))/3
+```
+
+The CAR(p) solution prior is a continuous process of the form `Y_t = (y_t^{(0)}, ..., y_t^{(p-1)})`, where we should have `p > q` so that it is smooth enough to solver the ODE above.
+
+Here's the code to calculate the probabilistic solution with **probDE**:
+
+```python
+import numpy as np
+from math import sin, cos
+from BayesODE.Tests.root_gen import root_gen
+from BayesODE.Kalman.kalman_initial_draw import kalman_initial_draw
+
+# ODE definition
+# LHS vector
+a_vec = np.array([0, 0, 1.0])
+# RHS function
+def ode_F(X_t, t):
+    return sin(2*t) - X_t[0]
+    
+# algorithm tuning parameters
+q = 2 # ODE order
+p = q+2 # number of continuous derivatives of CAR(p) solution prior
+
+# it is assumed that the solution is sought on the interval [0,1].
+# this next parameter specifies the size of the discretization grid
+N = 100 # grid size delta = 1/N
+
+# now the tuning parameters of the CAR(p) prior
+sigma = 0.001 # scale paramater
+r0 = 0.5 # decorrelation parameter
+```
 
 The exact solution can be coded in python as follow:
 ```python
