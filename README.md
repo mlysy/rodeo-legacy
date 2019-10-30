@@ -22,7 +22,7 @@ python setup.py install
 
 ## Usage
 
-**probDE** currently supports two types of Gaussian process priors: [Continuous Autoregressive](https://CRAN.R-project.org/package=cts/vignettes/kf.pdf) (CAR(p)) processes, and non-Markov priors described below.
+**probDE** currently supports two types of Gaussian process priors: [Continuous Autoregressive](https://CRAN.R-project.org/package=cts/vignettes/kf.pdf) (CAR(p)) processes, and non-Markov priors described below. For a more detailed example, checkout BayesODE/Examples/tutorial.ipynb.
 
 ### CAR(p) Processes
 ------
@@ -151,7 +151,7 @@ tseq1 = np.linspace(a, b, N)
 The two parameters *alpha* and *gamma* can be tuned. The Tuning jupyter notebook
 shows an example of how to tune these parameters based on the kernel. For this example, we can use:
 ```python
-gamma = 1.67
+gamma = 0.1
 alpha = 1000
 ```
 Now, all we need to do is choose the kernel we want and get the initial *Sigma* matrix. For 

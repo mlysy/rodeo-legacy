@@ -14,7 +14,7 @@ import numpy as np
 
 from BayesODE.Kalman.KalmanTV import KalmanTV
 
-def kalman_ode_higher(fun, x0State, end, n_eval, wgtState, muState, varState, wgtMeas):
+def kalman_ode_higher(fun, x0State, tmax, n_eval, wgtState, muState, varState, wgtMeas):
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
 
@@ -22,7 +22,7 @@ def kalman_ode_higher(fun, x0State, end, n_eval, wgtState, muState, varState, wg
     
     on the time interval :math:`t \in [0, b]` with initial condition :math:`x_0 = x_0`. The corresponding variable names are
     x0State = :math:`x_0`, 
-    end = :math:`b`,
+    tmax = :math:`b`,
     n_eval = :math:`N`,
     wgtState = :math:`T`,
     muState = :math:`c`,
@@ -35,7 +35,7 @@ def kalman_ode_higher(fun, x0State, end, n_eval, wgtState, muState, varState, wg
         Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
     x0State : float
         Initial value of the state variable :math:`x_t` at time :math:`t = 0`.
-    end : int
+    tmax : int
         Last time point of the time interval to be evaluated; :math:`b`.
     n_eval : int
         Number of discretization points (:math:`N`) of the time interval that is evaluated, 
@@ -97,7 +97,7 @@ def kalman_ode_higher(fun, x0State, end, n_eval, wgtState, muState, varState, wg
         I_tt = I_tt = np.random.normal(loc=0.0, scale=1.0, size=n_dim_state)
         R_tt = np.linalg.cholesky(varState_preds[t+1])
         xState_tt = muState_preds[t+1] + R_tt.dot(I_tt) 
-        xMeass[t+1] = fun(xState_tt, end*(t+1)/n_eval)
+        xMeass[t+1] = fun(xState_tt, tmax*(t+1)/n_eval)
 
         muState_filts[t+1], varState_filts[t+1] = (
             KFS.update(muState_pred = muState_preds[t+1],
