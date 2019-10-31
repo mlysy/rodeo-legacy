@@ -9,7 +9,7 @@ import numpy as np
 from BayesODE.Kalman.var_car import var_car
 from BayesODE.Kalman._mou_car import _mou_car
 
-def higher_mvCond(delta_t, roots, sigma):    
+def higher_mvncond(delta_t, roots, sigma):    
     """
     Calculate wgtState(A), and varState(V) in Y_{n+1} ~ p(Y_{n+1} | Y_n) using 
     .. :math: `A = e^{-\Gamma \Delta t}` and 

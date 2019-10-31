@@ -3,6 +3,7 @@
 
 Helpful functions used in kalman.
 """
+from math import exp
 import numpy as np
 import scipy.linalg as scl
 
@@ -47,8 +48,57 @@ def solveV(V, B):
         Matrix B in :math:`X = V^{-1}B`.
     
     Returns
+    -------
     X : ndarray(n_dim1, n_dim2)
         Matrix X in :math:`X = V^{-1}B`
+
     """
     L, low = scl.cho_factor(V)
     return scl.cho_solve((L, low), B)
+
+def root_gen(tau, p):
+    """
+    Creates p geometrically decaying CAR model roots.
+
+    Parameters
+    ----------
+    tau : int
+        Decorrelation parameter
+    p : int
+        Number of roots to generate
+
+    Returns
+    -------
+    roots : ndarray(p)
+        Vector of roots generated using p geometrically decaying roots
+
+    """
+    roots = np.zeros(p)
+    for k in range(p):
+        if k == 0:
+            roots[k] = -1/tau
+        else:
+            roots[k] = -exp((k+1)/tau)
+
+    return roots
+
+def zero_pad(x0, p):
+    """
+    Pad x0 with p-len(x0) 0s at the end of x0.
+
+    Parameters
+    ----------
+    x0 : ndarray(n_dim)
+        Any vector 
+    p : int
+        Size of the padded vector
+
+    Returns
+    -------
+    X0 : ndarray(1, p)
+        Padded vector of length p
+
+    """
+    q = len(x0)
+    X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0,0))])
+    return X0
