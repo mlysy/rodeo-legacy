@@ -7,3 +7,4 @@ from numba import jit
 # import local files
 from BayesODE.Kalman.kalman_ode import kalman_ode
 from BayesODE.Kalman.kalman_ode_higher import *
+from BayesODE.Kalman.kalman_solver import *

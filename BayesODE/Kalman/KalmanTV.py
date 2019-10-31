@@ -180,7 +180,7 @@ class KalmanTV(object):
         varState_temp_tilde = solveV(varState_pred, varState_temp.T).T
         muState_sim = muState_filt + varState_temp_tilde.dot(xState_next - muState_pred)
         varState_sim = varState_filt - varState_temp_tilde.dot(varState_temp.T)
-        xState_smooth = np.random.multivariate_normal(muState_sim, varState_sim)
+        xState_smooth = np.random.multivariate_normal(muState_sim, varState_sim, tol=1e-6)
         return xState_smooth
     
     def smooth(self,

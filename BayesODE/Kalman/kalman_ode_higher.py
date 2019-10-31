@@ -114,7 +114,7 @@ def kalman_ode_higher(fun, x0State, tmin, tmax, n_eval, wgtState, muState, varSt
     # backward pass
     muState_smooths[-1] = muState_filts[-1]
     varState_smooths[-1] = varState_filts[-1]
-    xStates[-1] = np.random.multivariate_normal(muState_smooths[-1], varState_smooths[-1])
+    xStates[-1] = np.random.multivariate_normal(muState_smooths[-1], varState_smooths[-1], tol=1e-6)
     for t in reversed(range(n_eval)):
         muState_smooths[t], varState_smooths[t], xStates[t] = (
             KFS.smooth(xState_next = xStates[t+1],
