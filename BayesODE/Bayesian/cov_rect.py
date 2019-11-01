@@ -7,7 +7,6 @@ Covariance and cross-covariance functions for the solution process x_t and its d
 
 under the rectangular-kernel correlation model.
 """
-#from numba import jit
 import numpy as np
 
 #@jit

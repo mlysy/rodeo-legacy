@@ -6,7 +6,6 @@ Covariance and cross-covariance functions for the solution process x_t and its d
 .. math:: cov(v_t, v_s) = e^{-|t-s|^2/ \gamma^2}.
 """
 
-#from numba import jit
 from math import exp, sqrt, pi, erf
 import numpy as np
 
