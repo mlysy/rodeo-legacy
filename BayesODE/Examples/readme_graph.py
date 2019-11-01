@@ -32,6 +32,50 @@ def readme_kalman_draw(fun, n_eval, tmin, tmax, r0, p, sigma, lamb, w, x_init, d
     X = kalman_solver(fun, tmin, tmax, n_eval, lamb, sigma, roots, w, X_init, draws)
     return X
 
+def readme_solve(fun, p, tmin, tmax, n_eval, w, tau, sigma, x_init, draws):
+    """
+    Calculates kalman_ode, euler_ode, and exact_ode on the given grid for the README ode.
+
+    Parameters
+    ----------
+    fun : function 
+        Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
+    p : int
+        Size of the CAR(p) process
+    tmin : int
+        First time point of the time interval to be evaluated; :math: `a`.
+    tmax : int
+        Last time point of the time interval to be evaluated; :math:`b`.
+    n_eval : int
+        Number of discretization points (:math:`N`) of the time interval that is evaluated, 
+        such that discretization timestep is :math:`dt = b/N`.
+    w : ndarray(q+1)
+        Corresponds to the :math:`w` vector in the ODE equation.
+    tau : ndarray(1)
+        Decorrelation time.
+    sigma : ndarray(1)
+        Scale parameter.
+    x_init : ndarray(q+1) or ndarray(p)
+        The initial values of :math: `x_L` or :math:`X_L = (x_L, y_L)`.
+    draws : int
+        Number of samples we need to draw from the kalman solver.
+        
+    """
+    # Variables defined for the example in README
+    q = len(w) - 1
+    p = q+2
+    lamb = np.zeros(p)
+
+    tseq = np.linspace(tmin, tmax, n_eval)
+    Xt = readme_kalman_draw(fun, n_eval, tmin, tmax, tau, p, sigma, lamb, w, x_init, draws)
+    x_euler = euler_approx(ode_euler, tseq, x_init)
+    x_exact = np.zeros((n_eval, 2))
+    for i,t in enumerate(tseq):
+        x_exact[i, 0] = ode_exact_x(t)
+        x_exact[i, 1] = ode_exact_x1(t)
+
+    return tseq, Xt, x_euler, x_exact
+
 # Function that produces the graph as shown in README
 def readme_graph(fun, p, tmin, tmax, n_eval, w, x_init, draws):
     """
@@ -64,31 +108,64 @@ def readme_graph(fun, p, tmin, tmax, n_eval, w, x_init, draws):
     lamb = np.zeros(p)
 
     # N=50
-    tseq_50 = np.linspace(tmin, tmax, 50)
-    Xn_50 = readme_kalman_draw(fun, 50, tmin, tmax, 1/0.04, p, 0.5, lamb, w, x_init, draws)
-    euler_50 = euler_approx(ode_euler, tseq_50, x_init)
-    exact_50 = np.zeros((50, 2))
-    for i,t in enumerate(tseq_50):
-        exact_50[i, 0] = ode_exact_x(t)
-        exact_50[i, 1] = ode_exact_x1(t)
+    # tseq_50 = np.linspace(tmin, tmax, 50)
+    # Xn_50 = readme_kalman_draw(fun, 50, tmin, tmax, 1/0.04, p, 0.5, lamb, w, x_init, draws)
+    # euler_50 = euler_approx(ode_euler, tseq_50, x_init)
+    # exact_50 = np.zeros((50, 2))
+    # for i,t in enumerate(tseq_50):
+    #     exact_50[i, 0] = ode_exact_x(t)
+    #     exact_50[i, 1] = ode_exact_x1(t)
+    N = 50
+    tseq_50, Xn_50, euler_50, exact_50 = readme_solve(fun=fun,
+                                                      p=p,
+                                                      tmin=tmin,
+                                                      tmax=tmax,
+                                                      n_eval=N,
+                                                      w=w,
+                                                      tau=1/0.04,
+                                                      sigma=0.5,
+                                                      x_init=x_init,
+                                                      draws=draws)
 
     # N=100
-    tseq_100 = np.linspace(tmin, tmax, 100)
-    Xn_100 = readme_kalman_draw(fun, 100, tmin, tmax, 1/0.01, p, 0.5, lamb, w, x_init, draws)
-    euler_100 = euler_approx(ode_euler, tseq_100, x_init)
-    exact_100 = np.zeros((100, 2))
-    for i,t in enumerate(tseq_100):
-        exact_100[i, 0] = ode_exact_x(t)
-        exact_100[i, 1] = ode_exact_x1(t)
+    # tseq_100 = np.linspace(tmin, tmax, 100)
+    # Xn_100 = readme_kalman_draw(fun, 100, tmin, tmax, 1/0.01, p, 0.5, lamb, w, x_init, draws)
+    # euler_100 = euler_approx(ode_euler, tseq_100, x_init)
+    # exact_100 = np.zeros((100, 2))
+    # for i,t in enumerate(tseq_100):
+    #     exact_100[i, 0] = ode_exact_x(t)
+    #     exact_100[i, 1] = ode_exact_x1(t)
+    N = 100
+    tseq_100, Xn_100, euler_100, exact_100 = readme_solve(fun=fun,
+                                                      p=p,
+                                                      tmin=tmin,
+                                                      tmax=tmax,
+                                                      n_eval=N,
+                                                      w=w,
+                                                      tau=1/0.01,
+                                                      sigma=0.5,
+                                                      x_init=x_init,
+                                                      draws=draws)
     
     # N=200
-    tseq_200 = np.linspace(tmin, tmax, 200)
-    Xn_200 = readme_kalman_draw(fun, 200, tmin, tmax, 1/0.1, p, 0.001, lamb, w, x_init, draws)
-    euler_200 = euler_approx(ode_euler, tseq_200, x_init)
-    exact_200 = np.zeros((200, 2)) 
-    for i,t in enumerate(tseq_200):
-        exact_200[i, 0] = ode_exact_x(t)
-        exact_200[i, 1] = ode_exact_x1(t)
+    # tseq_200 = np.linspace(tmin, tmax, 200)
+    # Xn_200 = readme_kalman_draw(fun, 200, tmin, tmax, 1/0.1, p, 0.001, lamb, w, x_init, draws)
+    # euler_200 = euler_approx(ode_euler, tseq_200, x_init)
+    # exact_200 = np.zeros((200, 2)) 
+    # for i,t in enumerate(tseq_200):
+    #     exact_200[i, 0] = ode_exact_x(t)
+    #     exact_200[i, 1] = ode_exact_x1(t)
+    N = 200
+    tseq_200, Xn_200, euler_200, exact_200 = readme_solve(fun=fun,
+                                                      p=p,
+                                                      tmin=tmin,
+                                                      tmax=tmax,
+                                                      n_eval=N,
+                                                      w=w,
+                                                      tau=1/0.1,
+                                                      sigma=0.001,
+                                                      x_init=x_init,
+                                                      draws=draws)
 
     _, axs = plt.subplots(2, 3, figsize=(20, 6))
     #Plot Kalman draws

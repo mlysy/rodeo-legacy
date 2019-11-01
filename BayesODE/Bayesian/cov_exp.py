@@ -7,7 +7,6 @@ Covariance and cross-covariance functions for the solution process x_t and its d
 
 under the exponential correlation model.
 """
-#from numba import jit
 from math import exp
 import numpy as np
 

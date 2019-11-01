@@ -97,7 +97,7 @@ def kalman_ode_higher(fun, x0State, tmin, tmax, n_eval, wgtState, muState, varSt
         )
 
         varMeass[t+1] = np.linalg.multi_dot([wgtMeas, varState_preds[t+1], wgtMeas.T]) 
-        I_tt = I_tt = np.random.normal(loc=0.0, scale=1.0, size=n_dim_state)
+        I_tt = np.random.normal(loc=0.0, scale=1.0, size=n_dim_state)
         R_tt = np.linalg.cholesky(varState_preds[t+1])
         xState_tt = muState_preds[t+1] + R_tt.dot(I_tt) 
         xMeass[t+1] = fun(xState_tt, tmin + (tmax-tmin)*(t+1)/n_eval)

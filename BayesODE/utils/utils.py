@@ -73,6 +73,7 @@ def root_gen(tau, p):
         Vector of roots generated using p geometrically decaying roots
 
     """
+    # return -np.append(1/tau, np.linspace(1, 1.1, p-1))
     roots = np.zeros(p)
     for k in range(p):
         if k == 0:

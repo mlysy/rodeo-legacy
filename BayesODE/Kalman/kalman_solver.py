@@ -13,8 +13,9 @@ import numpy as np
 from BayesODE.utils.utils import zero_pad
 from BayesODE.Kalman.higher_mvncond import higher_mvncond
 from BayesODE.Kalman.kalman_ode_higher import kalman_ode_higher
+from BayesODE.Kalman.kalman_initial_draw import kalman_initial_draw
 
-def kalman_solver(fun, tmin, tmax, n_eval, llambda, sigma, roots, w, X_init, draws=1):
+def kalman_solver(fun, tmin, tmax, n_eval, llambda, sigma, roots, w, init, draws=1):
     """
     Provides a probabilistic solver for univariate ordinary differential equations (ODEs) of the form
 
@@ -35,14 +36,14 @@ def kalman_solver(fun, tmin, tmax, n_eval, llambda, sigma, roots, w, X_init, dra
         such that discretization timestep is :math:`dt = (tmax-tmin)/N`.
     llambda : ndarray(p)
         Mean vector of the CAR(p) process.
-    sigma : int
+    sigma : ndarray(1)
         Scale parameter of the CAR(p) process.
     roots : ndarray(p)
         Roots for the CAR(p) process.
     w : ndarray(q+1)
         Corresponds to the :math:`w` vector in the ODE equation.
-    X_init : ndarray(p)
-        The initial values of :math:`X_L = (x_L, y_L)`.
+    init : ndarray(q) or ndarray(p)
+        Initial values.  Either `a`, or `X_L = (a, y_L)`.  In case of the former, y_L is drawn from stationary distribution condional on `x_L = a`.
     
     Returns
     -------
@@ -59,16 +60,21 @@ def kalman_solver(fun, tmin, tmax, n_eval, llambda, sigma, roots, w, X_init, dra
     # grid size delta
     delta_t = np.array([(tmax - tmin)/n_eval])
     # Parameters in the State Space Model
-    T, R = higher_mvncond(delta_t, roots, sigma) 
-    c = llambda - T.dot(llambda.T)
-    #Pad the w vector
+    T_mat, R_mat = higher_mvncond(delta_t, roots, sigma) 
+    c = llambda - T_mat.dot(llambda.T)
+    # Pad the w vector
     W_vec = zero_pad(w, p)
+    # initialize prior
+    if len(init) < p:
+        X_init = kalman_initial_draw(roots, sigma, init, p)
+    else:
+        X_init = init
 
     if draws == 1:
-        XSample, muX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T, c, R, W_vec)
+        XSample, muX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_vec)
         return XSample, muX, varX
     else:
         XSampleDraws = np.zeros((draws, n_eval, p))
         for i in range(draws):
-            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T, c, R, W_vec)
+            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_vec)
         return XSampleDraws
