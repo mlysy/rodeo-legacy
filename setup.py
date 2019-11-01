@@ -1,13 +1,15 @@
 from setuptools import setup, find_packages
+from os import path
 
-with open("README.md", "r") as fh:
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as fh:
     long_description = fh.read()
 
 setup(
     name='BayesODE',
     version='0.0.1',
-    author='Martin Lysy & Mohan Wu',
-    author_email='mhwu@edu.uwaterloo.ca',
+    author='Mohan Wu, Martin Lysy',
+    author_email='mlysy@uwaterloo.ca',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mlysy/probDE",
