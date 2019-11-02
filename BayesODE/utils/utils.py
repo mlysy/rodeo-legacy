@@ -58,30 +58,22 @@ def solveV(V, B):
 
 def root_gen(tau, p):
     """
-    Creates p geometrically decaying CAR model roots.
+    Creates p CAR model roots.
 
     Parameters
     ----------
     tau : int
-        Decorrelation parameter
+        First root parameter.
     p : int
-        Number of roots to generate
+        Number of roots to generate.
 
     Returns
     -------
     roots : ndarray(p)
-        Vector of roots generated using p geometrically decaying roots
+        Vector size of p roots generated.
 
     """
-    # return -np.append(1/tau, np.linspace(1, 1.1, p-1))
-    roots = np.zeros(p)
-    for k in range(p):
-        if k == 0:
-            roots[k] = -1/tau
-        else:
-            roots[k] = -exp((k+1)/tau)
-
-    return roots
+    return -np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))
 
 def zero_pad(x0, p):
     """

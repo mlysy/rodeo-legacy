@@ -9,7 +9,6 @@ under the rectangular-kernel correlation model.
 """
 import numpy as np
 
-#@jit
 def cov_vv_re(t, s, gamma, alpha):
     """
     Computes the covariance function for the derivative :math:`v_t`. 
@@ -40,7 +39,6 @@ def cov_vv_re(t, s, gamma, alpha):
             vvSigma[i, j] = (min(t[i], s[j])- max(t[i], s[j]) + 2*gamma) * (min(t[i], s[j]) - max(t[i], s[j]) > -2*gamma) / alpha
     return vvSigma
 
-#@jit
 def cov_xv_re(t,s,gamma,alpha):
     """
     Computes the cross-covariance function for the solution process :math:`x_t` and its derivative :math:`v_t`. 
@@ -79,7 +77,6 @@ def cov_xv_re(t,s,gamma,alpha):
     xvSigma = xvSigma/alpha
     return xvSigma
 
-#@jit
 def cov_xx_re(t,s,gamma,alpha):
     """
     Computes the covariance function for the solution process :math:`x_t`. 

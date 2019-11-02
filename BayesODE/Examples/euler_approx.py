@@ -8,7 +8,7 @@ import numpy as np
 
 def euler_approx(fun, tseq, x_init):
     """
-    Pad x0 with p-len(x0) 0s at the end of x0.
+    Uses the Euler approximation for univariate ordinary differential equations (ODEs).
 
     Parameters
     ----------
