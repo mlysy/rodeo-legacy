@@ -4,12 +4,11 @@
 Covariance and cross-covariance functions for the solution process x_t and its derivative v_t = dx_t/dt under the squared-exponential correlation model
     
 .. math:: cov(v_t, v_s) = e^{-|t-s|^2/ \gamma^2}.
-"""
 
+"""
 from math import exp, sqrt, pi, erf
 import numpy as np
 
-#@jit
 def cov_vv_se(t, s, gamma, alpha):
     """
     Computes the covariance function for the derivative :math:`v_t`. 
@@ -41,7 +40,6 @@ def cov_vv_se(t, s, gamma, alpha):
             vvSigma[i, j] = exp(-((s[j] - t[i])**2) / (4 * gamma2)) * sqrt(pi) * gamma / alpha
     return vvSigma
 
-#@jit
 def cov_xv_se(t, s, gamma, alpha):
     """
     Computes the cross-covariance function for the solution process :math:`x_t` and its derivative :math:`v_t`. 
@@ -76,7 +74,6 @@ def cov_xv_se(t, s, gamma, alpha):
     xvSigma = xvSigma/alpha
     return xvSigma
 
-#@jit
 def cov_xx_se(t, s, gamma, alpha):
     """
     Computes the covariance function for the solution process :math:`x_t`. 
@@ -116,5 +113,3 @@ def cov_xx_se(t, s, gamma, alpha):
             
     xxSigma = xxSigma/alpha
     return xxSigma
-
-

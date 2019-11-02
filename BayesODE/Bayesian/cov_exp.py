@@ -10,7 +10,6 @@ under the exponential correlation model.
 from math import exp
 import numpy as np
 
-#@jit
 def cov_vv_ex(t, s, gamma, alpha):
     """
     Computes the covariance function for the derivative :math:`v_t`. 
@@ -41,7 +40,6 @@ def cov_vv_ex(t, s, gamma, alpha):
             vvSigma[i,j] = exp(-abs(t[i] - s[j]) / gamma) / alpha
     return vvSigma
 
-#@jit
 def cov_xv_ex(t, s, gamma, alpha):
     """
     Computes the cross-covariance function for the solution process :math:`x_t` and its derivative :math:`v_t`. 
@@ -76,7 +74,6 @@ def cov_xv_ex(t, s, gamma, alpha):
                 xvSigma[i, j] = (gamma * exp(-s[j] / gamma) * (exp(t[i] / gamma) -1)) / alpha
     return xvSigma
 
-#@jit
 def cov_xx_ex(t, s, gamma, alpha):
     """
     Computes the covariance function for the solution process :math:`x_t`. 

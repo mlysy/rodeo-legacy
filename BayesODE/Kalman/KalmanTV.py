@@ -193,7 +193,7 @@ class KalmanTV(object):
                varState_pred,
                wgtState):
         """
-        Perfrom one step of both Kalman mean/variance and sampling smoothers.
+        Perform one step of both Kalman mean/variance and sampling smoothers.
         Combines :func:`KalmanTV.smooth_mv` and :func:`KalmanTV.smooth_sim` steps to get :math:`x_{n|N}` and 
         :math:`\\theta_{n|N}` from :math:`\\theta_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`.
         """
