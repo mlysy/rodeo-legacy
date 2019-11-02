@@ -25,9 +25,9 @@ def ode_euler(x,t):
     return np.array([x[1], sin(2*t) -x[0]])
 
 # Helper function to draw samples from Kalman solver
-def readme_kalman_draw(fun, n_eval, tmin, tmax, r0, p, sigma, lamb, w, init, draws):
+def readme_kalman_draw(fun, n_eval, tmin, tmax, r0, p, sigma, mu, w, init, draws):
     roots = root_gen(r0, p)
-    X = kalman_solver(fun, tmin, tmax, n_eval, lamb, sigma, roots, w, init, draws)
+    X = kalman_solver(fun, tmin, tmax, n_eval, mu, sigma, roots, w, init, draws)
     return X
 
 def readme_solve(fun, p, tmin, tmax, n_eval, w, tau, sigma, init, draws):
@@ -59,9 +59,9 @@ def readme_solve(fun, p, tmin, tmax, n_eval, w, tau, sigma, init, draws):
         Number of samples we need to draw from the kalman solver.
         
     """
-    lamb = np.zeros(p)
+    mu = np.zeros(p)
     tseq = np.linspace(tmin, tmax, n_eval)
-    Xt = readme_kalman_draw(fun, n_eval, tmin, tmax, tau, p, sigma, lamb, w, init, draws)
+    Xt = readme_kalman_draw(fun, n_eval, tmin, tmax, tau, p, sigma, mu, w, init, draws)
     x_euler = euler_approx(ode_euler, tseq, init)
     x_exact = np.zeros((n_eval, 2))
     for i,t in enumerate(tseq):
