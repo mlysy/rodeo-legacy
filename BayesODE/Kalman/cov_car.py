@@ -30,7 +30,6 @@ def cov_car(tseq, roots, sigma=1., corr=False, v_infinity=False):
 
     """
     p = len(roots)
-    delta = np.array(-roots)
     Sigma_tilde, Q = mc._mou_car(roots, sigma)
     Q_inv = np.linalg.pinv(Q)
 
@@ -38,7 +37,7 @@ def cov_car(tseq, roots, sigma=1., corr=False, v_infinity=False):
     V_tilde_inf = np.zeros((p, p))
     for i in range(p):
         for j in range(i, p):
-            V_tilde_inf[i, j] = Sigma_tilde[i, j]/(delta[i] + delta[j])
+            V_tilde_inf[i, j] = Sigma_tilde[i, j]/(roots[i] + roots[j])
             V_tilde_inf[j, i] = V_tilde_inf[i, j]
     
     V_inf = np.linalg.multi_dot([Q, V_tilde_inf, Q.T])
@@ -50,9 +49,9 @@ def cov_car(tseq, roots, sigma=1., corr=False, v_infinity=False):
     # covariance matrix
     cov = np.zeros((len(tseq), p, p))
     for t in range(len(tseq)):
-        exp_Gamma_t = np.matmul(Q_inv.T*np.exp(-delta*tseq[t]), Q.T)
+        exp_Gamma_t = np.matmul(Q_inv.T*np.exp(-roots*tseq[t]), Q.T)
         cov[t] = V_inf.dot(exp_Gamma_t)
         if corr:
-            cov[t] = (C[t]/sd_inf).T
-            cov[t] = (C[t]/sd_inf).T
+            cov[t] = (cov[t]/sd_inf).T
+            cov[t] = (cov[t]/sd_inf).T
     return cov

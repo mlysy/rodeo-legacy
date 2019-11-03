@@ -73,7 +73,7 @@ def root_gen(tau, p):
         Vector size of p roots generated.
 
     """
-    return -np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))
+    return np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))
 
 def zero_pad(x0, p):
     """

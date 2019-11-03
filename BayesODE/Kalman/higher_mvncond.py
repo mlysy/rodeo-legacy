@@ -31,10 +31,9 @@ def higher_mvncond(delta_t, roots, sigma):
     varState : ndarray(n_dim_roots, n_dim_roots)
         :math: `V = V_{\Delta t}`
     """
-    delta = np.array(-roots)
     _, Q = _mou_car(roots, sigma)
     Q_inv = np.linalg.pinv(Q)
     varState = var_car(delta_t, roots, sigma)[0]
-    wgtState = np.matmul(Q * np.exp(-delta*delta_t[0]), Q_inv)
+    wgtState = np.matmul(Q * np.exp(-roots*delta_t[0]), Q_inv)
     return wgtState, varState
     
