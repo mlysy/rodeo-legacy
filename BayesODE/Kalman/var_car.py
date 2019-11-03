@@ -29,15 +29,14 @@ def var_car(tseq, roots, sigma=1.):
         Evaluates :math:`var(X_t)`.
     """
     p = len(roots)
-    delta = np.array(-roots)
     Sigma_tilde, Q = mc._mou_car(roots, sigma)
     var = np.zeros((len(tseq), p, p))
     for t in range(len(tseq)):
         V_tilde = np.zeros((p, p))
         for i in range(p):
             for j in range(i, p):
-                V_tilde[i, j] = Sigma_tilde[i, j] / (delta[i] + delta[j]) * (
-                    1.0 - np.exp(-(delta[i] + delta[j]) * tseq[t]))  # V_tilde
+                V_tilde[i, j] = Sigma_tilde[i, j] / (roots[i] + roots[j]) * (
+                    1.0 - np.exp(-(roots[i] + roots[j]) * tseq[t]))  # V_tilde
                 V_tilde[j, i] = V_tilde[i, j]
 
         var[t] = np.linalg.multi_dot([Q, V_tilde, Q.T])  # V_deltat
