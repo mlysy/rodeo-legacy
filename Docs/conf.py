@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'probDE'
-copyright = '2019, Martin Lysy, Mohan Wu'
-author = 'Martin Lysy, Mohan Wu'
+copyright = '2019-, Mohan Wu, Martin Lysy'
+author = 'Mohan Wu, Martin Lysy'
 
 # The short X.Y version
 version = ''
@@ -131,7 +131,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'probDE.tex', 'probDE Documentation',
-     'Martin Lysy, Mohan Wu', 'manual'),
+     'Mohan Wu, Martin Lysy', 'manual'),
 ]
 
 
