@@ -37,19 +37,19 @@ As a simple example, consider the second order initial value ODE problem,
 
 .. math::
     \begin{align*}
-    x^{(2)}(t) &= sin(2t) − x, \quad t ∈ [0, 10], \\
+    x^{(2)}(t) &= \sin(2t) − x, \quad t ∈ [0, 10], \\
     x^{(1)}(0) &= 0, \quad x(0) = −1. 
     \end{align*}
 
-Its exact solution is :math:`x^{\star}(t) = \frac{−3 cos(t) + 2 sin(t) − sin(2t)}{3}`.
+Its exact solution is :math:`x(t) = \frac{1}{3}(2 \sin(t) −3 \cos(t) − \sin(2t))`.
 
-The exact solution can be coded in python as follow:
+The exact solution can be coded in Python as follows:
 
 .. code-block:: Python
 
     from math import sin, cos
     def chk_F(y_t, t):
-        return sin(2*t) - y_t[0] #X^{2} = sing(2t) - X
+        return sin(2*t) - y_t[0] #x^{(2)}_t = sin(2t) - X
 
     def chk_exact_x(t):
         return (-3*cos(t) + 2*sin(t) - sin(2*t))/3
@@ -86,7 +86,7 @@ solution prior. If we assume the prior is :math:`CAR_p(0, \rho, \sigma)` where
 
 .. code-block:: Python
 
-   wgtState, varState = higher_mvCond(delta_t, roots, sigma) 
+   wgtState, varState = higher_mvcond(delta_t, roots, sigma) 
    muState = np.zeros(p)
 
 Finally, to run the solver:
@@ -97,11 +97,11 @@ Finally, to run the solver:
 
 We drew 100 samples from the solver to compare them to the exact solution and the Euler approximation to the problem. 
 
-For :math:`x^{(0)}`:
+For :math:`x^{(0)}_t`:
 
 .. image:: Kalman/chkrebtii_x0.png
 
-For :math:`x^{(1)}`:
+For :math:`x^{(1)}_t`:
 
 .. image:: Kalman/chkrebtii_x1.png
 
