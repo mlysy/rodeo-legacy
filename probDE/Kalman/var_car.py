@@ -8,7 +8,7 @@ Variance function for the CAR(p) process:
 """
 import numpy as np
 
-import BayesODE.Kalman._mou_car as mc
+import probDE.Kalman._mou_car as mc
 
 def var_car(tseq, roots, sigma=1.):
     """

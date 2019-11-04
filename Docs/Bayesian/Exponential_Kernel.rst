@@ -1,4 +1,4 @@
 Exponential Kernel
 ==================
-.. automodule:: BayesODE.Bayesian.cov_exp
+.. automodule:: probDE.Bayesian.cov_exp
     :members:

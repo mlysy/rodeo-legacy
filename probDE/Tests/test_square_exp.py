@@ -5,7 +5,7 @@ import os
 from math import exp, erf, sqrt, pi
 
 #Local file
-from BayesODE.Bayesian.cov_square_exp import cov_vv_se, cov_xv_se, cov_xx_se
+from probDE.Bayesian.cov_square_exp import cov_vv_se, cov_xv_se, cov_xx_se
 
 def R_se(t, s):
     return exp(-(s - t)**2/2)

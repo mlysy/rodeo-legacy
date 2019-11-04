@@ -4,8 +4,8 @@ import scipy as sc
 import numpy as np
 from math import exp, erf, sqrt, pi
 
-from BayesODE.Bayesian import cov_vv_ex, cov_xv_ex, cov_xx_ex
-from BayesODE.utils.utils import mvncond
+from probDE.Bayesian import cov_vv_ex, cov_xv_ex, cov_xx_ex
+from probDE.utils.utils import mvncond
 
 def cov_yy_ex(t1, t2, gamma, alpha):
     n1 = len(t1)

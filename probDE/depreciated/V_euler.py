@@ -1,7 +1,7 @@
 import sys
 import os
 import numpy as np
-import BayesODE.Kalman._mou_car as mc
+import probDE.Kalman._mou_car as mc
 
 def V_euler(roots, sigma, delta_t, N, B, X0=None):
     """

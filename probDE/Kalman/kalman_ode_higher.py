@@ -12,7 +12,7 @@ Model is
 """
 import numpy as np
 
-from BayesODE.Kalman.KalmanTV import KalmanTV
+from probDE.Kalman.KalmanTV import KalmanTV
 
 def kalman_ode_higher(fun, x0State, tmin, tmax, n_eval, wgtState, muState, varState, wgtMeas):
     """

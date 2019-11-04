@@ -32,7 +32,7 @@ So for example we have:
 import numpy as np
 import scipy as sp
 
-from BayesODE.utils.utils import solveV
+from probDE.utils.utils import solveV
 
 class KalmanTV(object):
     """

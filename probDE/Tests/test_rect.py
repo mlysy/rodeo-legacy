@@ -5,7 +5,7 @@ import os
 from math import exp, erf, sqrt, pi
 
 #Local file
-from BayesODE.Bayesian.cov_rect import cov_vv_re, cov_xv_re, cov_xx_re
+from probDE.Bayesian.cov_rect import cov_vv_re, cov_xv_re, cov_xx_re
 
 
 def R_re(t, s):

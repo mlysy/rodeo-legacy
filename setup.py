@@ -6,7 +6,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as fh:
     long_description = fh.read()
 
 setup(
-    name='BayesODE',
+    name='probDE',
     version='0.0.1',
     author='Mohan Wu, Martin Lysy',
     author_email='mlysy@uwaterloo.ca',
@@ -15,5 +15,5 @@ setup(
     url="https://github.com/mlysy/probDE",
     packages=find_packages(),
     install_requires=['numpy', 'scipy', 'matplotlib']
-    #packages=['BayesODE', 'BayesODE/Bayesian', 'BayesODE/Kalman', 'BayesODE/Kalman/Old', 'BayesODE/Kalman/pykalman', 'BayesODE/utils', 'BayesODE/Tests']
+    #packages=['probDE', 'probDE/Bayesian', 'probDE/Kalman', 'probDE/Kalman/Old', 'probDE/Kalman/pykalman', 'probDE/utils', 'probDE/Tests']
 )

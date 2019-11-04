@@ -65,8 +65,8 @@ the initial observation from the CAR(p) process as follows:
 .. code-block:: Python
     
     import numpy as np
-    from BayesODE.Tests.root_gen import root_gen
-    from BayesODE.Kalman.kalman_initial_draw import kalman_initial_draw
+    from probDE.Tests.root_gen import root_gen
+    from probDE.Kalman.kalman_initial_draw import kalman_initial_draw
     N = 100
     q = 2
     p = q+2
@@ -138,7 +138,7 @@ example, we can use the square exponential kernel:
 
 .. code-block:: Python
 
-    import BayesODE.Bayesian as bo
+    import probDE.Bayesian as bo
     Sigma_vv = bo.cov_vv_se(tseq1, tseq1, gamma, alpha)
     Sigma_xx = bo.cov_xx_se(tseq1, tseq1, gamma, alpha)
     Sigma_xv = bo.cov_xv_se(tseq1, tseq1, gamma, alpha)

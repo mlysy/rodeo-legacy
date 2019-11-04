@@ -1,5 +1,5 @@
 Bayesian ODE Solver
 ===================
-.. automodule:: BayesODE.Bayesian.bayes_ode
+.. automodule:: probDE.Bayesian.bayes_ode
     :members:
     
