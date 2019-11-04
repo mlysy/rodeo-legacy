@@ -1,4 +1,4 @@
 First Order Kalman ODE
 ======================
-.. automodule:: BayesODE.Kalman.kalman_ode
+.. automodule:: probDE.Kalman.kalman_ode
     :members:

@@ -1,6 +1,6 @@
 Kalman Class
 ============
-.. automodule:: BayesODE.Kalman.KalmanTV
+.. automodule:: probDE.Kalman.KalmanTV
 
 .. autoclass:: KalmanTV
     :members:

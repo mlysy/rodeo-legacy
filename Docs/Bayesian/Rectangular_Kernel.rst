@@ -1,5 +1,5 @@
 Rectangular Kernel
 ==================
-.. automodule:: BayesODE.Bayesian.cov_rect
+.. automodule:: probDE.Bayesian.cov_rect
     :members:
     

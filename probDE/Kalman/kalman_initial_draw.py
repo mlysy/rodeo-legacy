@@ -6,8 +6,8 @@ Computes the initial draw X0 for the kalman process.
 """
 import numpy as np
 
-from BayesODE.Kalman.cov_car import cov_car
-from BayesODE.utils.utils import mvncond
+from probDE.Kalman.cov_car import cov_car
+from probDE.utils.utils import mvncond
 
 def kalman_initial_draw(roots, sigma, x0, p):
     """

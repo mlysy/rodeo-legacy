@@ -9,9 +9,9 @@ on the time interval :math:`t \in [0, 1]` with initial condition :math:`x_0 = x0
 """
 
 import numpy as np
-from BayesODE.Kalman.Old.kalman_filter import kalman_filter
-from BayesODE.Kalman.Old.kalman_smooth import kalman_smooth
 from math import sqrt
+from probDE.Kalman.Old.kalman_filter import kalman_filter
+from probDE.Kalman.Old.kalman_smooth import kalman_smooth
 
 def kalman_ode(fun, x0State, n_eval, wgtState, varState, obs=None):
     """

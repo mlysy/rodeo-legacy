@@ -8,9 +8,9 @@ import numpy as np
 from math import sin, cos
 import matplotlib.pyplot as plt
 
-from BayesODE.utils.utils import root_gen
-from BayesODE.Kalman.kalman_solver import kalman_solver
-from BayesODE.Examples.euler_approx import euler_approx
+from probDE.utils.utils import root_gen
+from probDE.Kalman.kalman_solver import kalman_solver
+from probDE.Examples.euler_approx import euler_approx
 
 # Example ODE Exact Solution for x_t^{(0)}
 def ode_exact_x(t):

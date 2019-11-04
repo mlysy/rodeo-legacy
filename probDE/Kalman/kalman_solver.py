@@ -10,10 +10,10 @@ Provides a probabilistic solver for univariate ordinary differential equations (
 """
 import numpy as np
 
-from BayesODE.utils.utils import zero_pad
-from BayesODE.Kalman.higher_mvncond import higher_mvncond
-from BayesODE.Kalman.kalman_ode_higher import kalman_ode_higher
-from BayesODE.Kalman.kalman_initial_draw import kalman_initial_draw
+from probDE.utils.utils import zero_pad
+from probDE.Kalman.higher_mvncond import higher_mvncond
+from probDE.Kalman.kalman_ode_higher import kalman_ode_higher
+from probDE.Kalman.kalman_initial_draw import kalman_initial_draw
 
 def kalman_solver(fun, tmin, tmax, n_eval, mu, sigma, roots, w, init, draws=1):
     """
