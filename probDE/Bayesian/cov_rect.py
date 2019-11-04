@@ -1,17 +1,12 @@
 """
 .. module:: cov_rect
 
-Covariance and cross-covariance functions for the solution process x_t and its derivative 
-
-.. math:: v_t = dx_t/dt 
-
-under the rectangular-kernel correlation model.
+Covariance and cross-covariance functions for the solution process :math:`x_t` and its derivative :math:`v_t = dx_t/dt` under the rectangular-kernel correlation model.
 """
 import numpy as np
 
 def cov_vv_re(t, s, gamma, alpha):
-    """
-    Computes the covariance function for the derivative :math:`v_t`. 
+    """Computes the covariance function for the derivative :math:`v_t`. 
 
     Parameters
     ----------
