@@ -1,7 +1,8 @@
 """
 .. module:: utils
 
-Helpful functions used in kalman.
+Helpful functions used in Kalman.
+
 """
 from math import exp
 import numpy as np
@@ -9,25 +10,22 @@ import scipy.linalg as scl
 
 def mvncond(mu, Sigma, icond):
     """
-    Calculates A, b, and V such that :math:`y[~icond] | y[icond] ~ N(A y[icond] + b, V)`.
+    Calculates A, b, and V such that :math:`y[!icond] | y[icond] \sim N(A y[icond] + b, V)`.
 
-    Parameters
-    ----------
-    mu: ndarray(2*n_dim)
-        Mean of y
-    Sigma: ndarray(2*n_dim, 2*n_dim)
-        Covariance of y 
-    icond: ndarray(2*nd_dim)
-        Conditioning on the terms given
-    
-    Returns
-    -------
-    A : ndarray(n_dim, n_dim)
-        For :math:`y ~ N(\mu, \Sigma)` such that :math:`y[~icond] | y[icond] ~ N(A y[icond] + b, V)` Calculate A.
-    b : ndarray(n_dim)
-        For :math:`y ~ N(\mu, \Sigma)` such that :math:`y[~icond] | y[icond] ~ N(A y[icond] + b, V)` Calculate b.
-    V : ndarray(n_dim, n_dim)
-        For :math:`y ~ N(\mu, \Sigma)` such that :math:`y[~icond] | y[icond] ~ N(A y[icond] + b, V)` Calculate V.
+    Args:
+        mu (ndarray(2*n_dim)): Mean of y.
+        Sigma (ndarray(2*n_dim, 2*n_dim)): Covariance of y. 
+        icond (ndarray(2*nd_dim)): Conditioning on the terms given.
+        
+    Returns:
+        tuple containing
+
+        - **A** (ndarray(n_dim, n_dim)): For :math:`y \sim N(\mu, \Sigma)` 
+          such that :math:`y[!icond] | y[icond] \sim N(A y[icond] + b, V)` Calculate A.
+        - **b** (ndarray(n_dim)): For :math:`y \sim N(\mu, \Sigma)` 
+          such that :math:`y[!icond] | y[icond] \sim N(A y[icond] + b, V)` Calculate b.
+        - **V** (ndarray(n_dim, n_dim)): For :math:`y \sim N(\mu, \Sigma)`
+          such that :math:`y[!icond] | y[icond] \sim N(A y[icond] + b, V)` Calculate V.
 
     """
     # if y1 = y[~icond] and y2 = y[icond], should have A = Sigma12 * Sigma22^{-1}

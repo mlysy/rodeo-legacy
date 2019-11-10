@@ -1,7 +1,7 @@
 """
 .. module:: kalman_initial_draw
 
-Computes the initial draw X0 for the kalman process. 
+Computes the initial draw X0 for the kalman process.
 
 """
 import numpy as np
@@ -11,24 +11,18 @@ from probDE.utils.utils import mvncond
 
 def kalman_initial_draw(roots, sigma, x0, p):
     """
-    Computes the initial draw X0State for the kalman process :math:`X0 ~ N(c0, 0_{pxp})`
-    where :math:`c0 ~ p(N(\lambda, V_{\infty}) | x0 = x0)
+    Computes the initial draw X0State for the kalman process :math:`X0 \sim N(c_0, 0_{pxp})` 
+    where :math:`c_0 \sim p(N(\lambda, V_{\infty}) | x_0 = x0)`.
 
-    Parameters
-    ----------
-    roots: ndarray(n_dim_roots)
-        Roots to the p-th order polynomial of the car(p) process (roots must be negative)
-    sigma: float
-        Parameter in mOU volatility matrix
-    x0: ndarray(n_dim_ode)
-        Initial conditions of the ode
-    p: float
-        Size of X0State
+    Args:
+        roots (ndarray(n_dim_roots)): Roots to the p-th order polynomial of the car(p) 
+            process (roots must be negative).
+        sigma (float): Parameter in mOU volatility matrix
+        x0 (ndarray(n_dim_ode)): Initial conditions of the ode.
+        p (float): Size of X0State
 
-    Returns
-    -------
-    X0State: ndarray(n_dim_roots)
-        Simulate :math:`Y0 ~ N(0, V_{\infty}) conditioned on x0.
+    Returns:
+        (ndarray(n_dim_roots)): Simulate :math:`X0 \sim N(c_0, 0_{pxp})` conditioned on x0.
 
     """
     q = len(x0) - 1

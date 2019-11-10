@@ -1,39 +1,30 @@
 """
 .. module:: bayes_ode
-    :synopsis: Bayesian solver for univariate ODEs.
+
+Bayesian solver for univariate ODEs.
 
 """
 import numpy as np
 from math import sqrt
 
 def bayes_ode(fun, tseq, x0, vvSigma, xxSigma, xvSigma, vstar=None):
-    """Bayesian solver of ODE problem :math:`dx_t/dt = f(x_t, t)`.
+    """
+    Bayesian solver of ODE problem :math:`dx_t/dt = f(x_t, t)`.
 
-    Parameters
-    ---------- 
-    fun: function
-        ODE function, taking two `float` parameters and returning a `float`.
-    tseq: ndarray(dim_x)
-        Vector of :math:`N` timepoints at which :math:`x_t` will be calculated.
-    x0: float
-        Initial condition :math:`x(t_0) = x0`.
-    vvSigma: ndarray(dim_x, dim_x)
-        :math:`N x N` prior covariance matrix :math:`cov(v(tseq), v(tseq))`.
-    xxSigma: ndarray(dim_x, dim_x)
-        :math:`N x N` prior covariance matrix :math:`cov(x(tseq), x(tseq))`.    
-    xvSigma: ndarray(dim_x, dim_x)
-        :math:`N x N` prior cross-covariance matrix :math:`cov(x(tseq), v(tseq))`, where :math:`v_t = dx_t/dt`.
-    vstar: None, ndarray(dim_x) 
-        default None, predetermined :math:`V_t` after N interrogations
-    
-    Returns
-    -------
-    X: ndarray(dim_x)
-        vector of length :math:`N` corresponding to the probabilistic solution :math:`x(tseq)`
-    mu_x: ndarray(dim_x)
-        vector of length :math:`N` corresponding to the mean of :math:`x(tseq)`
-    xxSigma: ndarray(dim_x, dim_x)
-        :math:`N x N` prior covariance matrix :math:`cov(x(tseq), x(tseq))`.  
+    Args:
+        fun (function): ODE function, taking two `float` parameters and returning a `float`.
+        tseq (ndarray(dim_x)): Vector of :math:`N` timepoints at which :math:`x_t` will be calculated.
+        x0 (float): Initial condition :math:`x(t_0) = x0`.
+        vvSigma (ndarray(dim_x, dim_x)): :math:`N x N` prior covariance matrix :math:`cov(v(tseq), v(tseq))`.
+        xxSigma (ndarray(dim_x, dim_x)): :math:`N x N` prior covariance matrix :math:`cov(x(tseq), x(tseq))`.    
+        xvSigma (ndarray(dim_x, dim_x)): :math:`N x N` prior cross-covariance matrix :math:`cov(x(tseq), v(tseq))`, where :math:`v_t = dx_t/dt`.
+        vstar (None or ndarray(dim_x)): default None, predetermined :math:`V_t` after N interrogations.
+        
+    Returns:
+        (tuple):
+        - **X** (ndarray(dim_x)): Vector of length :math:`N` corresponding to the probabilistic solution :math:`x(tseq)`.
+        - **mu_x** (ndarray(dim_x)): Vector of length :math:`N` corresponding to the mean of :math:`x(tseq)`.
+        - **xxSigma** (ndarray(dim_x, dim_x)): :math:`N x N` prior covariance matrix :math:`cov(x(tseq), x(tseq))`.  
 
     """
     N = len(tseq)

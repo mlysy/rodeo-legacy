@@ -1,33 +1,5 @@
 """
-Time-Varying Kalman Filter and Smoother.
-
-Model is
-
-.. math:: 
-
-   x_n = c_n + T_n x_n-1 + R_n^{1/2} \epsilon_n
-
-   y_n = d_n + W_n x_n + H_n^{1/2} \eta_n
-
-Naming conventions:
-
-- `meas` and `state`.
-- `x`, `mu`, `var`, `wgt`.
-- `_past`: `n-1|n-1` (filter)
-- `_pred`: `n|n-1`
-- `_filt`: `n|n`
-- `_next`: `n+1|N` (smoother)
-- `_smooth`: `n|N`
-- `mu_n|m = E[x_n | y_0:m]`
-- similarly for `Sigma_n|m` and `theta_n|m = (mu_n|m, Sigma_n|m)`.
-- `x_n|m` is a draw from `p(x_n | x_n+1, y_0:m)`.
-
-So for example we have:
-- `x_n = xState[n]`
-- `W_n = wgtMeas[n]`
-- `E[x_n | y_0:n] = muState_filt`
-- `var(x_n | y_0:N) = varState_smooth`
-
+Time-Varying Kalman Filter and Smoother to track streaming observations.
 """
 import numpy as np
 import scipy as sp
@@ -36,51 +8,51 @@ from probDE.utils.utils import solveV
 
 class KalmanTV(object):
     """
-    Create a Kalman Time-Varying object.
-    The methods of the object can predict, update, sample and smooth the
-    mean and variance of the Kalman Filter. This method is useful if one 
-    wants to track an object with streaming observations.
+    Create a Kalman Time-Varying object. The methods of the object can predict, update, sample and 
+    smooth the mean and variance of the Kalman Filter. This method is useful if one wants to track 
+    an object with streaming observations.
 
-    Parameters
-    ----------
-    muState_past : ndarray(nState)
-        Mean estimate for state at time n-1 given observations from 
-        times [0...n-1]; :math:`\mu_{n-1|n-1}`. 
-    varState_past : ndarray(nState, nState)
-        Covariance of estimate for state at time n-1 given observations from
-        times [0...n-1]; :math:`\Sigma_{n-1|n-1}`.
-    muState_pred : ndarray(nState)
-        Mean estimate for state at time n given observations from 
-        times [0...n-1]; :math:`\mu_{n|n-1}`. 
-    varState_pred : ndarray(nState, nState)
-        Covariance of estimate for state at time n given observations from
-        times [0...n-1]; :math:`\Sigma_{n|n-1}`.
-    muState_filt : ndarray(nState)
-        Mean estimate for state at time n given observations from 
-        times [0...n]; :math:`\mu_{n|n}`. 
-    varState_filt : ndarray(nState, nState)
-        Covariance of estimate for state at time n given observations from
-        times [0...n]; :math:`\Sigma_{n|n}`.
-    muState_next : ndarray(nState)
-        Mean estimate for state at time n+1 given observations from 
-        times [0...N]; :math:`\mu_{n+1|N}`. 
-    varState_next : ndarray(nState, nState)
-        Covariance of estimate for state at time n+1 given observations from
-        times [0...N]; :math:`\Sigma_{n+1|N}`.
-    muState : ndarray(nState)
-        Transition_offsets defining the solution prior; :math:`c_n`.
-    wgtState : ndarray(nState, nState)
-        Transition matrix defining the solution prior; :math:`T_n`.
-    varState : ndarray(nState, nState)
-        Variance matrix defining the solution prior; :math:`R_n`.
-    xMeas : ndarray(nMeas)
-        Measure at time n+1; :math:`y_{n+1}`.
-    muMeas : ndarray(nMeas)
-        Transition_offsets defining the measure prior; :math:`d_n`.
-    wgtMeas : ndarray(nMeas, nMeas)
-        Transition matrix defining the measure prior; :math:`W_n`.
-    varMeas : ndarray(nMeas, nMeas)
-        Variance matrix defining the measure prior; :math:`H_n`.
+    The specific model we are using to track streaming observations is
+
+    .. math::
+
+        X_n = c + T X_n-1 + R_n^{1/2} \epsilon_n
+
+        y_n = d + W x_n + H_n^{1/2} \eta_n
+    
+    where :math:`\epsilon_n` and :math:`\eta_n` are independent :math:`N(0,1)` distributions and
+    :math:`X_n` denotes the state of the Kalman Filter at time n and :math:`y_n` denotes the 
+    observation at time n.
+
+    The variables of the model are defined below in the argument section. The methods of this class
+    calculates :math:`\\theta = (\mu, \Sigma)` for :math:`X_n` and the notation for
+    the state at time n given observations from k is given by :math:`\\theta_{n|K}`.
+
+    Args:
+        muState_past (ndarray(nState)): Mean estimate for state at time n-1 given observations from 
+            times [0...n-1]; :math:`\mu_{n-1|n-1}`. 
+        varState_past (ndarray(nState, nState)): Covariance of estimate for state at time n-1 given 
+            observations from times [0...n-1]; :math:`\Sigma_{n-1|n-1}`.
+        muState_pred (ndarray(nState)): Mean estimate for state at time n given observations from 
+            times [0...n-1]; denoted by :math:`\mu_{n|n-1}`. 
+        varState_pred (ndarray(nState, nState)): Covariance of estimate for state at time n given 
+            observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
+        muState_filt (ndarray(nState)): Mean estimate for state at time n given observations from 
+            times [0...n]; denoted by :math:`\mu_{n|n}`. 
+        varState_filt (ndarray(nState, nState)): Covariance of estimate for state at time n given 
+            observations from times [0...n]; denoted by :math:`\Sigma_{n|n}`.
+        muState_next (ndarray(nState)): Mean estimate for state at time n+1 given observations from 
+            times [0...N]; denoted by :math:`\mu_{n+1|N}`. 
+        varState_next (ndarray(nState, nState)): Covariance of estimate for state at time n+1 given 
+            observations from times [0...N]; denoted by :math:`\Sigma_{n+1|N}`.
+        muState (ndarray(nState)): Transition_offsets defining the solution prior; denoted by :math:`c`.
+        wgtState (ndarray(nState, nState)): Transition matrix defining the solution prior; denoted by :math:`T`.
+        varState (ndarray(nState, nState)): Variance matrix defining the solution prior; denoted by :math:`R`.
+        xMeas (ndarray(nMeas)): Measure at time n+1; denoted by :math:`y_{n+1}`.
+        muMeas (ndarray(nMeas)): Transition_offsets defining the measure prior; denoted by :math:`d`.
+        wgtMeas (ndarray(nMeas, nMeas)): Transition matrix defining the measure prior; denoted by :math:`W`.
+        varMeas (ndarray(nMeas, nMeas)): Variance matrix defining the measure prior; denoted by :math:`H`.
+
     """
     def __init__(self, nMeas, nState):
         self._nMeas = nMeas
@@ -174,7 +146,7 @@ class KalmanTV(object):
                    wgtState):
         """
         Perform one step of the Kalman sampling smoother.
-        Calculates a draw :math:`x_{n|N}` from :math:`x_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`. 
+        Calculates a draw :math:`x_{n|N}` from :math:`x_{n+1|N}`, :math:`\\theta_{n|n}`, and :math:`\\theta_{n+1|n}`.
         """
         varState_temp = varState_filt.dot(wgtState.T)
         varState_temp_tilde = solveV(varState_pred, varState_temp.T).T

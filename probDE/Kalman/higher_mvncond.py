@@ -1,7 +1,7 @@
 """
-.. module:: higher_mvCond
+.. module:: higher_mvncond
 
-Calculates parameters used in kalman_ode_higher.
+Calculate the state transition matrix, and state variance matrix used in the model in Kalman solver.
 
 """
 import numpy as np
@@ -11,25 +11,20 @@ from probDE.Kalman._mou_car import _mou_car
 
 def higher_mvncond(delta_t, roots, sigma):    
     """
-    Calculate wgtState(A), and varState(V) in Y_{n+1} ~ p(Y_{n+1} | Y_n) using 
-    .. :math: `A = e^{-\Gamma \Delta t}` and 
-    .. :math: `V = V_{\Delta t}`.
+    Calculate the state transition matrix, and state variance matrix used in the model in Kalman solver.
         
-    Parameters
-    ----------
-    delta_t : ndarray(1)
-        A vector containing the step size between simulation points
-    roots : ndarray(n_dim_roots)
-        Roots to the p-th order polynomial of the car(p) process (roots must be negative)
-    sigma : float
-        Parameter in mOU volatility matrix
+    Args:
+        delta_t (ndarray(1)): A vector containing the step size between simulation points.
+        roots (ndarray(n_dim_roots)): Roots to the p-th order polynomial of the car(p) 
+            process (roots must be negative).
+        sigma (float): Parameter in mOU volatility matrix
 
-    Returns
-    -------
-    wgtState : ndarray(n_dim_roots, n_dim_roots)
-        :math: `A = e^{-\Gamma \Delta t}`
-    varState : ndarray(n_dim_roots, n_dim_roots)
-        :math: `V = V_{\Delta t}`
+    Returns:
+        (tuple):
+        - **wgtState** (ndarray(n_dim_roots, n_dim_roots)): The state transition matrix defined in 
+          Kalman solver.
+        - **varState** (ndarray(n_dim_roots, n_dim_roots)): The state variance matrix defined in
+          Kalman solver.
     """
     _, Q = _mou_car(roots, sigma)
     Q_inv = np.linalg.pinv(Q)

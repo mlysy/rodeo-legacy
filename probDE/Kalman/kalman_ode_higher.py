@@ -1,13 +1,7 @@
 """
 .. module:: kalman_ode_higher
 
-Model is
-
-.. math:: 
-
-   x_n = c + T x_n-1 + R^{1/2} \epsilon_n
-
-   y_n = d + W x_n + H^{1/2} \eta_n
+Probabilistic ODE solver based on the Kalman filter and smoother. 
 
 """
 import numpy as np
@@ -21,45 +15,38 @@ def kalman_ode_higher(fun, x0State, tmin, tmax, n_eval, wgtState, muState, varSt
     .. math:: W x_t = F(x_t, t)
     
     on the time interval :math:`t \in [a, b]` with initial condition :math:`x_0 = x_0`. The corresponding variable names are
-    x0State = :math:`x_0`, 
-    tmin = :math:`a`,
-    tmax = :math:`b`,
-    n_eval = :math:`N`,
-    wgtState = :math:`T`,
-    muState = :math:`c`,
-    varState = :math:`R`, and
-    wgtMeas = :math:`W`.
 
-    Parameters
-    ----------
-    fun : function 
-        Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
-    x0State : float
-        Initial value of the state variable :math:`x_t` at time :math:`t = 0`.
-    tmin : int
-        First time point of the time interval to be evaluated; :math: `a`.
-    tmax : int
-        Last time point of the time interval to be evaluated; :math:`b`.
-    n_eval : int
-        Number of discretization points (:math:`N`) of the time interval that is evaluated, 
-        such that discretization timestep is :math:`dt = b/N`.
-    wgtState : ndarray(n_dim_state, n_dim_state)
-        Transition matrix defining the solution prior; :math:`T`.
-    muState : ndarray(n_dim_state)
-        Transition_offsets defining the solution prior; :math:`c`.
-    varState : ndarray(n_dim_state, n_dim_state)
-        Variance matrix defining the solution prior; :math:`R`.
-    wgtMeas : ndarray(n_dim_state)
-        Transition matrix defining the measure prior; :math:`W`.
+    The specific model we are using to approximate the solution :math:`x_n` is
+
+    .. math::
+
+        X_n = c + T X_n-1 + R_n^{1/2} \epsilon_n
+
+        y_n = d + W x_n + H_n^{1/2} \eta_n
     
-    Returns
-    -------
-    xStates : ndarray(n_timesteps, n_dim_state)
-        Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
-    muState_smooths : ndarray(n_timesteps, n_dim_state)
-        Posterior mean of the solution process :math: `y_n` at times :math:`t = 0,1/N,\ldots,1`.
-    varState_smooths : ndarray(n_timesteps, n_dim_state, n_dim_state)
-        Posterior variance of the solution process at times :math:`t = 0,1/N,\ldots,1`.
+    where :math:`\epsilon_n` and :math:`\eta_n` are independent :math:`N(0,1)` distributions and
+    :math:`X_n = (x_n, y_n)` at time n and :math:`y_n` denotes the observation at time n.
+
+    Args:
+        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
+        x0State (float): Initial value of the state variable :math:`x_t` at time :math:`t = 0`.
+        tmin (int): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
+        n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated, 
+            such that discretization timestep is :math:`dt = b/N`.
+        wgtState (ndarray(n_dim_state, n_dim_state)): Transition matrix defining the solution prior; :math:`T`.
+        muState (ndarray(n_dim_state)): Transition_offsets defining the solution prior; :math:`c`.
+        varState (ndarray(n_dim_state, n_dim_state)): Variance matrix defining the solution prior; :math:`R`.
+        wgtMeas (ndarray(n_dim_state)): Transition matrix defining the measure prior; :math:`W`.
+        
+    Returns:
+        (tuple):
+        - **xStates** (ndarray(n_timesteps, n_dim_state)): Sample solution at time t given observations from times [0...N] for
+          :math:`t = 0,1/N,\ldots,1`.
+        - **muState_smooths** (ndarray(n_timesteps, n_dim_state)): Posterior mean of the solution process :math:`y_n` at times 
+          :math:`t = 0,1/N,\ldots,1`.
+        - **varState_smooths** (ndarray(n_timesteps, n_dim_state, n_dim_state)): Posterior variance of the solution process at
+          times :math:`t = 0,1/N,\ldots,1`.
 
     """
     # Dimensions of state and measure variables
