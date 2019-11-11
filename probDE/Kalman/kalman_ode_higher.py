@@ -12,7 +12,7 @@ def kalman_ode_higher(fun, x0State, tmin, tmax, n_eval, wgtState, muState, varSt
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
 
-    .. math:: W x_t = F(x_t, t)
+    .. math:: w' x_t = F(x_t, t)
     
     on the time interval :math:`t \in [a, b]` with initial condition :math:`x_0 = x_0`. The corresponding variable names are
 
@@ -20,9 +20,9 @@ def kalman_ode_higher(fun, x0State, tmin, tmax, n_eval, wgtState, muState, varSt
 
     .. math::
 
-        X_n = c + T X_n-1 + R_n^{1/2} \epsilon_n
+        X_n = c + T X_{n-1} + R_n^{1/2} \epsilon_n
 
-        y_n = d + W x_n + H_n^{1/2} \eta_n
+        y_n = d + W X_n + H_n^{1/2} \eta_n
     
     where :math:`\epsilon_n` and :math:`\eta_n` are independent :math:`N(0,1)` distributions and
     :math:`X_n = (x_n, y_n)` at time n and :math:`y_n` denotes the observation at time n.
