@@ -10,8 +10,8 @@ Probabilistic solution of ordinary differential equations
 Description
 ===========
 
-**probDE** is a Python library that uses [probabilistic numerics](http://probabilistic-numerics.org/) to solve ordinary differential equations (ODEs). 
-That is, most ODE solvers (such as [Euler's method](https://en.wikipedia.org/wiki/Euler_method)) produce a deterministic approximation to the ODE on a grid of size :math:`\delta`.  
+**probDE** is a Python library that uses `probabilistic numerics <http://probabilistic-numerics.org/>`_ to solve ordinary differential equations (ODEs). 
+That is, most ODE solvers (such as `Euler's method <https://en.wikipedia.org/wiki/Euler_method>`_) produce a deterministic approximation to the ODE on a grid of size :math:`\delta`.  
 As :math:`\delta` goes to zero, the approximation converges to the true ODE solution.  
 Probabilistic solvers such as **probDE** also output a solution an a grid of size :math:`\delta`; however, the solution is random.  
 Still, as :math:`\delta` goes to zero we get the correct answer.
@@ -20,14 +20,14 @@ Still, as :math:`\delta` goes to zero we get the correct answer.
 
 .. math::
     \begin{equation*}
-    \boldsymbol{w'}\boldsymbol{x_t} = f(\boldsymbol{x_t}, t), \qquad \boldsymbol{x_L} = \boldsymbol{a},
+    \boldsymbol{w'}\boldsymbol{x}_t = f(\boldsymbol{x}_t, t), \qquad \boldsymbol{x}_L = \boldsymbol{a},
     \end{equation*}
 
-where :math:`\boldsymbol{x_t} = \big(x_t^{(0)}, x_t^{(1)}, ..., x_t^{(q)}\big)` consists of the first :math:`q` derivatives of the process :math:`x_t = x_t^{(0)}`, 
+where :math:`\boldsymbol{x}_t = \big(x_t^{(0)}, x_t^{(1)}, ..., x_t^{(q)}\big)` consists of the first :math:`q` derivatives of the process :math:`x_t = x_t^{(0)}`, 
 and a solution is sought on the interval :math:`t \in [L, U]`.  
 
-**probDE** implements the probabilistic solver of [Chkrebtii et al (2016)](https://projecteuclid.org/euclid.ba/1473276259). 
-This begins by putting a [Gaussian process](https://en.wikipedia.org/wiki/Gaussian_process) prior on the ODE solution, and updating it sequentially as the solver steps through the grid.
+**probDE** implements the probabilistic solver of `Chkrebtii et al (2016) <https://projecteuclid.org/euclid.ba/1473276259>`_. 
+This begins by putting a `Gaussian process <https://en.wikipedia.org/wiki/Gaussian_process>`_ prior on the ODE solution, and updating it sequentially as the solver steps through the grid.
 
 Walkthrough
 ===========
@@ -47,18 +47,18 @@ where the solution :math:`x_t` is sought on the interval :math:`t \in [0, 10]`. 
     \end{equation*}
 
 To approximate the solution with the probabilistic solver, the Gaussian process prior we will use is a so-called 
-[Continuous Autoregressive Process](https://CRAN.R-project.org/package=cts/vignettes/kf.pdf) of order $p$, 
+`Continuous Autoregressive Process <https://CRAN.R-project.org/package=cts/vignettes/kf.pdf>`_ of order :math:`p`, 
 
 .. math::
     \begin{equation*}
-    \boldsymbol{X_t} \sim CAR_p(\boldsymbol{mu}, \boldsymbol{rho}, \sigma).
+    \boldsymbol{X}_t \sim \mathrm{CAR}_p(\boldsymbol{\mu}, \boldsymbol{\rho}, \sigma).
     \end{equation*}
 
-Here $\boldsymbol{X_t} = \big(x_t^{(0)}, ..., x_t^{(p-1)}\big)$ consists of :math:`x_t` and its first :math:`p-1` derivatives. 
-The :math:`CAR(p)` model specifies that each of these is continuous, but :math:`x_t^{(p)}` is not. 
+Here :math:`\boldsymbol{X}_t = \big(x_t^{(0)}, ..., x_t^{(p-1)}\big)` consists of :math:`x_t` and its first :math:`p-1` derivatives. 
+The :math:`\mathrm{CAR}(p)` model specifies that each of these is continuous, but :math:`x_t^{(p)}` is not. 
 Therefore, we need to pick :math:`p > q`. It's usually a good idea to have :math:`p` a bit larger than :math:`q`, 
 especially when we think that the true solution :math:`x_t` is smooth. However, increasing :math:`p` also increases the computational burden, 
-and doesn't necessarily have to be large for the solver to work.  For this example, we will use :math:`p=4`. The tuning parameters of the :math:`CAR(p)` prior are:
+and doesn't necessarily have to be large for the solver to work.  For this example, we will use :math:`p=4`. The tuning parameters of the :math:`\mathrm{CAR}(p)` prior are:
 
 - The mean vector :math:`\boldsymbol{\mu}`.  By default we will set this to 0.
 - The scale parameter :math:`\sigma`.
@@ -66,10 +66,10 @@ and doesn't necessarily have to be large for the solver to work.  For this examp
   We suggest parametrizing them as :math:`\rho_0 = -1/\tau` and :math:`\rho_k = -(1 + \tfrac{k}{10(p-1)})` for :math:`k > 0`, 
   in which case :math:`\tau` becomes a decorrelation-time parameter.
 
-Finally, we need a way to initialize the remaining derivatives :math:`\boldsymbol{y_t} = \big(x_t^{(q+1)}, ..., x_t^{(p-1)}\big)` at time :math:`t = L`. 
-Since the :math:`CAR(p)` process has a multivariate normal stationary distribtuion,
-we suggest initializing :math:`\boldsymbol{y_L} \sim p(\boldsymbol{y_L} \mid \boldsymbol{x_L} = \boldsymbol{a})`,
-i.e., as a random draw from this stationary distribution conditional on the value of :math:\boldsymbol{x_L} = \boldsymbol{a}`.
+Finally, we need a way to initialize the remaining derivatives :math:`\boldsymbol{y}_t = \big(x_t^{(q+1)}, ..., x_t^{(p-1)}\big)` at time :math:`t = L`. 
+Since the :math:`\mathrm{CAR}(p)` process has a multivariate normal stationary distribtuion,
+we suggest initializing :math:`\boldsymbol{y}_L \sim p(\boldsymbol{y}_L \mid \boldsymbol{x}_L = \boldsymbol{a})`,
+i.e., as a random draw from this stationary distribution conditional on the value of :math:`\boldsymbol{x}_L = \boldsymbol{a}`.
 The Python code to implement all this is as follows.
 
 .. code-block:: python
@@ -125,17 +125,18 @@ For :math:`x^{(1)}_t`:
 
 .. image:: Figures/chkrebtii_x1.png
 
-Installation
-============
+..
+   Installation
+   ============
 
-You can get the very latest code by getting it from GitHub and then performing
-the installation.
+   You can get the very latest code by getting it from GitHub and then performing
+   the installation.
 
-.. code-block:: bash
+   .. code-block:: bash
 
-    git clone https://github.com/mlysy/probDE.git
-    cd filterpy
-    python setup.py install
+       git clone https://github.com/mlysy/probDE.git
+       cd filterpy
+       python setup.py install
 
 
 Functions Documentation
