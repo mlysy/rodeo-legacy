@@ -99,7 +99,7 @@ def readme_graph(fun, p, tmin, tmax, n_eval, w, init, draws):
     # Initialize variables for the graph
     dim_deriv = len(w) - 1
     N = [50, 100, 200]
-    Tau = [1/.004, 1/0.01, 1/0.01]
+    Tau = [1/.004, 1/0.02, 1/0.02]
     Sigma = [.5, .05, .001]
     dim_example = len(N)
     tseq = [None] * dim_example

@@ -3,3 +3,4 @@ Docs/build
 /build
 /dist
 /probDE.egg-info
+/probDE/Examples/Lorenz1000.npy
