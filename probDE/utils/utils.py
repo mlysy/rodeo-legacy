@@ -93,3 +93,19 @@ def zero_pad(x0, p):
     q = len(x0)
     X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0,0))])
     return X0
+
+def timing(f, *args):
+    """
+    Function to time the length of time required to run `f`.
+
+    Parameters
+    ----------
+    f : function
+        Any function
+    *args : Arguments
+        Arguments to the function `f`.
+    """
+    time1 = timer()
+    process = f(*args)
+    time2 = timer()
+    return time2 - time1
