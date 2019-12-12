@@ -38,25 +38,25 @@ def lorenz_graph(fun, p, tmin, tmax, n_eval, W, tau, sigma, init, draws):
     draws : int
         Number of samples we need to draw from the kalman solver.
     """
+    tseq = np.linspace(tmin, tmax, n_eval)
     ylabel = ['x', 'y', 'z']
     n_var = len(ylabel)
     mu = np.zeros(n_var*p)
-    tseq = np.linspace(tmin, tmax, n_eval)
     roots = root_gen(tau, p)
     rootlst = [roots*10]*n_var
     sigmalst = [sigma]*n_var
     Xn = kalman_multi_solver(fun, tmin, tmax, n_eval, mu, sigmalst, rootlst, W, init, draws)
     
     _, axs = plt.subplots(n_var, 1, figsize=(20, 7))
-    for i in range(n_var):
-        for j in range(draws):
-            if j == (draws - 1):
-                axs[i].plot(tseq, Xn[j, :, p*i],
+    for nrow in range(n_var):
+        for ncol in range(draws):
+            if ncol == (draws - 1):
+                axs[nrow].plot(tseq, Xn[ncol, :, p*nrow],
                         color="gray", alpha=1, label="Kalman")
-                axs[i].set_ylabel(ylabel[i])
+                axs[nrow].set_ylabel(ylabel[nrow])
             else:
-                axs[i].plot(tseq, Xn[j, :, p*i],
+                axs[nrow].plot(tseq, Xn[ncol, :, p*nrow],
                         color="gray", alpha=1)
 
-        axs[i].legend(loc='upper left')
+        axs[nrow].legend(loc='upper left')
     plt.show()

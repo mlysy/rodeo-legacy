@@ -71,7 +71,7 @@ def readme_solve(fun, p, tmin, tmax, n_eval, w, tau, sigma, init, draws):
     return tseq, Xt, x_euler, x_exact
 
 # Function that produces the graph as shown in README
-def readme_graph(fun, p, tmin, tmax, n_eval, w, init, draws):
+def readme_graph(fun, p, tmin, tmax, w, init, draws):
     """
     Produces the graph in README file.
 
@@ -85,9 +85,6 @@ def readme_graph(fun, p, tmin, tmax, n_eval, w, init, draws):
         First time point of the time interval to be evaluated; :math: `a`.
     tmax : int
         Last time point of the time interval to be evaluated; :math:`b`.
-    n_eval : int
-        Number of discretization points (:math:`N`) of the time interval that is evaluated, 
-        such that discretization timestep is :math:`dt = b/N`.
     w : ndarray(q+1)
         Corresponds to the :math:`w` vector in the ODE equation.
     init : ndarray(q+1) or ndarray(p)
