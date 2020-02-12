@@ -30,7 +30,7 @@ def var_car(tseq, roots, sigma=1.):
     """
     p = len(roots)
     Sigma_tilde, Q = mc._mou_car(roots, sigma)
-    var = np.zeros((len(tseq), p, p))
+    var = np.zeros((p, p, len(tseq)), order='F')
     for t in range(len(tseq)):
         V_tilde = np.zeros((p, p))
         for i in range(p):
@@ -39,6 +39,6 @@ def var_car(tseq, roots, sigma=1.):
                     1.0 - np.exp(-(roots[i] + roots[j]) * tseq[t]))  # V_tilde
                 V_tilde[j, i] = V_tilde[i, j]
 
-        var[t] = np.linalg.multi_dot([Q, V_tilde, Q.T])  # V_deltat
+        var[:, :, t] = np.linalg.multi_dot([Q, V_tilde, Q.T])  # V_deltat
 
     return var

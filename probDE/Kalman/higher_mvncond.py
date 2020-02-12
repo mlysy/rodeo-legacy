@@ -28,7 +28,7 @@ def higher_mvncond(delta_t, roots, sigma):
     """
     _, Q = _mou_car(roots, sigma)
     Q_inv = np.linalg.pinv(Q)
-    varState = var_car(delta_t, roots, sigma)[0]
-    wgtState = np.matmul(Q * np.exp(-roots*delta_t[0]), Q_inv)
+    varState = var_car(delta_t, roots, sigma)[:, :, 0]
+    wgtState = np.matmul(Q * np.exp(-roots*delta_t[0]), Q_inv, order='F')
     return wgtState, varState
     
