@@ -8,6 +8,7 @@ from math import exp
 import numpy as np
 import scipy.linalg as scl
 
+
 def mvncond(mu, Sigma, icond):
     """
     Calculates A, b, and V such that :math:`y[!icond] | y[icond] \sim N(A y[icond] + b, V)`.
@@ -16,7 +17,7 @@ def mvncond(mu, Sigma, icond):
         mu (ndarray(2*n_dim)): Mean of y.
         Sigma (ndarray(2*n_dim, 2*n_dim)): Covariance of y. 
         icond (ndarray(2*nd_dim)): Conditioning on the terms given.
-        
+
     Returns:
         tuple containing
 
@@ -29,10 +30,13 @@ def mvncond(mu, Sigma, icond):
 
     """
     # if y1 = y[~icond] and y2 = y[icond], should have A = Sigma12 * Sigma22^{-1}
-    A = np.dot(Sigma[np.ix_(~icond, icond)],scl.cho_solve(scl.cho_factor(Sigma[np.ix_(icond,icond)]), np.identity(sum(icond))))
-    b = mu[~icond] - np.dot(A, mu[icond]) # mu1 - A * mu2
-    V = Sigma[np.ix_(~icond,~icond)] - np.dot(A, Sigma[np.ix_(icond,~icond)]) # Sigma11 - A * Sigma21
+    A = np.dot(Sigma[np.ix_(~icond, icond)], scl.cho_solve(
+        scl.cho_factor(Sigma[np.ix_(icond, icond)]), np.identity(sum(icond))))
+    b = mu[~icond] - np.dot(A, mu[icond])  # mu1 - A * mu2
+    V = Sigma[np.ix_(~icond, ~icond)] - np.dot(A,
+                                               Sigma[np.ix_(icond, ~icond)])  # Sigma11 - A * Sigma21
     return A, b, V
+
 
 def solveV(V, B):
     """
@@ -44,7 +48,7 @@ def solveV(V, B):
         Variance matrix V in :math:`X = V^{-1}B`.
     B : ndarray(n_dim1, n_dim2)
         Matrix B in :math:`X = V^{-1}B`.
-    
+
     Returns
     -------
     X : ndarray(n_dim1, n_dim2)
@@ -53,6 +57,12 @@ def solveV(V, B):
     """
     L, low = scl.cho_factor(V)
     return scl.cho_solve((L, low), B)
+
+
+def norm_sim(z, mu, V):
+    L, low = scl.cho_factor(V)
+    return np.dot(L, z) + mu
+
 
 def root_gen(tau, p):
     """
@@ -73,6 +83,7 @@ def root_gen(tau, p):
     """
     return np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))
 
+
 def zero_pad(x0, p):
     """
     Pad x0 with p-len(x0) 0s at the end of x0.
@@ -91,8 +102,9 @@ def zero_pad(x0, p):
 
     """
     q = len(x0)
-    X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0,0))])
+    X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0, 0))])
     return X0
+
 
 def timing(f, *args):
     """
