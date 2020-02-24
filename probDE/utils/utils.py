@@ -7,7 +7,7 @@ Helpful functions used in Kalman.
 from math import exp
 import numpy as np
 import scipy.linalg as scl
-
+from timeit import default_timer as timer
 
 def mvncond(mu, Sigma, icond):
     """
@@ -60,7 +60,7 @@ def solveV(V, B):
 
 
 def norm_sim(z, mu, V):
-    L, low = scl.cho_factor(V)
+    L = np.linalg.cholesky(V)
     return np.dot(L, z) + mu
 
 

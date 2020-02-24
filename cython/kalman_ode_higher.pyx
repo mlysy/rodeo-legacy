@@ -95,7 +95,7 @@ cpdef kalman_ode_higher(fun,
     ktv.state_sim(x_state_smooths[:, n_eval], 
                   mu_state_smooths[:, n_eval], 
                   var_state_smooths[:, :, n_eval],
-                  z_state_sim[:, 2*n_eval+1])
+                  z_state_sim[:, n_eval])
 
     for t in reversed(range(n_eval)):
         if smooth_mv and smooth_sim: 
@@ -110,7 +110,7 @@ cpdef kalman_ode_higher(fun,
                        mu_state_pred = mu_state_preds[:, t+1],
                        var_state_pred = var_state_preds[:, :, t+1],
                        wgt_state = wgt_state,
-                       z_state = z_state_sim[:, n_eval+t])
+                       z_state = z_state_sim[:, (n_eval+1)+t])
         elif smooth_mv:
             ktv.smooth_mv(mu_state_smooth = mu_state_smooths[:, t],
                           var_state_smooth = var_state_smooths[:, :, t],
@@ -129,7 +129,7 @@ cpdef kalman_ode_higher(fun,
                            mu_state_pred = mu_state_preds[:, t+1],
                            var_state_pred = var_state_preds[:, :, t+1],
                            wgt_state = wgt_state,
-                           z_state = z_state_sim[:, n_eval+t])
+                           z_state = z_state_sim[:, (n_eval+1)+t])
     
     if smooth_mv and smooth_sim:
         return x_state_smooths, mu_state_smooths, var_state_smooths

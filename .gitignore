@@ -4,3 +4,4 @@ Docs/build
 /dist
 /probDE.egg-info
 /probDE/Examples/Lorenz1000.npy
+/prodDE/cython/
