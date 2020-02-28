@@ -1,7 +1,8 @@
 .ipynb_checkpoints
+__pycache__
 Docs/build
 /build
 /dist
 /probDE.egg-info
 /probDE/Examples/Lorenz1000.npy
-/prodDE/cython/*.cp37-win_amd64.pyd
+/probDE/cython/*.cp37-win_amd64.pyd
