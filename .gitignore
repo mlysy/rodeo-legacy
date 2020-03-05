@@ -6,3 +6,4 @@ Docs/build
 /probDE.egg-info
 /probDE/Examples/Lorenz1000.npy
 /probDE/cython/*.cp37-win_amd64.pyd
+.idea

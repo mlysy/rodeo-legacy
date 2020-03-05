@@ -599,14 +599,14 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__probDE__cython__kalmantv
-#define __PYX_HAVE_API__probDE__cython__kalmantv
+#define __PYX_HAVE__probDE__cython__kalmantest
+#define __PYX_HAVE_API__probDE__cython__kalmantest
 /* Early includes */
 #include "ios"
 #include "new"
 #include "stdexcept"
 #include "typeinfo"
-#include "KalmanTV.h"
+#include "KalmanTest.h"
 #include "pythread.h"
 #include <string.h>
 #include <stdlib.h>
@@ -821,7 +821,7 @@ static const char *__pyx_filename;
 
 static const char *__pyx_f[] = {
   "stringsource",
-  "cython\\kalmantv.pyx",
+  "cython\\kalmantest.pyx",
 };
 /* MemviewSliceStruct.proto */
 struct __pyx_memoryview_obj;
@@ -933,22 +933,22 @@ typedef struct {
 
 
 /*--- Type declarations ---*/
-struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV;
+struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest;
 struct __pyx_array_obj;
 struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 
-/* "probDE/cython/kalmantv.pyx":3
- * from KalmanTV cimport KalmanTV as CKalmanTV
+/* "probDE/cython/kalmantest.pyx":3
+ * from KalmanTest cimport KalmanTest as CKalmanTest
  * 
- * cdef class KalmanTV:             # <<<<<<<<<<<<<<
- *     cdef CKalmanTV * ktv
+ * cdef class KalmanTest:             # <<<<<<<<<<<<<<
+ *     cdef CKalmanTest * ktest
  * 
  */
-struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV {
+struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest {
   PyObject_HEAD
-  KalmanTV::KalmanTV *ktv;
+  KalmanTest::KalmanTest *ktest;
 };
 
 
@@ -1657,10 +1657,10 @@ static int __Pyx_ValidateAndInit_memviewslice(
                 PyObject *original_obj);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_double(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dcd__double(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dcd__double(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dcd_d__double(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(PyObject *, int writable_flag);
@@ -1749,10 +1749,10 @@ static PyObject *__pyx_memoryview_assign_item_from_object(struct __pyx_memoryvie
 static PyObject *__pyx_memoryviewslice_convert_item_to_object(struct __pyx_memoryviewslice_obj *__pyx_v_self, char *__pyx_v_itemp); /* proto*/
 static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memoryviewslice_obj *__pyx_v_self, char *__pyx_v_itemp, PyObject *__pyx_v_value); /* proto*/
 
-/* Module declarations from 'KalmanTV' */
+/* Module declarations from 'KalmanTest' */
 
-/* Module declarations from 'probDE.cython.kalmantv' */
-static PyTypeObject *__pyx_ptype_6probDE_6cython_8kalmantv_KalmanTV = 0;
+/* Module declarations from 'probDE.cython.kalmantest' */
+static PyTypeObject *__pyx_ptype_6probDE_6cython_10kalmantest_KalmanTest = 0;
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -1799,11 +1799,11 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_double__const__ = { "const double", NULL, sizeof(double const ), { 0 }, 0, 'R', 0, 0 };
-#define __Pyx_MODULE_NAME "probDE.cython.kalmantv"
-extern int __pyx_module_is_main_probDE__cython__kalmantv;
-int __pyx_module_is_main_probDE__cython__kalmantv = 0;
+#define __Pyx_MODULE_NAME "probDE.cython.kalmantest"
+extern int __pyx_module_is_main_probDE__cython__kalmantest;
+int __pyx_module_is_main_probDE__cython__kalmantest = 0;
 
-/* Implementation of 'probDE.cython.kalmantv' */
+/* Implementation of 'probDE.cython.kalmantest' */
 static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_MemoryError;
@@ -1845,22 +1845,19 @@ static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_struct[] = "struct";
 static const char __pyx_k_unpack[] = "unpack";
 static const char __pyx_k_update[] = "update";
-static const char __pyx_k_x_meas[] = "x_meas";
 static const char __pyx_k_fortran[] = "fortran";
 static const char __pyx_k_memview[] = "memview";
-static const char __pyx_k_mu_meas[] = "mu_meas";
 static const char __pyx_k_n_state[] = "n_state";
-static const char __pyx_k_x_state[] = "x_state";
-static const char __pyx_k_z_state[] = "z_state";
+static const char __pyx_k_n_steps[] = "n_steps";
+static const char __pyx_k_x_meass[] = "x_meass";
 static const char __pyx_k_Ellipsis[] = "Ellipsis";
-static const char __pyx_k_KalmanTV[] = "KalmanTV";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_itemsize[] = "itemsize";
 static const char __pyx_k_mu_state[] = "mu_state";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
 static const char __pyx_k_setstate[] = "__setstate__";
-static const char __pyx_k_var_meas[] = "var_meas";
 static const char __pyx_k_wgt_meas[] = "wgt_meas";
+static const char __pyx_k_x0_state[] = "x0_state";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
@@ -1868,33 +1865,25 @@ static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_var_state[] = "var_state";
 static const char __pyx_k_wgt_state[] = "wgt_state";
 static const char __pyx_k_IndexError[] = "IndexError";
+static const char __pyx_k_KalmanTest[] = "KalmanTest";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_PickleError[] = "PickleError";
+static const char __pyx_k_z_state_sim[] = "z_state_sim";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_stringsource[] = "stringsource";
-static const char __pyx_k_x_state_next[] = "x_state_next";
-static const char __pyx_k_mu_state_filt[] = "mu_state_filt";
-static const char __pyx_k_mu_state_next[] = "mu_state_next";
-static const char __pyx_k_mu_state_past[] = "mu_state_past";
-static const char __pyx_k_mu_state_pred[] = "mu_state_pred";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
-static const char __pyx_k_var_state_filt[] = "var_state_filt";
-static const char __pyx_k_var_state_next[] = "var_state_next";
-static const char __pyx_k_var_state_past[] = "var_state_past";
-static const char __pyx_k_var_state_pred[] = "var_state_pred";
-static const char __pyx_k_x_state_smooth[] = "x_state_smooth";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
-static const char __pyx_k_mu_state_smooth[] = "mu_state_smooth";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
-static const char __pyx_k_var_state_smooth[] = "var_state_smooth";
+static const char __pyx_k_mu_state_smooths[] = "mu_state_smooths";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
+static const char __pyx_k_var_state_smooths[] = "var_state_smooths";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
@@ -1933,7 +1922,7 @@ static PyObject *__pyx_n_s_IndexError;
 static PyObject *__pyx_kp_s_Indirect_dimensions_not_supporte;
 static PyObject *__pyx_kp_s_Invalid_mode_expected_c_or_fortr;
 static PyObject *__pyx_kp_s_Invalid_shape_in_axis_d_d;
-static PyObject *__pyx_n_s_KalmanTV;
+static PyObject *__pyx_n_s_KalmanTest;
 static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_kp_s_MemoryView_of_r_at_0x_x;
 static PyObject *__pyx_kp_s_MemoryView_of_r_object;
@@ -1970,15 +1959,11 @@ static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_memview;
 static PyObject *__pyx_n_s_mode;
-static PyObject *__pyx_n_s_mu_meas;
 static PyObject *__pyx_n_s_mu_state;
-static PyObject *__pyx_n_s_mu_state_filt;
-static PyObject *__pyx_n_s_mu_state_next;
-static PyObject *__pyx_n_s_mu_state_past;
-static PyObject *__pyx_n_s_mu_state_pred;
-static PyObject *__pyx_n_s_mu_state_smooth;
+static PyObject *__pyx_n_s_mu_state_smooths;
 static PyObject *__pyx_n_s_n_meas;
 static PyObject *__pyx_n_s_n_state;
+static PyObject *__pyx_n_s_n_steps;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_name_2;
 static PyObject *__pyx_n_s_ndim;
@@ -2016,31 +2001,18 @@ static PyObject *__pyx_kp_s_unable_to_allocate_array_data;
 static PyObject *__pyx_kp_s_unable_to_allocate_shape_and_str;
 static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_update;
-static PyObject *__pyx_n_s_var_meas;
 static PyObject *__pyx_n_s_var_state;
-static PyObject *__pyx_n_s_var_state_filt;
-static PyObject *__pyx_n_s_var_state_next;
-static PyObject *__pyx_n_s_var_state_past;
-static PyObject *__pyx_n_s_var_state_pred;
-static PyObject *__pyx_n_s_var_state_smooth;
+static PyObject *__pyx_n_s_var_state_smooths;
 static PyObject *__pyx_n_s_wgt_meas;
 static PyObject *__pyx_n_s_wgt_state;
-static PyObject *__pyx_n_s_x_meas;
-static PyObject *__pyx_n_s_x_state;
-static PyObject *__pyx_n_s_x_state_next;
-static PyObject *__pyx_n_s_x_state_smooth;
-static PyObject *__pyx_n_s_z_state;
-static int __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV___cinit__(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, int __pyx_v_n_meas, int __pyx_v_n_state); /* proto */
-static void __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_2__dealloc__(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_4predict(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_mu_state_past, __Pyx_memviewslice __pyx_v_var_state_past, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_var_state); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_6update(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_x_meas, __Pyx_memviewslice __pyx_v_mu_meas, __Pyx_memviewslice __pyx_v_wgt_meas, __Pyx_memviewslice __pyx_v_var_meas); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_8filter(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_past, __Pyx_memviewslice __pyx_v_var_state_past, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_var_state, __Pyx_memviewslice __pyx_v_x_meas, __Pyx_memviewslice __pyx_v_mu_meas, __Pyx_memviewslice __pyx_v_wgt_meas, __Pyx_memviewslice __pyx_v_var_meas); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_10smooth_mv(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_smooth, __Pyx_memviewslice __pyx_v_var_state_smooth, __Pyx_memviewslice __pyx_v_mu_state_next, __Pyx_memviewslice __pyx_v_var_state_next, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_wgt_state); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_12smooth_sim(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_x_state_smooth, __Pyx_memviewslice __pyx_v_x_state_next, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_z_state); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_14smooth(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_x_state_smooth, __Pyx_memviewslice __pyx_v_mu_state_smooth, __Pyx_memviewslice __pyx_v_var_state_smooth, __Pyx_memviewslice __pyx_v_x_state_next, __Pyx_memviewslice __pyx_v_mu_state_next, __Pyx_memviewslice __pyx_v_var_state_next, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_z_state); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_16state_sim(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_x_state, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_var_state, __Pyx_memviewslice __pyx_v_z_state); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_18__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_20__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_n_s_x0_state;
+static PyObject *__pyx_n_s_x_meass;
+static PyObject *__pyx_n_s_z_state_sim;
+static int __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest___cinit__(struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self, int __pyx_v_n_meas, int __pyx_v_n_state, int __pyx_v_n_steps); /* proto */
+static void __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_2__dealloc__(struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_4filter_smooth(struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_smooths, __Pyx_memviewslice __pyx_v_var_state_smooths, __Pyx_memviewslice __pyx_v_x0_state, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_var_state, __Pyx_memviewslice __pyx_v_wgt_meas, __Pyx_memviewslice __pyx_v_x_meass, __Pyx_memviewslice __pyx_v_z_state_sim); /* proto */
+static PyObject *__pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_6__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_8__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(struct __pyx_array_obj *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_array___pyx_pf_15View_dot_MemoryView_5array_4__dealloc__(struct __pyx_array_obj *__pyx_v_self); /* proto */
@@ -2083,7 +2055,7 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_16_memoryviewslice_4base___get__
 static PyObject *__pyx_pf___pyx_memoryviewslice___reduce_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf___pyx_memoryviewslice_2__setstate_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_15View_dot_MemoryView___pyx_unpickle_Enum(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_6probDE_6cython_8kalmantv_KalmanTV(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_6probDE_6cython_10kalmantest_KalmanTest(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_memoryview(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -2121,29 +2093,32 @@ static PyObject *__pyx_tuple__26;
 static PyObject *__pyx_codeobj__27;
 /* Late includes */
 
-/* "probDE/cython/kalmantv.pyx":6
- *     cdef CKalmanTV * ktv
+/* "probDE/cython/kalmantest.pyx":6
+ *     cdef CKalmanTest * ktest
  * 
- *     def __cinit__(self, int n_meas, int n_state):             # <<<<<<<<<<<<<<
- *         self.ktv = new CKalmanTV(n_meas, n_state)
+ *     def __cinit__(self, int n_meas, int n_state, int n_steps):             # <<<<<<<<<<<<<<
+ *         self.ktest = new CKalmanTest(n_meas, n_state, n_steps)
  * 
  */
 
 /* Python wrapper */
-static int __pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_n_meas;
   int __pyx_v_n_state;
+  int __pyx_v_n_steps;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_n_meas,&__pyx_n_s_n_state,0};
-    PyObject* values[2] = {0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_n_meas,&__pyx_n_s_n_state,&__pyx_n_s_n_steps,0};
+    PyObject* values[3] = {0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         CYTHON_FALLTHROUGH;
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -2160,62 +2135,70 @@ static int __pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_1__cinit__(PyObject *__p
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n_state)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); __PYX_ERR(1, 6, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 1); __PYX_ERR(1, 6, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n_steps)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 2); __PYX_ERR(1, 6, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 6, __pyx_L3_error)
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
     __pyx_v_n_meas = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_n_meas == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 6, __pyx_L3_error)
     __pyx_v_n_state = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_n_state == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 6, __pyx_L3_error)
+    __pyx_v_n_steps = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_n_steps == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 6, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 6, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 6, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("probDE.cython.kalmantest.KalmanTest.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV___cinit__(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_n_meas, __pyx_v_n_state);
+  __pyx_r = __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest___cinit__(((struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *)__pyx_v_self), __pyx_v_n_meas, __pyx_v_n_state, __pyx_v_n_steps);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV___cinit__(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, int __pyx_v_n_meas, int __pyx_v_n_state) {
+static int __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest___cinit__(struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self, int __pyx_v_n_meas, int __pyx_v_n_state, int __pyx_v_n_steps) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
-  KalmanTV::KalmanTV *__pyx_t_1;
+  KalmanTest::KalmanTest *__pyx_t_1;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "probDE/cython/kalmantv.pyx":7
+  /* "probDE/cython/kalmantest.pyx":7
  * 
- *     def __cinit__(self, int n_meas, int n_state):
- *         self.ktv = new CKalmanTV(n_meas, n_state)             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, int n_meas, int n_state, int n_steps):
+ *         self.ktest = new CKalmanTest(n_meas, n_state, n_steps)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
   try {
-    __pyx_t_1 = new KalmanTV::KalmanTV(__pyx_v_n_meas, __pyx_v_n_state);
+    __pyx_t_1 = new KalmanTest::KalmanTest(__pyx_v_n_meas, __pyx_v_n_state, __pyx_v_n_steps);
   } catch(...) {
     __Pyx_CppExn2PyErr();
     __PYX_ERR(1, 7, __pyx_L1_error)
   }
-  __pyx_v_self->ktv = __pyx_t_1;
+  __pyx_v_self->ktest = __pyx_t_1;
 
-  /* "probDE/cython/kalmantv.pyx":6
- *     cdef CKalmanTV * ktv
+  /* "probDE/cython/kalmantest.pyx":6
+ *     cdef CKalmanTest * ktest
  * 
- *     def __cinit__(self, int n_meas, int n_state):             # <<<<<<<<<<<<<<
- *         self.ktv = new CKalmanTV(n_meas, n_state)
+ *     def __cinit__(self, int n_meas, int n_state, int n_steps):             # <<<<<<<<<<<<<<
+ *         self.ktest = new CKalmanTest(n_meas, n_state, n_steps)
  * 
  */
 
@@ -2223,50 +2206,50 @@ static int __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV___cinit__(struct __pyx_o
   __pyx_r = 0;
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("probDE.cython.kalmantest.KalmanTest.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "probDE/cython/kalmantv.pyx":9
- *         self.ktv = new CKalmanTV(n_meas, n_state)
+/* "probDE/cython/kalmantest.pyx":9
+ *         self.ktest = new CKalmanTest(n_meas, n_state, n_steps)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- *         del self.ktv
+ *         del self.ktest
  * 
  */
 
 /* Python wrapper */
-static void __pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
-static void __pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_3__dealloc__(PyObject *__pyx_v_self) {
+static void __pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
+static void __pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_3__dealloc__(PyObject *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
-  __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_2__dealloc__(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self));
+  __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_2__dealloc__(((struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
 }
 
-static void __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_2__dealloc__(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self) {
+static void __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_2__dealloc__(struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "probDE/cython/kalmantv.pyx":10
+  /* "probDE/cython/kalmantest.pyx":10
  * 
  *     def __dealloc__(self):
- *         del self.ktv             # <<<<<<<<<<<<<<
+ *         del self.ktest             # <<<<<<<<<<<<<<
  * 
- *     def predict(self,
+ *     def filter_smooth(self,
  */
-  delete __pyx_v_self->ktv;
+  delete __pyx_v_self->ktest;
 
-  /* "probDE/cython/kalmantv.pyx":9
- *         self.ktv = new CKalmanTV(n_meas, n_state)
+  /* "probDE/cython/kalmantest.pyx":9
+ *         self.ktest = new CKalmanTest(n_meas, n_state, n_steps)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- *         del self.ktv
+ *         del self.ktest
  * 
  */
 
@@ -2274,1142 +2257,31 @@ static void __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_2__dealloc__(struct __p
   __Pyx_RefNannyFinishContext();
 }
 
-/* "probDE/cython/kalmantv.pyx":12
- *         del self.ktv
+/* "probDE/cython/kalmantest.pyx":12
+ *         del self.ktest
  * 
- *     def predict(self,             # <<<<<<<<<<<<<<
- *                 double[::1] mu_state_pred,
- *                 double[::1, :] var_state_pred,
+ *     def filter_smooth(self,             # <<<<<<<<<<<<<<
+ *                       double[::1, :] mu_state_smooths,
+ *                       double[::1, :, :] var_state_smooths,
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_5predict(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_5predict(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __Pyx_memviewslice __pyx_v_mu_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_past = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_past = { 0, 0, { 0 }, { 0 }, { 0 } };
+static PyObject *__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_5filter_smooth(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_5filter_smooth(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  __Pyx_memviewslice __pyx_v_mu_state_smooths = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_var_state_smooths = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_x0_state = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_wgt_state = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_mu_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_wgt_state = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_var_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("predict (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_mu_state_pred,&__pyx_n_s_var_state_pred,&__pyx_n_s_mu_state_past,&__pyx_n_s_var_state_past,&__pyx_n_s_mu_state,&__pyx_n_s_wgt_state,&__pyx_n_s_var_state,0};
-    PyObject* values[7] = {0,0,0,0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        CYTHON_FALLTHROUGH;
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        CYTHON_FALLTHROUGH;
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        CYTHON_FALLTHROUGH;
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        CYTHON_FALLTHROUGH;
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_pred)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("predict", 1, 7, 7, 1); __PYX_ERR(1, 12, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_past)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("predict", 1, 7, 7, 2); __PYX_ERR(1, 12, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_past)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("predict", 1, 7, 7, 3); __PYX_ERR(1, 12, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("predict", 1, 7, 7, 4); __PYX_ERR(1, 12, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("predict", 1, 7, 7, 5); __PYX_ERR(1, 12, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  6:
-        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("predict", 1, 7, 7, 6); __PYX_ERR(1, 12, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "predict") < 0)) __PYX_ERR(1, 12, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 7) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-    }
-    __pyx_v_mu_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state_pred.memview)) __PYX_ERR(1, 13, __pyx_L3_error)
-    __pyx_v_var_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state_pred.memview)) __PYX_ERR(1, 14, __pyx_L3_error)
-    __pyx_v_mu_state_past = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[2], 0); if (unlikely(!__pyx_v_mu_state_past.memview)) __PYX_ERR(1, 15, __pyx_L3_error)
-    __pyx_v_var_state_past = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[3], 0); if (unlikely(!__pyx_v_var_state_past.memview)) __PYX_ERR(1, 16, __pyx_L3_error)
-    __pyx_v_mu_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[4], 0); if (unlikely(!__pyx_v_mu_state.memview)) __PYX_ERR(1, 17, __pyx_L3_error)
-    __pyx_v_wgt_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[5], 0); if (unlikely(!__pyx_v_wgt_state.memview)) __PYX_ERR(1, 18, __pyx_L3_error)
-    __pyx_v_var_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[6], 0); if (unlikely(!__pyx_v_var_state.memview)) __PYX_ERR(1, 19, __pyx_L3_error)
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("predict", 1, 7, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 12, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.predict", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_4predict(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_mu_state_pred, __pyx_v_var_state_pred, __pyx_v_mu_state_past, __pyx_v_var_state_past, __pyx_v_mu_state, __pyx_v_wgt_state, __pyx_v_var_state);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_4predict(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_mu_state_past, __Pyx_memviewslice __pyx_v_var_state_past, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_var_state) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  Py_ssize_t __pyx_t_1;
-  int __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
-  Py_ssize_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
-  Py_ssize_t __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  __Pyx_RefNannySetupContext("predict", 0);
-
-  /* "probDE/cython/kalmantv.pyx":20
- *                 const double[::1, :] wgt_state,
- *                 const double[::1, :] var_state):
- *         self.ktv.predict(& mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                           & mu_state_past[0], & var_state_past[0, 0],
- *                           & mu_state[0], & wgt_state[0, 0], & var_state[0, 0])
- */
-  __pyx_t_1 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_1 < 0) {
-    __pyx_t_1 += __pyx_v_mu_state_pred.shape[0];
-    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_1 >= __pyx_v_mu_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 20, __pyx_L1_error)
-  }
-  __pyx_t_3 = 0;
-  __pyx_t_4 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_3 < 0) {
-    __pyx_t_3 += __pyx_v_var_state_pred.shape[0];
-    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_3 >= __pyx_v_var_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_4 < 0) {
-    __pyx_t_4 += __pyx_v_var_state_pred.shape[1];
-    if (unlikely(__pyx_t_4 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_4 >= __pyx_v_var_state_pred.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 20, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":21
- *                 const double[::1, :] var_state):
- *         self.ktv.predict(& mu_state_pred[0], & var_state_pred[0, 0],
- *                           & mu_state_past[0], & var_state_past[0, 0],             # <<<<<<<<<<<<<<
- *                           & mu_state[0], & wgt_state[0, 0], & var_state[0, 0])
- *         return
- */
-  __pyx_t_5 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_5 < 0) {
-    __pyx_t_5 += __pyx_v_mu_state_past.shape[0];
-    if (unlikely(__pyx_t_5 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_5 >= __pyx_v_mu_state_past.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 21, __pyx_L1_error)
-  }
-  __pyx_t_6 = 0;
-  __pyx_t_7 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_6 < 0) {
-    __pyx_t_6 += __pyx_v_var_state_past.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_6 >= __pyx_v_var_state_past.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_7 < 0) {
-    __pyx_t_7 += __pyx_v_var_state_past.shape[1];
-    if (unlikely(__pyx_t_7 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_7 >= __pyx_v_var_state_past.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 21, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":22
- *         self.ktv.predict(& mu_state_pred[0], & var_state_pred[0, 0],
- *                           & mu_state_past[0], & var_state_past[0, 0],
- *                           & mu_state[0], & wgt_state[0, 0], & var_state[0, 0])             # <<<<<<<<<<<<<<
- *         return
- * 
- */
-  __pyx_t_8 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_8 < 0) {
-    __pyx_t_8 += __pyx_v_mu_state.shape[0];
-    if (unlikely(__pyx_t_8 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_8 >= __pyx_v_mu_state.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 22, __pyx_L1_error)
-  }
-  __pyx_t_9 = 0;
-  __pyx_t_10 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_9 < 0) {
-    __pyx_t_9 += __pyx_v_wgt_state.shape[0];
-    if (unlikely(__pyx_t_9 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_9 >= __pyx_v_wgt_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_10 < 0) {
-    __pyx_t_10 += __pyx_v_wgt_state.shape[1];
-    if (unlikely(__pyx_t_10 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_10 >= __pyx_v_wgt_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 22, __pyx_L1_error)
-  }
-  __pyx_t_11 = 0;
-  __pyx_t_12 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_11 < 0) {
-    __pyx_t_11 += __pyx_v_var_state.shape[0];
-    if (unlikely(__pyx_t_11 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_11 >= __pyx_v_var_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_12 < 0) {
-    __pyx_t_12 += __pyx_v_var_state.shape[1];
-    if (unlikely(__pyx_t_12 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_12 >= __pyx_v_var_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 22, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":20
- *                 const double[::1, :] wgt_state,
- *                 const double[::1, :] var_state):
- *         self.ktv.predict(& mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                           & mu_state_past[0], & var_state_past[0, 0],
- *                           & mu_state[0], & wgt_state[0, 0], & var_state[0, 0])
- */
-  __pyx_v_self->ktv->predict((&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state_pred.data) + __pyx_t_1)) )))), (&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state_pred.data) + __pyx_t_3)) ) + __pyx_t_4 * __pyx_v_var_state_pred.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_past.data) + __pyx_t_5)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_past.data) + __pyx_t_6)) ) + __pyx_t_7 * __pyx_v_var_state_past.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state.data) + __pyx_t_8)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_state.data) + __pyx_t_9)) ) + __pyx_t_10 * __pyx_v_wgt_state.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state.data) + __pyx_t_11)) ) + __pyx_t_12 * __pyx_v_var_state.strides[1]) )))));
-
-  /* "probDE/cython/kalmantv.pyx":23
- *                           & mu_state_past[0], & var_state_past[0, 0],
- *                           & mu_state[0], & wgt_state[0, 0], & var_state[0, 0])
- *         return             # <<<<<<<<<<<<<<
- * 
- *     def update(self,
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-
-  /* "probDE/cython/kalmantv.pyx":12
- *         del self.ktv
- * 
- *     def predict(self,             # <<<<<<<<<<<<<<
- *                 double[::1] mu_state_pred,
- *                 double[::1, :] var_state_pred,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.predict", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_past, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_past, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state, 1);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "probDE/cython/kalmantv.pyx":25
- *         return
- * 
- *     def update(self,             # <<<<<<<<<<<<<<
- *                double[::1] mu_state_filt,
- *                double[::1, :] var_state_filt,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_7update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_7update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __Pyx_memviewslice __pyx_v_mu_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_x_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_wgt_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_x_meass = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_z_state_sim = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("update (wrapper)", 0);
+  __Pyx_RefNannySetupContext("filter_smooth (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_mu_state_filt,&__pyx_n_s_var_state_filt,&__pyx_n_s_mu_state_pred,&__pyx_n_s_var_state_pred,&__pyx_n_s_x_meas,&__pyx_n_s_mu_meas,&__pyx_n_s_wgt_meas,&__pyx_n_s_var_meas,0};
-    PyObject* values[8] = {0,0,0,0,0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-        CYTHON_FALLTHROUGH;
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        CYTHON_FALLTHROUGH;
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        CYTHON_FALLTHROUGH;
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        CYTHON_FALLTHROUGH;
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        CYTHON_FALLTHROUGH;
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_filt)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_filt)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, 1); __PYX_ERR(1, 25, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, 2); __PYX_ERR(1, 25, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, 3); __PYX_ERR(1, 25, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, 4); __PYX_ERR(1, 25, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, 5); __PYX_ERR(1, 25, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  6:
-        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, 6); __PYX_ERR(1, 25, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  7:
-        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, 7); __PYX_ERR(1, 25, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update") < 0)) __PYX_ERR(1, 25, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 8) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-    }
-    __pyx_v_mu_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state_filt.memview)) __PYX_ERR(1, 26, __pyx_L3_error)
-    __pyx_v_var_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state_filt.memview)) __PYX_ERR(1, 27, __pyx_L3_error)
-    __pyx_v_mu_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[2], 0); if (unlikely(!__pyx_v_mu_state_pred.memview)) __PYX_ERR(1, 28, __pyx_L3_error)
-    __pyx_v_var_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[3], 0); if (unlikely(!__pyx_v_var_state_pred.memview)) __PYX_ERR(1, 29, __pyx_L3_error)
-    __pyx_v_x_meas = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[4], 0); if (unlikely(!__pyx_v_x_meas.memview)) __PYX_ERR(1, 30, __pyx_L3_error)
-    __pyx_v_mu_meas = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[5], 0); if (unlikely(!__pyx_v_mu_meas.memview)) __PYX_ERR(1, 31, __pyx_L3_error)
-    __pyx_v_wgt_meas = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[6], 0); if (unlikely(!__pyx_v_wgt_meas.memview)) __PYX_ERR(1, 32, __pyx_L3_error)
-    __pyx_v_var_meas = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[7], 0); if (unlikely(!__pyx_v_var_meas.memview)) __PYX_ERR(1, 33, __pyx_L3_error)
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update", 1, 8, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 25, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_6update(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_mu_state_filt, __pyx_v_var_state_filt, __pyx_v_mu_state_pred, __pyx_v_var_state_pred, __pyx_v_x_meas, __pyx_v_mu_meas, __pyx_v_wgt_meas, __pyx_v_var_meas);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_6update(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_x_meas, __Pyx_memviewslice __pyx_v_mu_meas, __Pyx_memviewslice __pyx_v_wgt_meas, __Pyx_memviewslice __pyx_v_var_meas) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  Py_ssize_t __pyx_t_1;
-  int __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
-  Py_ssize_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
-  Py_ssize_t __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  Py_ssize_t __pyx_t_13;
-  __Pyx_RefNannySetupContext("update", 0);
-
-  /* "probDE/cython/kalmantv.pyx":34
- *                const double[::1, :] wgt_meas,
- *                const double[::1, :] var_meas):
- *         self.ktv.update(& mu_state_filt[0], & var_state_filt[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
- *                         & x_meas[0], & mu_meas[0],
- */
-  __pyx_t_1 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_1 < 0) {
-    __pyx_t_1 += __pyx_v_mu_state_filt.shape[0];
-    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_1 >= __pyx_v_mu_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 34, __pyx_L1_error)
-  }
-  __pyx_t_3 = 0;
-  __pyx_t_4 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_3 < 0) {
-    __pyx_t_3 += __pyx_v_var_state_filt.shape[0];
-    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_3 >= __pyx_v_var_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_4 < 0) {
-    __pyx_t_4 += __pyx_v_var_state_filt.shape[1];
-    if (unlikely(__pyx_t_4 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_4 >= __pyx_v_var_state_filt.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 34, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":35
- *                const double[::1, :] var_meas):
- *         self.ktv.update(& mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                         & x_meas[0], & mu_meas[0],
- *                         & wgt_meas[0, 0], & var_meas[0, 0])
- */
-  __pyx_t_5 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_5 < 0) {
-    __pyx_t_5 += __pyx_v_mu_state_pred.shape[0];
-    if (unlikely(__pyx_t_5 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_5 >= __pyx_v_mu_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 35, __pyx_L1_error)
-  }
-  __pyx_t_6 = 0;
-  __pyx_t_7 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_6 < 0) {
-    __pyx_t_6 += __pyx_v_var_state_pred.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_6 >= __pyx_v_var_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_7 < 0) {
-    __pyx_t_7 += __pyx_v_var_state_pred.shape[1];
-    if (unlikely(__pyx_t_7 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_7 >= __pyx_v_var_state_pred.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 35, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":36
- *         self.ktv.update(& mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
- *                         & x_meas[0], & mu_meas[0],             # <<<<<<<<<<<<<<
- *                         & wgt_meas[0, 0], & var_meas[0, 0])
- *         return
- */
-  __pyx_t_8 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_8 < 0) {
-    __pyx_t_8 += __pyx_v_x_meas.shape[0];
-    if (unlikely(__pyx_t_8 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_8 >= __pyx_v_x_meas.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 36, __pyx_L1_error)
-  }
-  __pyx_t_9 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_9 < 0) {
-    __pyx_t_9 += __pyx_v_mu_meas.shape[0];
-    if (unlikely(__pyx_t_9 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_9 >= __pyx_v_mu_meas.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 36, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":37
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
- *                         & x_meas[0], & mu_meas[0],
- *                         & wgt_meas[0, 0], & var_meas[0, 0])             # <<<<<<<<<<<<<<
- *         return
- * 
- */
-  __pyx_t_10 = 0;
-  __pyx_t_11 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_10 < 0) {
-    __pyx_t_10 += __pyx_v_wgt_meas.shape[0];
-    if (unlikely(__pyx_t_10 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_10 >= __pyx_v_wgt_meas.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_11 < 0) {
-    __pyx_t_11 += __pyx_v_wgt_meas.shape[1];
-    if (unlikely(__pyx_t_11 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_11 >= __pyx_v_wgt_meas.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 37, __pyx_L1_error)
-  }
-  __pyx_t_12 = 0;
-  __pyx_t_13 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_12 < 0) {
-    __pyx_t_12 += __pyx_v_var_meas.shape[0];
-    if (unlikely(__pyx_t_12 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_12 >= __pyx_v_var_meas.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_13 < 0) {
-    __pyx_t_13 += __pyx_v_var_meas.shape[1];
-    if (unlikely(__pyx_t_13 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_13 >= __pyx_v_var_meas.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 37, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":34
- *                const double[::1, :] wgt_meas,
- *                const double[::1, :] var_meas):
- *         self.ktv.update(& mu_state_filt[0], & var_state_filt[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
- *                         & x_meas[0], & mu_meas[0],
- */
-  __pyx_v_self->ktv->update((&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state_filt.data) + __pyx_t_1)) )))), (&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state_filt.data) + __pyx_t_3)) ) + __pyx_t_4 * __pyx_v_var_state_filt.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_pred.data) + __pyx_t_5)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_pred.data) + __pyx_t_6)) ) + __pyx_t_7 * __pyx_v_var_state_pred.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_x_meas.data) + __pyx_t_8)) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_meas.data) + __pyx_t_9)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_meas.data) + __pyx_t_10)) ) + __pyx_t_11 * __pyx_v_wgt_meas.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_meas.data) + __pyx_t_12)) ) + __pyx_t_13 * __pyx_v_var_meas.strides[1]) )))));
-
-  /* "probDE/cython/kalmantv.pyx":38
- *                         & x_meas[0], & mu_meas[0],
- *                         & wgt_meas[0, 0], & var_meas[0, 0])
- *         return             # <<<<<<<<<<<<<<
- * 
- *     def filter(self,
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-
-  /* "probDE/cython/kalmantv.pyx":25
- *         return
- * 
- *     def update(self,             # <<<<<<<<<<<<<<
- *                double[::1] mu_state_filt,
- *                double[::1, :] var_state_filt,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_x_meas, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_meas, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_meas, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_meas, 1);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "probDE/cython/kalmantv.pyx":40
- *         return
- * 
- *     def filter(self,             # <<<<<<<<<<<<<<
- *                double[::1] mu_state_pred,
- *                double[::1, :] var_state_pred,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_9filter(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_9filter(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __Pyx_memviewslice __pyx_v_mu_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_past = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_past = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_wgt_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_x_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_wgt_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_meas = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("filter (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_mu_state_pred,&__pyx_n_s_var_state_pred,&__pyx_n_s_mu_state_filt,&__pyx_n_s_var_state_filt,&__pyx_n_s_mu_state_past,&__pyx_n_s_var_state_past,&__pyx_n_s_mu_state,&__pyx_n_s_wgt_state,&__pyx_n_s_var_state,&__pyx_n_s_x_meas,&__pyx_n_s_mu_meas,&__pyx_n_s_wgt_meas,&__pyx_n_s_var_meas,0};
-    PyObject* values[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case 13: values[12] = PyTuple_GET_ITEM(__pyx_args, 12);
-        CYTHON_FALLTHROUGH;
-        case 12: values[11] = PyTuple_GET_ITEM(__pyx_args, 11);
-        CYTHON_FALLTHROUGH;
-        case 11: values[10] = PyTuple_GET_ITEM(__pyx_args, 10);
-        CYTHON_FALLTHROUGH;
-        case 10: values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
-        CYTHON_FALLTHROUGH;
-        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-        CYTHON_FALLTHROUGH;
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-        CYTHON_FALLTHROUGH;
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        CYTHON_FALLTHROUGH;
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        CYTHON_FALLTHROUGH;
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        CYTHON_FALLTHROUGH;
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        CYTHON_FALLTHROUGH;
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_pred)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 1); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_filt)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 2); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_filt)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 3); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_past)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 4); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_past)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 5); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  6:
-        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 6); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  7:
-        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 7); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  8:
-        if (likely((values[8] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 8); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  9:
-        if (likely((values[9] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 9); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case 10:
-        if (likely((values[10] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 10); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case 11:
-        if (likely((values[11] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 11); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case 12:
-        if (likely((values[12] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_meas)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, 12); __PYX_ERR(1, 40, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "filter") < 0)) __PYX_ERR(1, 40, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 13) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-      values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-      values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
-      values[10] = PyTuple_GET_ITEM(__pyx_args, 10);
-      values[11] = PyTuple_GET_ITEM(__pyx_args, 11);
-      values[12] = PyTuple_GET_ITEM(__pyx_args, 12);
-    }
-    __pyx_v_mu_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state_pred.memview)) __PYX_ERR(1, 41, __pyx_L3_error)
-    __pyx_v_var_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state_pred.memview)) __PYX_ERR(1, 42, __pyx_L3_error)
-    __pyx_v_mu_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state_filt.memview)) __PYX_ERR(1, 43, __pyx_L3_error)
-    __pyx_v_var_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state_filt.memview)) __PYX_ERR(1, 44, __pyx_L3_error)
-    __pyx_v_mu_state_past = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[4], 0); if (unlikely(!__pyx_v_mu_state_past.memview)) __PYX_ERR(1, 45, __pyx_L3_error)
-    __pyx_v_var_state_past = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[5], 0); if (unlikely(!__pyx_v_var_state_past.memview)) __PYX_ERR(1, 46, __pyx_L3_error)
-    __pyx_v_mu_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[6], 0); if (unlikely(!__pyx_v_mu_state.memview)) __PYX_ERR(1, 47, __pyx_L3_error)
-    __pyx_v_wgt_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[7], 0); if (unlikely(!__pyx_v_wgt_state.memview)) __PYX_ERR(1, 48, __pyx_L3_error)
-    __pyx_v_var_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[8], 0); if (unlikely(!__pyx_v_var_state.memview)) __PYX_ERR(1, 49, __pyx_L3_error)
-    __pyx_v_x_meas = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[9], 0); if (unlikely(!__pyx_v_x_meas.memview)) __PYX_ERR(1, 50, __pyx_L3_error)
-    __pyx_v_mu_meas = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[10], 0); if (unlikely(!__pyx_v_mu_meas.memview)) __PYX_ERR(1, 51, __pyx_L3_error)
-    __pyx_v_wgt_meas = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[11], 0); if (unlikely(!__pyx_v_wgt_meas.memview)) __PYX_ERR(1, 52, __pyx_L3_error)
-    __pyx_v_var_meas = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[12], 0); if (unlikely(!__pyx_v_var_meas.memview)) __PYX_ERR(1, 53, __pyx_L3_error)
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("filter", 1, 13, 13, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 40, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.filter", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_8filter(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_mu_state_pred, __pyx_v_var_state_pred, __pyx_v_mu_state_filt, __pyx_v_var_state_filt, __pyx_v_mu_state_past, __pyx_v_var_state_past, __pyx_v_mu_state, __pyx_v_wgt_state, __pyx_v_var_state, __pyx_v_x_meas, __pyx_v_mu_meas, __pyx_v_wgt_meas, __pyx_v_var_meas);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_8filter(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_past, __Pyx_memviewslice __pyx_v_var_state_past, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_var_state, __Pyx_memviewslice __pyx_v_x_meas, __Pyx_memviewslice __pyx_v_mu_meas, __Pyx_memviewslice __pyx_v_wgt_meas, __Pyx_memviewslice __pyx_v_var_meas) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  Py_ssize_t __pyx_t_1;
-  int __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
-  Py_ssize_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
-  Py_ssize_t __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  Py_ssize_t __pyx_t_13;
-  Py_ssize_t __pyx_t_14;
-  Py_ssize_t __pyx_t_15;
-  Py_ssize_t __pyx_t_16;
-  Py_ssize_t __pyx_t_17;
-  Py_ssize_t __pyx_t_18;
-  Py_ssize_t __pyx_t_19;
-  Py_ssize_t __pyx_t_20;
-  Py_ssize_t __pyx_t_21;
-  __Pyx_RefNannySetupContext("filter", 0);
-
-  /* "probDE/cython/kalmantv.pyx":54
- *                const double[::1, :] wgt_meas,
- *                const double[::1, :] var_meas):
- *         self.ktv.filter(& mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_past[0], & var_state_past[0, 0],
- */
-  __pyx_t_1 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_1 < 0) {
-    __pyx_t_1 += __pyx_v_mu_state_pred.shape[0];
-    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_1 >= __pyx_v_mu_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 54, __pyx_L1_error)
-  }
-  __pyx_t_3 = 0;
-  __pyx_t_4 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_3 < 0) {
-    __pyx_t_3 += __pyx_v_var_state_pred.shape[0];
-    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_3 >= __pyx_v_var_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_4 < 0) {
-    __pyx_t_4 += __pyx_v_var_state_pred.shape[1];
-    if (unlikely(__pyx_t_4 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_4 >= __pyx_v_var_state_pred.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 54, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":55
- *                const double[::1, :] var_meas):
- *         self.ktv.filter(& mu_state_pred[0], & var_state_pred[0, 0],
- *                         & mu_state_filt[0], & var_state_filt[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state_past[0], & var_state_past[0, 0],
- *                         & mu_state[0], & wgt_state[0, 0], & var_state[0, 0],
- */
-  __pyx_t_5 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_5 < 0) {
-    __pyx_t_5 += __pyx_v_mu_state_filt.shape[0];
-    if (unlikely(__pyx_t_5 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_5 >= __pyx_v_mu_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 55, __pyx_L1_error)
-  }
-  __pyx_t_6 = 0;
-  __pyx_t_7 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_6 < 0) {
-    __pyx_t_6 += __pyx_v_var_state_filt.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_6 >= __pyx_v_var_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_7 < 0) {
-    __pyx_t_7 += __pyx_v_var_state_filt.shape[1];
-    if (unlikely(__pyx_t_7 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_7 >= __pyx_v_var_state_filt.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 55, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":56
- *         self.ktv.filter(& mu_state_pred[0], & var_state_pred[0, 0],
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_past[0], & var_state_past[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state[0], & wgt_state[0, 0], & var_state[0, 0],
- *                         & x_meas[0], & mu_meas[0],
- */
-  __pyx_t_8 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_8 < 0) {
-    __pyx_t_8 += __pyx_v_mu_state_past.shape[0];
-    if (unlikely(__pyx_t_8 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_8 >= __pyx_v_mu_state_past.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 56, __pyx_L1_error)
-  }
-  __pyx_t_9 = 0;
-  __pyx_t_10 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_9 < 0) {
-    __pyx_t_9 += __pyx_v_var_state_past.shape[0];
-    if (unlikely(__pyx_t_9 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_9 >= __pyx_v_var_state_past.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_10 < 0) {
-    __pyx_t_10 += __pyx_v_var_state_past.shape[1];
-    if (unlikely(__pyx_t_10 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_10 >= __pyx_v_var_state_past.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 56, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":57
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_past[0], & var_state_past[0, 0],
- *                         & mu_state[0], & wgt_state[0, 0], & var_state[0, 0],             # <<<<<<<<<<<<<<
- *                         & x_meas[0], & mu_meas[0],
- *                         & wgt_meas[0, 0], & var_meas[0, 0])
- */
-  __pyx_t_11 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_11 < 0) {
-    __pyx_t_11 += __pyx_v_mu_state.shape[0];
-    if (unlikely(__pyx_t_11 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_11 >= __pyx_v_mu_state.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 57, __pyx_L1_error)
-  }
-  __pyx_t_12 = 0;
-  __pyx_t_13 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_12 < 0) {
-    __pyx_t_12 += __pyx_v_wgt_state.shape[0];
-    if (unlikely(__pyx_t_12 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_12 >= __pyx_v_wgt_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_13 < 0) {
-    __pyx_t_13 += __pyx_v_wgt_state.shape[1];
-    if (unlikely(__pyx_t_13 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_13 >= __pyx_v_wgt_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 57, __pyx_L1_error)
-  }
-  __pyx_t_14 = 0;
-  __pyx_t_15 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_14 < 0) {
-    __pyx_t_14 += __pyx_v_var_state.shape[0];
-    if (unlikely(__pyx_t_14 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_14 >= __pyx_v_var_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_15 < 0) {
-    __pyx_t_15 += __pyx_v_var_state.shape[1];
-    if (unlikely(__pyx_t_15 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_15 >= __pyx_v_var_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 57, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":58
- *                         & mu_state_past[0], & var_state_past[0, 0],
- *                         & mu_state[0], & wgt_state[0, 0], & var_state[0, 0],
- *                         & x_meas[0], & mu_meas[0],             # <<<<<<<<<<<<<<
- *                         & wgt_meas[0, 0], & var_meas[0, 0])
- *         return
- */
-  __pyx_t_16 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_16 < 0) {
-    __pyx_t_16 += __pyx_v_x_meas.shape[0];
-    if (unlikely(__pyx_t_16 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_16 >= __pyx_v_x_meas.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 58, __pyx_L1_error)
-  }
-  __pyx_t_17 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_17 < 0) {
-    __pyx_t_17 += __pyx_v_mu_meas.shape[0];
-    if (unlikely(__pyx_t_17 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_17 >= __pyx_v_mu_meas.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 58, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":59
- *                         & mu_state[0], & wgt_state[0, 0], & var_state[0, 0],
- *                         & x_meas[0], & mu_meas[0],
- *                         & wgt_meas[0, 0], & var_meas[0, 0])             # <<<<<<<<<<<<<<
- *         return
- * 
- */
-  __pyx_t_18 = 0;
-  __pyx_t_19 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_18 < 0) {
-    __pyx_t_18 += __pyx_v_wgt_meas.shape[0];
-    if (unlikely(__pyx_t_18 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_18 >= __pyx_v_wgt_meas.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_19 < 0) {
-    __pyx_t_19 += __pyx_v_wgt_meas.shape[1];
-    if (unlikely(__pyx_t_19 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_19 >= __pyx_v_wgt_meas.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 59, __pyx_L1_error)
-  }
-  __pyx_t_20 = 0;
-  __pyx_t_21 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_20 < 0) {
-    __pyx_t_20 += __pyx_v_var_meas.shape[0];
-    if (unlikely(__pyx_t_20 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_20 >= __pyx_v_var_meas.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_21 < 0) {
-    __pyx_t_21 += __pyx_v_var_meas.shape[1];
-    if (unlikely(__pyx_t_21 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_21 >= __pyx_v_var_meas.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 59, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":54
- *                const double[::1, :] wgt_meas,
- *                const double[::1, :] var_meas):
- *         self.ktv.filter(& mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_past[0], & var_state_past[0, 0],
- */
-  __pyx_v_self->ktv->filter((&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state_pred.data) + __pyx_t_1)) )))), (&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state_pred.data) + __pyx_t_3)) ) + __pyx_t_4 * __pyx_v_var_state_pred.strides[1]) )))), (&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state_filt.data) + __pyx_t_5)) )))), (&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state_filt.data) + __pyx_t_6)) ) + __pyx_t_7 * __pyx_v_var_state_filt.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_past.data) + __pyx_t_8)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_past.data) + __pyx_t_9)) ) + __pyx_t_10 * __pyx_v_var_state_past.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state.data) + __pyx_t_11)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_state.data) + __pyx_t_12)) ) + __pyx_t_13 * __pyx_v_wgt_state.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state.data) + __pyx_t_14)) ) + __pyx_t_15 * __pyx_v_var_state.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_x_meas.data) + __pyx_t_16)) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_meas.data) + __pyx_t_17)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_meas.data) + __pyx_t_18)) ) + __pyx_t_19 * __pyx_v_wgt_meas.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_meas.data) + __pyx_t_20)) ) + __pyx_t_21 * __pyx_v_var_meas.strides[1]) )))));
-
-  /* "probDE/cython/kalmantv.pyx":60
- *                         & x_meas[0], & mu_meas[0],
- *                         & wgt_meas[0, 0], & var_meas[0, 0])
- *         return             # <<<<<<<<<<<<<<
- * 
- *     def smooth_mv(self,
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-
-  /* "probDE/cython/kalmantv.pyx":40
- *         return
- * 
- *     def filter(self,             # <<<<<<<<<<<<<<
- *                double[::1] mu_state_pred,
- *                double[::1, :] var_state_pred,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.filter", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_past, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_past, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_x_meas, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_meas, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_meas, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_meas, 1);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "probDE/cython/kalmantv.pyx":62
- *         return
- * 
- *     def smooth_mv(self,             # <<<<<<<<<<<<<<
- *                   double[::1] mu_state_smooth,
- *                   double[::1, :] var_state_smooth,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_11smooth_mv(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_11smooth_mv(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __Pyx_memviewslice __pyx_v_mu_state_smooth = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_smooth = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_next = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_next = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_wgt_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("smooth_mv (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_mu_state_smooth,&__pyx_n_s_var_state_smooth,&__pyx_n_s_mu_state_next,&__pyx_n_s_var_state_next,&__pyx_n_s_mu_state_filt,&__pyx_n_s_var_state_filt,&__pyx_n_s_mu_state_pred,&__pyx_n_s_var_state_pred,&__pyx_n_s_wgt_state,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_mu_state_smooths,&__pyx_n_s_var_state_smooths,&__pyx_n_s_x0_state,&__pyx_n_s_wgt_state,&__pyx_n_s_mu_state,&__pyx_n_s_var_state,&__pyx_n_s_wgt_meas,&__pyx_n_s_x_meass,&__pyx_n_s_z_state_sim,0};
     PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
@@ -3439,59 +2311,59 @@ static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_11smooth_mv(PyObje
       kw_args = PyDict_Size(__pyx_kwds);
       switch (pos_args) {
         case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_smooth)) != 0)) kw_args--;
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_smooths)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_smooth)) != 0)) kw_args--;
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_smooths)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 1); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 1); __PYX_ERR(1, 12, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_next)) != 0)) kw_args--;
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x0_state)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 2); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 2); __PYX_ERR(1, 12, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_next)) != 0)) kw_args--;
+        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_state)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 3); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 3); __PYX_ERR(1, 12, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_filt)) != 0)) kw_args--;
+        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 4); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 4); __PYX_ERR(1, 12, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_filt)) != 0)) kw_args--;
+        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 5); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 5); __PYX_ERR(1, 12, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  6:
-        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_pred)) != 0)) kw_args--;
+        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_meas)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 6); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 6); __PYX_ERR(1, 12, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  7:
-        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_pred)) != 0)) kw_args--;
+        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_meass)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 7); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 7); __PYX_ERR(1, 12, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  8:
-        if (likely((values[8] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_state)) != 0)) kw_args--;
+        if (likely((values[8] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_z_state_sim)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, 8); __PYX_ERR(1, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, 8); __PYX_ERR(1, 12, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "smooth_mv") < 0)) __PYX_ERR(1, 62, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "filter_smooth") < 0)) __PYX_ERR(1, 12, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 9) {
       goto __pyx_L5_argtuple_error;
@@ -3506,763 +2378,37 @@ static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_11smooth_mv(PyObje
       values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
       values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
     }
-    __pyx_v_mu_state_smooth = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state_smooth.memview)) __PYX_ERR(1, 63, __pyx_L3_error)
-    __pyx_v_var_state_smooth = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state_smooth.memview)) __PYX_ERR(1, 64, __pyx_L3_error)
-    __pyx_v_mu_state_next = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[2], 0); if (unlikely(!__pyx_v_mu_state_next.memview)) __PYX_ERR(1, 65, __pyx_L3_error)
-    __pyx_v_var_state_next = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[3], 0); if (unlikely(!__pyx_v_var_state_next.memview)) __PYX_ERR(1, 66, __pyx_L3_error)
-    __pyx_v_mu_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[4], 0); if (unlikely(!__pyx_v_mu_state_filt.memview)) __PYX_ERR(1, 67, __pyx_L3_error)
-    __pyx_v_var_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[5], 0); if (unlikely(!__pyx_v_var_state_filt.memview)) __PYX_ERR(1, 68, __pyx_L3_error)
-    __pyx_v_mu_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[6], 0); if (unlikely(!__pyx_v_mu_state_pred.memview)) __PYX_ERR(1, 69, __pyx_L3_error)
-    __pyx_v_var_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[7], 0); if (unlikely(!__pyx_v_var_state_pred.memview)) __PYX_ERR(1, 70, __pyx_L3_error)
-    __pyx_v_wgt_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[8], 0); if (unlikely(!__pyx_v_wgt_state.memview)) __PYX_ERR(1, 71, __pyx_L3_error)
+    __pyx_v_mu_state_smooths = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state_smooths.memview)) __PYX_ERR(1, 13, __pyx_L3_error)
+    __pyx_v_var_state_smooths = __Pyx_PyObject_to_MemoryviewSlice_dcd_d__double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state_smooths.memview)) __PYX_ERR(1, 14, __pyx_L3_error)
+    __pyx_v_x0_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[2], 0); if (unlikely(!__pyx_v_x0_state.memview)) __PYX_ERR(1, 15, __pyx_L3_error)
+    __pyx_v_wgt_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[3], 0); if (unlikely(!__pyx_v_wgt_state.memview)) __PYX_ERR(1, 16, __pyx_L3_error)
+    __pyx_v_mu_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[4], 0); if (unlikely(!__pyx_v_mu_state.memview)) __PYX_ERR(1, 17, __pyx_L3_error)
+    __pyx_v_var_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[5], 0); if (unlikely(!__pyx_v_var_state.memview)) __PYX_ERR(1, 18, __pyx_L3_error)
+    __pyx_v_wgt_meas = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[6], 0); if (unlikely(!__pyx_v_wgt_meas.memview)) __PYX_ERR(1, 19, __pyx_L3_error)
+    __pyx_v_x_meass = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[7], 0); if (unlikely(!__pyx_v_x_meass.memview)) __PYX_ERR(1, 20, __pyx_L3_error)
+    __pyx_v_z_state_sim = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[8], 0); if (unlikely(!__pyx_v_z_state_sim.memview)) __PYX_ERR(1, 21, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("smooth_mv", 1, 9, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 62, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("filter_smooth", 1, 9, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 12, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.smooth_mv", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("probDE.cython.kalmantest.KalmanTest.filter_smooth", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_10smooth_mv(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_mu_state_smooth, __pyx_v_var_state_smooth, __pyx_v_mu_state_next, __pyx_v_var_state_next, __pyx_v_mu_state_filt, __pyx_v_var_state_filt, __pyx_v_mu_state_pred, __pyx_v_var_state_pred, __pyx_v_wgt_state);
+  __pyx_r = __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_4filter_smooth(((struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *)__pyx_v_self), __pyx_v_mu_state_smooths, __pyx_v_var_state_smooths, __pyx_v_x0_state, __pyx_v_wgt_state, __pyx_v_mu_state, __pyx_v_var_state, __pyx_v_wgt_meas, __pyx_v_x_meass, __pyx_v_z_state_sim);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_10smooth_mv(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_smooth, __Pyx_memviewslice __pyx_v_var_state_smooth, __Pyx_memviewslice __pyx_v_mu_state_next, __Pyx_memviewslice __pyx_v_var_state_next, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_wgt_state) {
+static PyObject *__pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_4filter_smooth(struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self, __Pyx_memviewslice __pyx_v_mu_state_smooths, __Pyx_memviewslice __pyx_v_var_state_smooths, __Pyx_memviewslice __pyx_v_x0_state, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_var_state, __Pyx_memviewslice __pyx_v_wgt_meas, __Pyx_memviewslice __pyx_v_x_meass, __Pyx_memviewslice __pyx_v_z_state_sim) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   Py_ssize_t __pyx_t_1;
-  int __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
-  Py_ssize_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
-  Py_ssize_t __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  Py_ssize_t __pyx_t_13;
-  Py_ssize_t __pyx_t_14;
-  Py_ssize_t __pyx_t_15;
-  __Pyx_RefNannySetupContext("smooth_mv", 0);
-
-  /* "probDE/cython/kalmantv.pyx":72
- *                   const double[::1, :] var_state_pred,
- *                   const double[::1, :] wgt_state):
- *         self.ktv.smooth_mv(& mu_state_smooth[0], & var_state_smooth[0, 0],             # <<<<<<<<<<<<<<
- *                            & mu_state_next[0], & var_state_next[0, 0],
- *                            & mu_state_filt[0], & var_state_filt[0, 0],
- */
-  __pyx_t_1 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_1 < 0) {
-    __pyx_t_1 += __pyx_v_mu_state_smooth.shape[0];
-    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_1 >= __pyx_v_mu_state_smooth.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 72, __pyx_L1_error)
-  }
-  __pyx_t_3 = 0;
-  __pyx_t_4 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_3 < 0) {
-    __pyx_t_3 += __pyx_v_var_state_smooth.shape[0];
-    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_3 >= __pyx_v_var_state_smooth.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_4 < 0) {
-    __pyx_t_4 += __pyx_v_var_state_smooth.shape[1];
-    if (unlikely(__pyx_t_4 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_4 >= __pyx_v_var_state_smooth.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 72, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":73
- *                   const double[::1, :] wgt_state):
- *         self.ktv.smooth_mv(& mu_state_smooth[0], & var_state_smooth[0, 0],
- *                            & mu_state_next[0], & var_state_next[0, 0],             # <<<<<<<<<<<<<<
- *                            & mu_state_filt[0], & var_state_filt[0, 0],
- *                            & mu_state_pred[0], & var_state_pred[0, 0],
- */
-  __pyx_t_5 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_5 < 0) {
-    __pyx_t_5 += __pyx_v_mu_state_next.shape[0];
-    if (unlikely(__pyx_t_5 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_5 >= __pyx_v_mu_state_next.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 73, __pyx_L1_error)
-  }
-  __pyx_t_6 = 0;
-  __pyx_t_7 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_6 < 0) {
-    __pyx_t_6 += __pyx_v_var_state_next.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_6 >= __pyx_v_var_state_next.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_7 < 0) {
-    __pyx_t_7 += __pyx_v_var_state_next.shape[1];
-    if (unlikely(__pyx_t_7 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_7 >= __pyx_v_var_state_next.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 73, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":74
- *         self.ktv.smooth_mv(& mu_state_smooth[0], & var_state_smooth[0, 0],
- *                            & mu_state_next[0], & var_state_next[0, 0],
- *                            & mu_state_filt[0], & var_state_filt[0, 0],             # <<<<<<<<<<<<<<
- *                            & mu_state_pred[0], & var_state_pred[0, 0],
- *                            & wgt_state[0, 0])
- */
-  __pyx_t_8 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_8 < 0) {
-    __pyx_t_8 += __pyx_v_mu_state_filt.shape[0];
-    if (unlikely(__pyx_t_8 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_8 >= __pyx_v_mu_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 74, __pyx_L1_error)
-  }
-  __pyx_t_9 = 0;
-  __pyx_t_10 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_9 < 0) {
-    __pyx_t_9 += __pyx_v_var_state_filt.shape[0];
-    if (unlikely(__pyx_t_9 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_9 >= __pyx_v_var_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_10 < 0) {
-    __pyx_t_10 += __pyx_v_var_state_filt.shape[1];
-    if (unlikely(__pyx_t_10 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_10 >= __pyx_v_var_state_filt.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 74, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":75
- *                            & mu_state_next[0], & var_state_next[0, 0],
- *                            & mu_state_filt[0], & var_state_filt[0, 0],
- *                            & mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                            & wgt_state[0, 0])
- *         return
- */
-  __pyx_t_11 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_11 < 0) {
-    __pyx_t_11 += __pyx_v_mu_state_pred.shape[0];
-    if (unlikely(__pyx_t_11 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_11 >= __pyx_v_mu_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 75, __pyx_L1_error)
-  }
-  __pyx_t_12 = 0;
-  __pyx_t_13 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_12 < 0) {
-    __pyx_t_12 += __pyx_v_var_state_pred.shape[0];
-    if (unlikely(__pyx_t_12 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_12 >= __pyx_v_var_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_13 < 0) {
-    __pyx_t_13 += __pyx_v_var_state_pred.shape[1];
-    if (unlikely(__pyx_t_13 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_13 >= __pyx_v_var_state_pred.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 75, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":76
- *                            & mu_state_filt[0], & var_state_filt[0, 0],
- *                            & mu_state_pred[0], & var_state_pred[0, 0],
- *                            & wgt_state[0, 0])             # <<<<<<<<<<<<<<
- *         return
- * 
- */
-  __pyx_t_14 = 0;
-  __pyx_t_15 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_14 < 0) {
-    __pyx_t_14 += __pyx_v_wgt_state.shape[0];
-    if (unlikely(__pyx_t_14 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_14 >= __pyx_v_wgt_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_15 < 0) {
-    __pyx_t_15 += __pyx_v_wgt_state.shape[1];
-    if (unlikely(__pyx_t_15 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_15 >= __pyx_v_wgt_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 76, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":72
- *                   const double[::1, :] var_state_pred,
- *                   const double[::1, :] wgt_state):
- *         self.ktv.smooth_mv(& mu_state_smooth[0], & var_state_smooth[0, 0],             # <<<<<<<<<<<<<<
- *                            & mu_state_next[0], & var_state_next[0, 0],
- *                            & mu_state_filt[0], & var_state_filt[0, 0],
- */
-  __pyx_v_self->ktv->smooth_mv((&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state_smooth.data) + __pyx_t_1)) )))), (&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state_smooth.data) + __pyx_t_3)) ) + __pyx_t_4 * __pyx_v_var_state_smooth.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_next.data) + __pyx_t_5)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_next.data) + __pyx_t_6)) ) + __pyx_t_7 * __pyx_v_var_state_next.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_filt.data) + __pyx_t_8)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_filt.data) + __pyx_t_9)) ) + __pyx_t_10 * __pyx_v_var_state_filt.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_pred.data) + __pyx_t_11)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_pred.data) + __pyx_t_12)) ) + __pyx_t_13 * __pyx_v_var_state_pred.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_state.data) + __pyx_t_14)) ) + __pyx_t_15 * __pyx_v_wgt_state.strides[1]) )))));
-
-  /* "probDE/cython/kalmantv.pyx":77
- *                            & mu_state_pred[0], & var_state_pred[0, 0],
- *                            & wgt_state[0, 0])
- *         return             # <<<<<<<<<<<<<<
- * 
- *     def smooth_sim(self,
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-
-  /* "probDE/cython/kalmantv.pyx":62
- *         return
- * 
- *     def smooth_mv(self,             # <<<<<<<<<<<<<<
- *                   double[::1] mu_state_smooth,
- *                   double[::1, :] var_state_smooth,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.smooth_mv", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_smooth, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_smooth, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_next, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_next, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_state, 1);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "probDE/cython/kalmantv.pyx":79
- *         return
- * 
- *     def smooth_sim(self,             # <<<<<<<<<<<<<<
- *                    double[::1] x_state_smooth,
- *                    const double[::1] x_state_next,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_13smooth_sim(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_13smooth_sim(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __Pyx_memviewslice __pyx_v_x_state_smooth = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_x_state_next = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_wgt_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_z_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("smooth_sim (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x_state_smooth,&__pyx_n_s_x_state_next,&__pyx_n_s_mu_state_filt,&__pyx_n_s_var_state_filt,&__pyx_n_s_mu_state_pred,&__pyx_n_s_var_state_pred,&__pyx_n_s_wgt_state,&__pyx_n_s_z_state,0};
-    PyObject* values[8] = {0,0,0,0,0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-        CYTHON_FALLTHROUGH;
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        CYTHON_FALLTHROUGH;
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        CYTHON_FALLTHROUGH;
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        CYTHON_FALLTHROUGH;
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        CYTHON_FALLTHROUGH;
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_state_smooth)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_state_next)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, 1); __PYX_ERR(1, 79, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_filt)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, 2); __PYX_ERR(1, 79, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_filt)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, 3); __PYX_ERR(1, 79, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, 4); __PYX_ERR(1, 79, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, 5); __PYX_ERR(1, 79, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  6:
-        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, 6); __PYX_ERR(1, 79, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  7:
-        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_z_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, 7); __PYX_ERR(1, 79, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "smooth_sim") < 0)) __PYX_ERR(1, 79, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 8) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-    }
-    __pyx_v_x_state_smooth = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_x_state_smooth.memview)) __PYX_ERR(1, 80, __pyx_L3_error)
-    __pyx_v_x_state_next = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[1], 0); if (unlikely(!__pyx_v_x_state_next.memview)) __PYX_ERR(1, 81, __pyx_L3_error)
-    __pyx_v_mu_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[2], 0); if (unlikely(!__pyx_v_mu_state_filt.memview)) __PYX_ERR(1, 82, __pyx_L3_error)
-    __pyx_v_var_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[3], 0); if (unlikely(!__pyx_v_var_state_filt.memview)) __PYX_ERR(1, 83, __pyx_L3_error)
-    __pyx_v_mu_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[4], 0); if (unlikely(!__pyx_v_mu_state_pred.memview)) __PYX_ERR(1, 84, __pyx_L3_error)
-    __pyx_v_var_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[5], 0); if (unlikely(!__pyx_v_var_state_pred.memview)) __PYX_ERR(1, 85, __pyx_L3_error)
-    __pyx_v_wgt_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[6], 0); if (unlikely(!__pyx_v_wgt_state.memview)) __PYX_ERR(1, 86, __pyx_L3_error)
-    __pyx_v_z_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[7], 0); if (unlikely(!__pyx_v_z_state.memview)) __PYX_ERR(1, 87, __pyx_L3_error)
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("smooth_sim", 1, 8, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 79, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.smooth_sim", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_12smooth_sim(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_x_state_smooth, __pyx_v_x_state_next, __pyx_v_mu_state_filt, __pyx_v_var_state_filt, __pyx_v_mu_state_pred, __pyx_v_var_state_pred, __pyx_v_wgt_state, __pyx_v_z_state);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_12smooth_sim(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_x_state_smooth, __Pyx_memviewslice __pyx_v_x_state_next, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_z_state) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  Py_ssize_t __pyx_t_1;
-  int __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
-  Py_ssize_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
-  Py_ssize_t __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  __Pyx_RefNannySetupContext("smooth_sim", 0);
-
-  /* "probDE/cython/kalmantv.pyx":88
- *                    const double[::1, :] wgt_state,
- *                    const double[::1] z_state):
- *         self.ktv.smooth_sim(& x_state_smooth[0], & x_state_next[0],             # <<<<<<<<<<<<<<
- *                             & mu_state_filt[0], & var_state_filt[0, 0],
- *                             & mu_state_pred[0], & var_state_pred[0, 0],
- */
-  __pyx_t_1 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_1 < 0) {
-    __pyx_t_1 += __pyx_v_x_state_smooth.shape[0];
-    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_1 >= __pyx_v_x_state_smooth.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 88, __pyx_L1_error)
-  }
-  __pyx_t_3 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_3 < 0) {
-    __pyx_t_3 += __pyx_v_x_state_next.shape[0];
-    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_3 >= __pyx_v_x_state_next.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 88, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":89
- *                    const double[::1] z_state):
- *         self.ktv.smooth_sim(& x_state_smooth[0], & x_state_next[0],
- *                             & mu_state_filt[0], & var_state_filt[0, 0],             # <<<<<<<<<<<<<<
- *                             & mu_state_pred[0], & var_state_pred[0, 0],
- *                             & wgt_state[0, 0], & z_state[0])
- */
-  __pyx_t_4 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_4 < 0) {
-    __pyx_t_4 += __pyx_v_mu_state_filt.shape[0];
-    if (unlikely(__pyx_t_4 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_4 >= __pyx_v_mu_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 89, __pyx_L1_error)
-  }
-  __pyx_t_5 = 0;
-  __pyx_t_6 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_5 < 0) {
-    __pyx_t_5 += __pyx_v_var_state_filt.shape[0];
-    if (unlikely(__pyx_t_5 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_5 >= __pyx_v_var_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_6 < 0) {
-    __pyx_t_6 += __pyx_v_var_state_filt.shape[1];
-    if (unlikely(__pyx_t_6 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_6 >= __pyx_v_var_state_filt.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 89, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":90
- *         self.ktv.smooth_sim(& x_state_smooth[0], & x_state_next[0],
- *                             & mu_state_filt[0], & var_state_filt[0, 0],
- *                             & mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                             & wgt_state[0, 0], & z_state[0])
- *         return
- */
-  __pyx_t_7 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_7 < 0) {
-    __pyx_t_7 += __pyx_v_mu_state_pred.shape[0];
-    if (unlikely(__pyx_t_7 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_7 >= __pyx_v_mu_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 90, __pyx_L1_error)
-  }
-  __pyx_t_8 = 0;
-  __pyx_t_9 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_8 < 0) {
-    __pyx_t_8 += __pyx_v_var_state_pred.shape[0];
-    if (unlikely(__pyx_t_8 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_8 >= __pyx_v_var_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_9 < 0) {
-    __pyx_t_9 += __pyx_v_var_state_pred.shape[1];
-    if (unlikely(__pyx_t_9 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_9 >= __pyx_v_var_state_pred.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 90, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":91
- *                             & mu_state_filt[0], & var_state_filt[0, 0],
- *                             & mu_state_pred[0], & var_state_pred[0, 0],
- *                             & wgt_state[0, 0], & z_state[0])             # <<<<<<<<<<<<<<
- *         return
- * 
- */
-  __pyx_t_10 = 0;
-  __pyx_t_11 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_10 < 0) {
-    __pyx_t_10 += __pyx_v_wgt_state.shape[0];
-    if (unlikely(__pyx_t_10 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_10 >= __pyx_v_wgt_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_11 < 0) {
-    __pyx_t_11 += __pyx_v_wgt_state.shape[1];
-    if (unlikely(__pyx_t_11 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_11 >= __pyx_v_wgt_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 91, __pyx_L1_error)
-  }
-  __pyx_t_12 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_12 < 0) {
-    __pyx_t_12 += __pyx_v_z_state.shape[0];
-    if (unlikely(__pyx_t_12 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_12 >= __pyx_v_z_state.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 91, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":88
- *                    const double[::1, :] wgt_state,
- *                    const double[::1] z_state):
- *         self.ktv.smooth_sim(& x_state_smooth[0], & x_state_next[0],             # <<<<<<<<<<<<<<
- *                             & mu_state_filt[0], & var_state_filt[0, 0],
- *                             & mu_state_pred[0], & var_state_pred[0, 0],
- */
-  __pyx_v_self->ktv->smooth_sim((&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_x_state_smooth.data) + __pyx_t_1)) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_x_state_next.data) + __pyx_t_3)) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_filt.data) + __pyx_t_4)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_filt.data) + __pyx_t_5)) ) + __pyx_t_6 * __pyx_v_var_state_filt.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_pred.data) + __pyx_t_7)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_pred.data) + __pyx_t_8)) ) + __pyx_t_9 * __pyx_v_var_state_pred.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_state.data) + __pyx_t_10)) ) + __pyx_t_11 * __pyx_v_wgt_state.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_z_state.data) + __pyx_t_12)) )))));
-
-  /* "probDE/cython/kalmantv.pyx":92
- *                             & mu_state_pred[0], & var_state_pred[0, 0],
- *                             & wgt_state[0, 0], & z_state[0])
- *         return             # <<<<<<<<<<<<<<
- * 
- *     def smooth(self,
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-
-  /* "probDE/cython/kalmantv.pyx":79
- *         return
- * 
- *     def smooth_sim(self,             # <<<<<<<<<<<<<<
- *                    double[::1] x_state_smooth,
- *                    const double[::1] x_state_next,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.smooth_sim", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_x_state_smooth, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_x_state_next, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_z_state, 1);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "probDE/cython/kalmantv.pyx":94
- *         return
- * 
- *     def smooth(self,             # <<<<<<<<<<<<<<
- *                double[::1] x_state_smooth,
- *                double[::1] mu_state_smooth,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_15smooth(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_15smooth(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __Pyx_memviewslice __pyx_v_x_state_smooth = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_smooth = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_smooth = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_x_state_next = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_next = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_next = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_filt = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state_pred = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_wgt_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_z_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("smooth (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x_state_smooth,&__pyx_n_s_mu_state_smooth,&__pyx_n_s_var_state_smooth,&__pyx_n_s_x_state_next,&__pyx_n_s_mu_state_next,&__pyx_n_s_var_state_next,&__pyx_n_s_mu_state_filt,&__pyx_n_s_var_state_filt,&__pyx_n_s_mu_state_pred,&__pyx_n_s_var_state_pred,&__pyx_n_s_wgt_state,&__pyx_n_s_z_state,0};
-    PyObject* values[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case 12: values[11] = PyTuple_GET_ITEM(__pyx_args, 11);
-        CYTHON_FALLTHROUGH;
-        case 11: values[10] = PyTuple_GET_ITEM(__pyx_args, 10);
-        CYTHON_FALLTHROUGH;
-        case 10: values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
-        CYTHON_FALLTHROUGH;
-        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-        CYTHON_FALLTHROUGH;
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-        CYTHON_FALLTHROUGH;
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        CYTHON_FALLTHROUGH;
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        CYTHON_FALLTHROUGH;
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        CYTHON_FALLTHROUGH;
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        CYTHON_FALLTHROUGH;
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_state_smooth)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_smooth)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 1); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_smooth)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 2); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_state_next)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 3); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_next)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 4); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_next)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 5); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  6:
-        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_filt)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 6); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  7:
-        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_filt)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 7); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  8:
-        if (likely((values[8] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 8); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  9:
-        if (likely((values[9] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state_pred)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 9); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case 10:
-        if (likely((values[10] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_wgt_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 10); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case 11:
-        if (likely((values[11] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_z_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, 11); __PYX_ERR(1, 94, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "smooth") < 0)) __PYX_ERR(1, 94, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 12) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-      values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-      values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
-      values[10] = PyTuple_GET_ITEM(__pyx_args, 10);
-      values[11] = PyTuple_GET_ITEM(__pyx_args, 11);
-    }
-    __pyx_v_x_state_smooth = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_x_state_smooth.memview)) __PYX_ERR(1, 95, __pyx_L3_error)
-    __pyx_v_mu_state_smooth = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state_smooth.memview)) __PYX_ERR(1, 96, __pyx_L3_error)
-    __pyx_v_var_state_smooth = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state_smooth.memview)) __PYX_ERR(1, 97, __pyx_L3_error)
-    __pyx_v_x_state_next = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[3], 0); if (unlikely(!__pyx_v_x_state_next.memview)) __PYX_ERR(1, 98, __pyx_L3_error)
-    __pyx_v_mu_state_next = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[4], 0); if (unlikely(!__pyx_v_mu_state_next.memview)) __PYX_ERR(1, 99, __pyx_L3_error)
-    __pyx_v_var_state_next = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[5], 0); if (unlikely(!__pyx_v_var_state_next.memview)) __PYX_ERR(1, 100, __pyx_L3_error)
-    __pyx_v_mu_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[6], 0); if (unlikely(!__pyx_v_mu_state_filt.memview)) __PYX_ERR(1, 101, __pyx_L3_error)
-    __pyx_v_var_state_filt = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[7], 0); if (unlikely(!__pyx_v_var_state_filt.memview)) __PYX_ERR(1, 102, __pyx_L3_error)
-    __pyx_v_mu_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[8], 0); if (unlikely(!__pyx_v_mu_state_pred.memview)) __PYX_ERR(1, 103, __pyx_L3_error)
-    __pyx_v_var_state_pred = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[9], 0); if (unlikely(!__pyx_v_var_state_pred.memview)) __PYX_ERR(1, 104, __pyx_L3_error)
-    __pyx_v_wgt_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double__const__(values[10], 0); if (unlikely(!__pyx_v_wgt_state.memview)) __PYX_ERR(1, 105, __pyx_L3_error)
-    __pyx_v_z_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double__const__(values[11], 0); if (unlikely(!__pyx_v_z_state.memview)) __PYX_ERR(1, 106, __pyx_L3_error)
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("smooth", 1, 12, 12, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 94, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.smooth", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_14smooth(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_x_state_smooth, __pyx_v_mu_state_smooth, __pyx_v_var_state_smooth, __pyx_v_x_state_next, __pyx_v_mu_state_next, __pyx_v_var_state_next, __pyx_v_mu_state_filt, __pyx_v_var_state_filt, __pyx_v_mu_state_pred, __pyx_v_var_state_pred, __pyx_v_wgt_state, __pyx_v_z_state);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_14smooth(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_x_state_smooth, __Pyx_memviewslice __pyx_v_mu_state_smooth, __Pyx_memviewslice __pyx_v_var_state_smooth, __Pyx_memviewslice __pyx_v_x_state_next, __Pyx_memviewslice __pyx_v_mu_state_next, __Pyx_memviewslice __pyx_v_var_state_next, __Pyx_memviewslice __pyx_v_mu_state_filt, __Pyx_memviewslice __pyx_v_var_state_filt, __Pyx_memviewslice __pyx_v_mu_state_pred, __Pyx_memviewslice __pyx_v_var_state_pred, __Pyx_memviewslice __pyx_v_wgt_state, __Pyx_memviewslice __pyx_v_z_state) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  Py_ssize_t __pyx_t_1;
-  int __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_2;
+  int __pyx_t_3;
   Py_ssize_t __pyx_t_4;
   Py_ssize_t __pyx_t_5;
   Py_ssize_t __pyx_t_6;
@@ -4278,448 +2424,211 @@ static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_14smooth(struct __
   Py_ssize_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   Py_ssize_t __pyx_t_18;
-  __Pyx_RefNannySetupContext("smooth", 0);
+  __Pyx_RefNannySetupContext("filter_smooth", 0);
 
-  /* "probDE/cython/kalmantv.pyx":107
- *                const double[::1, :] wgt_state,
- *                const double[::1] z_state):
- *         self.ktv.smooth(& x_state_smooth[0], & mu_state_smooth[0],             # <<<<<<<<<<<<<<
- *                         & var_state_smooth[0, 0], & x_state_next[0],
- *                         & mu_state_next[0], & var_state_next[0, 0],
+  /* "probDE/cython/kalmantest.pyx":22
+ *                       const double[::1, :] x_meass,
+ *                       const double[::1, :] z_state_sim):
+ *         self.ktest.filter_smooth(& mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0],             # <<<<<<<<<<<<<<
+ *                                  & x0_state[0], & wgt_state[0, 0], & mu_state[0],
+ *                                  & var_state[0, 0], & wgt_meas[0, 0], & x_meass[0, 0],
  */
   __pyx_t_1 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_2 = 0;
+  __pyx_t_3 = -1;
   if (__pyx_t_1 < 0) {
-    __pyx_t_1 += __pyx_v_x_state_smooth.shape[0];
-    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_1 >= __pyx_v_x_state_smooth.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 107, __pyx_L1_error)
+    __pyx_t_1 += __pyx_v_mu_state_smooths.shape[0];
+    if (unlikely(__pyx_t_1 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_1 >= __pyx_v_mu_state_smooths.shape[0])) __pyx_t_3 = 0;
+  if (__pyx_t_2 < 0) {
+    __pyx_t_2 += __pyx_v_mu_state_smooths.shape[1];
+    if (unlikely(__pyx_t_2 < 0)) __pyx_t_3 = 1;
+  } else if (unlikely(__pyx_t_2 >= __pyx_v_mu_state_smooths.shape[1])) __pyx_t_3 = 1;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 22, __pyx_L1_error)
   }
-  __pyx_t_3 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_3 < 0) {
-    __pyx_t_3 += __pyx_v_mu_state_smooth.shape[0];
-    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_3 >= __pyx_v_mu_state_smooth.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 107, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":108
- *                const double[::1] z_state):
- *         self.ktv.smooth(& x_state_smooth[0], & mu_state_smooth[0],
- *                         & var_state_smooth[0, 0], & x_state_next[0],             # <<<<<<<<<<<<<<
- *                         & mu_state_next[0], & var_state_next[0, 0],
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- */
   __pyx_t_4 = 0;
   __pyx_t_5 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_4 < 0) {
-    __pyx_t_4 += __pyx_v_var_state_smooth.shape[0];
-    if (unlikely(__pyx_t_4 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_4 >= __pyx_v_var_state_smooth.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_5 < 0) {
-    __pyx_t_5 += __pyx_v_var_state_smooth.shape[1];
-    if (unlikely(__pyx_t_5 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_5 >= __pyx_v_var_state_smooth.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 108, __pyx_L1_error)
-  }
   __pyx_t_6 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_3 = -1;
+  if (__pyx_t_4 < 0) {
+    __pyx_t_4 += __pyx_v_var_state_smooths.shape[0];
+    if (unlikely(__pyx_t_4 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_4 >= __pyx_v_var_state_smooths.shape[0])) __pyx_t_3 = 0;
+  if (__pyx_t_5 < 0) {
+    __pyx_t_5 += __pyx_v_var_state_smooths.shape[1];
+    if (unlikely(__pyx_t_5 < 0)) __pyx_t_3 = 1;
+  } else if (unlikely(__pyx_t_5 >= __pyx_v_var_state_smooths.shape[1])) __pyx_t_3 = 1;
   if (__pyx_t_6 < 0) {
-    __pyx_t_6 += __pyx_v_x_state_next.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_6 >= __pyx_v_x_state_next.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 108, __pyx_L1_error)
+    __pyx_t_6 += __pyx_v_var_state_smooths.shape[2];
+    if (unlikely(__pyx_t_6 < 0)) __pyx_t_3 = 2;
+  } else if (unlikely(__pyx_t_6 >= __pyx_v_var_state_smooths.shape[2])) __pyx_t_3 = 2;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 22, __pyx_L1_error)
   }
 
-  /* "probDE/cython/kalmantv.pyx":109
- *         self.ktv.smooth(& x_state_smooth[0], & mu_state_smooth[0],
- *                         & var_state_smooth[0, 0], & x_state_next[0],
- *                         & mu_state_next[0], & var_state_next[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
+  /* "probDE/cython/kalmantest.pyx":23
+ *                       const double[::1, :] z_state_sim):
+ *         self.ktest.filter_smooth(& mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0],
+ *                                  & x0_state[0], & wgt_state[0, 0], & mu_state[0],             # <<<<<<<<<<<<<<
+ *                                  & var_state[0, 0], & wgt_meas[0, 0], & x_meass[0, 0],
+ *                                  & z_state_sim[0, 0])
  */
   __pyx_t_7 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_3 = -1;
   if (__pyx_t_7 < 0) {
-    __pyx_t_7 += __pyx_v_mu_state_next.shape[0];
-    if (unlikely(__pyx_t_7 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_7 >= __pyx_v_mu_state_next.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 109, __pyx_L1_error)
+    __pyx_t_7 += __pyx_v_x0_state.shape[0];
+    if (unlikely(__pyx_t_7 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_7 >= __pyx_v_x0_state.shape[0])) __pyx_t_3 = 0;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 23, __pyx_L1_error)
   }
   __pyx_t_8 = 0;
   __pyx_t_9 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_3 = -1;
   if (__pyx_t_8 < 0) {
-    __pyx_t_8 += __pyx_v_var_state_next.shape[0];
-    if (unlikely(__pyx_t_8 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_8 >= __pyx_v_var_state_next.shape[0])) __pyx_t_2 = 0;
+    __pyx_t_8 += __pyx_v_wgt_state.shape[0];
+    if (unlikely(__pyx_t_8 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_8 >= __pyx_v_wgt_state.shape[0])) __pyx_t_3 = 0;
   if (__pyx_t_9 < 0) {
-    __pyx_t_9 += __pyx_v_var_state_next.shape[1];
-    if (unlikely(__pyx_t_9 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_9 >= __pyx_v_var_state_next.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 109, __pyx_L1_error)
+    __pyx_t_9 += __pyx_v_wgt_state.shape[1];
+    if (unlikely(__pyx_t_9 < 0)) __pyx_t_3 = 1;
+  } else if (unlikely(__pyx_t_9 >= __pyx_v_wgt_state.shape[1])) __pyx_t_3 = 1;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 23, __pyx_L1_error)
+  }
+  __pyx_t_10 = 0;
+  __pyx_t_3 = -1;
+  if (__pyx_t_10 < 0) {
+    __pyx_t_10 += __pyx_v_mu_state.shape[0];
+    if (unlikely(__pyx_t_10 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_10 >= __pyx_v_mu_state.shape[0])) __pyx_t_3 = 0;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 23, __pyx_L1_error)
   }
 
-  /* "probDE/cython/kalmantv.pyx":110
- *                         & var_state_smooth[0, 0], & x_state_next[0],
- *                         & mu_state_next[0], & var_state_next[0, 0],
- *                         & mu_state_filt[0], & var_state_filt[0, 0],             # <<<<<<<<<<<<<<
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
- *                         & wgt_state[0, 0], & z_state[0])
+  /* "probDE/cython/kalmantest.pyx":24
+ *         self.ktest.filter_smooth(& mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0],
+ *                                  & x0_state[0], & wgt_state[0, 0], & mu_state[0],
+ *                                  & var_state[0, 0], & wgt_meas[0, 0], & x_meass[0, 0],             # <<<<<<<<<<<<<<
+ *                                  & z_state_sim[0, 0])
+ *         return
  */
-  __pyx_t_10 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_10 < 0) {
-    __pyx_t_10 += __pyx_v_mu_state_filt.shape[0];
-    if (unlikely(__pyx_t_10 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_10 >= __pyx_v_mu_state_filt.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 110, __pyx_L1_error)
-  }
   __pyx_t_11 = 0;
   __pyx_t_12 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_3 = -1;
   if (__pyx_t_11 < 0) {
-    __pyx_t_11 += __pyx_v_var_state_filt.shape[0];
-    if (unlikely(__pyx_t_11 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_11 >= __pyx_v_var_state_filt.shape[0])) __pyx_t_2 = 0;
+    __pyx_t_11 += __pyx_v_var_state.shape[0];
+    if (unlikely(__pyx_t_11 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_11 >= __pyx_v_var_state.shape[0])) __pyx_t_3 = 0;
   if (__pyx_t_12 < 0) {
-    __pyx_t_12 += __pyx_v_var_state_filt.shape[1];
-    if (unlikely(__pyx_t_12 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_12 >= __pyx_v_var_state_filt.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 110, __pyx_L1_error)
+    __pyx_t_12 += __pyx_v_var_state.shape[1];
+    if (unlikely(__pyx_t_12 < 0)) __pyx_t_3 = 1;
+  } else if (unlikely(__pyx_t_12 >= __pyx_v_var_state.shape[1])) __pyx_t_3 = 1;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 24, __pyx_L1_error)
   }
-
-  /* "probDE/cython/kalmantv.pyx":111
- *                         & mu_state_next[0], & var_state_next[0, 0],
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_pred[0], & var_state_pred[0, 0],             # <<<<<<<<<<<<<<
- *                         & wgt_state[0, 0], & z_state[0])
- *         return
- */
   __pyx_t_13 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_13 < 0) {
-    __pyx_t_13 += __pyx_v_mu_state_pred.shape[0];
-    if (unlikely(__pyx_t_13 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_13 >= __pyx_v_mu_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 111, __pyx_L1_error)
-  }
   __pyx_t_14 = 0;
-  __pyx_t_15 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_3 = -1;
+  if (__pyx_t_13 < 0) {
+    __pyx_t_13 += __pyx_v_wgt_meas.shape[0];
+    if (unlikely(__pyx_t_13 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_13 >= __pyx_v_wgt_meas.shape[0])) __pyx_t_3 = 0;
   if (__pyx_t_14 < 0) {
-    __pyx_t_14 += __pyx_v_var_state_pred.shape[0];
-    if (unlikely(__pyx_t_14 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_14 >= __pyx_v_var_state_pred.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_15 < 0) {
-    __pyx_t_15 += __pyx_v_var_state_pred.shape[1];
-    if (unlikely(__pyx_t_15 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_15 >= __pyx_v_var_state_pred.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 111, __pyx_L1_error)
+    __pyx_t_14 += __pyx_v_wgt_meas.shape[1];
+    if (unlikely(__pyx_t_14 < 0)) __pyx_t_3 = 1;
+  } else if (unlikely(__pyx_t_14 >= __pyx_v_wgt_meas.shape[1])) __pyx_t_3 = 1;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 24, __pyx_L1_error)
   }
-
-  /* "probDE/cython/kalmantv.pyx":112
- *                         & mu_state_filt[0], & var_state_filt[0, 0],
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
- *                         & wgt_state[0, 0], & z_state[0])             # <<<<<<<<<<<<<<
- *         return
- * 
- */
+  __pyx_t_15 = 0;
   __pyx_t_16 = 0;
-  __pyx_t_17 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_3 = -1;
+  if (__pyx_t_15 < 0) {
+    __pyx_t_15 += __pyx_v_x_meass.shape[0];
+    if (unlikely(__pyx_t_15 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_15 >= __pyx_v_x_meass.shape[0])) __pyx_t_3 = 0;
   if (__pyx_t_16 < 0) {
-    __pyx_t_16 += __pyx_v_wgt_state.shape[0];
-    if (unlikely(__pyx_t_16 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_16 >= __pyx_v_wgt_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_17 < 0) {
-    __pyx_t_17 += __pyx_v_wgt_state.shape[1];
-    if (unlikely(__pyx_t_17 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_17 >= __pyx_v_wgt_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 112, __pyx_L1_error)
+    __pyx_t_16 += __pyx_v_x_meass.shape[1];
+    if (unlikely(__pyx_t_16 < 0)) __pyx_t_3 = 1;
+  } else if (unlikely(__pyx_t_16 >= __pyx_v_x_meass.shape[1])) __pyx_t_3 = 1;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 24, __pyx_L1_error)
   }
+
+  /* "probDE/cython/kalmantest.pyx":25
+ *                                  & x0_state[0], & wgt_state[0, 0], & mu_state[0],
+ *                                  & var_state[0, 0], & wgt_meas[0, 0], & x_meass[0, 0],
+ *                                  & z_state_sim[0, 0])             # <<<<<<<<<<<<<<
+ *         return
+ * 
+ */
+  __pyx_t_17 = 0;
   __pyx_t_18 = 0;
-  __pyx_t_2 = -1;
+  __pyx_t_3 = -1;
+  if (__pyx_t_17 < 0) {
+    __pyx_t_17 += __pyx_v_z_state_sim.shape[0];
+    if (unlikely(__pyx_t_17 < 0)) __pyx_t_3 = 0;
+  } else if (unlikely(__pyx_t_17 >= __pyx_v_z_state_sim.shape[0])) __pyx_t_3 = 0;
   if (__pyx_t_18 < 0) {
-    __pyx_t_18 += __pyx_v_z_state.shape[0];
-    if (unlikely(__pyx_t_18 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_18 >= __pyx_v_z_state.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 112, __pyx_L1_error)
+    __pyx_t_18 += __pyx_v_z_state_sim.shape[1];
+    if (unlikely(__pyx_t_18 < 0)) __pyx_t_3 = 1;
+  } else if (unlikely(__pyx_t_18 >= __pyx_v_z_state_sim.shape[1])) __pyx_t_3 = 1;
+  if (unlikely(__pyx_t_3 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_3);
+    __PYX_ERR(1, 25, __pyx_L1_error)
   }
 
-  /* "probDE/cython/kalmantv.pyx":107
- *                const double[::1, :] wgt_state,
- *                const double[::1] z_state):
- *         self.ktv.smooth(& x_state_smooth[0], & mu_state_smooth[0],             # <<<<<<<<<<<<<<
- *                         & var_state_smooth[0, 0], & x_state_next[0],
- *                         & mu_state_next[0], & var_state_next[0, 0],
+  /* "probDE/cython/kalmantest.pyx":22
+ *                       const double[::1, :] x_meass,
+ *                       const double[::1, :] z_state_sim):
+ *         self.ktest.filter_smooth(& mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0],             # <<<<<<<<<<<<<<
+ *                                  & x0_state[0], & wgt_state[0, 0], & mu_state[0],
+ *                                  & var_state[0, 0], & wgt_meas[0, 0], & x_meass[0, 0],
  */
-  __pyx_v_self->ktv->smooth((&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_x_state_smooth.data) + __pyx_t_1)) )))), (&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state_smooth.data) + __pyx_t_3)) )))), (&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state_smooth.data) + __pyx_t_4)) ) + __pyx_t_5 * __pyx_v_var_state_smooth.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_x_state_next.data) + __pyx_t_6)) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_next.data) + __pyx_t_7)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_next.data) + __pyx_t_8)) ) + __pyx_t_9 * __pyx_v_var_state_next.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_filt.data) + __pyx_t_10)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_filt.data) + __pyx_t_11)) ) + __pyx_t_12 * __pyx_v_var_state_filt.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state_pred.data) + __pyx_t_13)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state_pred.data) + __pyx_t_14)) ) + __pyx_t_15 * __pyx_v_var_state_pred.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_state.data) + __pyx_t_16)) ) + __pyx_t_17 * __pyx_v_wgt_state.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_z_state.data) + __pyx_t_18)) )))));
+  __pyx_v_self->ktest->filter_smooth((&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state_smooths.data) + __pyx_t_1)) ) + __pyx_t_2 * __pyx_v_mu_state_smooths.strides[1]) )))), (&(*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state_smooths.data) + __pyx_t_4)) ) + __pyx_t_5 * __pyx_v_var_state_smooths.strides[1]) ) + __pyx_t_6 * __pyx_v_var_state_smooths.strides[2]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_x0_state.data) + __pyx_t_7)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_state.data) + __pyx_t_8)) ) + __pyx_t_9 * __pyx_v_wgt_state.strides[1]) )))), (&(*((double const  *) ( /* dim=0 */ ((char *) (((double const  *) __pyx_v_mu_state.data) + __pyx_t_10)) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_var_state.data) + __pyx_t_11)) ) + __pyx_t_12 * __pyx_v_var_state.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_wgt_meas.data) + __pyx_t_13)) ) + __pyx_t_14 * __pyx_v_wgt_meas.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_x_meass.data) + __pyx_t_15)) ) + __pyx_t_16 * __pyx_v_x_meass.strides[1]) )))), (&(*((double const  *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double const  *) __pyx_v_z_state_sim.data) + __pyx_t_17)) ) + __pyx_t_18 * __pyx_v_z_state_sim.strides[1]) )))));
 
-  /* "probDE/cython/kalmantv.pyx":113
- *                         & mu_state_pred[0], & var_state_pred[0, 0],
- *                         & wgt_state[0, 0], & z_state[0])
+  /* "probDE/cython/kalmantest.pyx":26
+ *                                  & var_state[0, 0], & wgt_meas[0, 0], & x_meass[0, 0],
+ *                                  & z_state_sim[0, 0])
  *         return             # <<<<<<<<<<<<<<
  * 
- *     def state_sim(self,
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "probDE/cython/kalmantv.pyx":94
- *         return
+  /* "probDE/cython/kalmantest.pyx":12
+ *         del self.ktest
  * 
- *     def smooth(self,             # <<<<<<<<<<<<<<
- *                double[::1] x_state_smooth,
- *                double[::1] mu_state_smooth,
+ *     def filter_smooth(self,             # <<<<<<<<<<<<<<
+ *                       double[::1, :] mu_state_smooths,
+ *                       double[::1, :, :] var_state_smooths,
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.smooth", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("probDE.cython.kalmantest.KalmanTest.filter_smooth", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_x_state_smooth, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_smooth, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_smooth, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_x_state_next, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_next, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_next, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_filt, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_pred, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_pred, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state_smooths, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_var_state_smooths, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_x0_state, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_z_state, 1);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "probDE/cython/kalmantv.pyx":115
- *         return
- * 
- *     def state_sim(self,             # <<<<<<<<<<<<<<
- *                   double[::1] x_state,
- *                   double[::1] mu_state,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_17state_sim(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_17state_sim(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __Pyx_memviewslice __pyx_v_x_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_mu_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_var_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_z_state = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("state_sim (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x_state,&__pyx_n_s_mu_state,&__pyx_n_s_var_state,&__pyx_n_s_z_state,0};
-    PyObject* values[4] = {0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        CYTHON_FALLTHROUGH;
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x_state)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("state_sim", 1, 4, 4, 1); __PYX_ERR(1, 115, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("state_sim", 1, 4, 4, 2); __PYX_ERR(1, 115, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_z_state)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("state_sim", 1, 4, 4, 3); __PYX_ERR(1, 115, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "state_sim") < 0)) __PYX_ERR(1, 115, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-    }
-    __pyx_v_x_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_x_state.memview)) __PYX_ERR(1, 116, __pyx_L3_error)
-    __pyx_v_mu_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_mu_state.memview)) __PYX_ERR(1, 117, __pyx_L3_error)
-    __pyx_v_var_state = __Pyx_PyObject_to_MemoryviewSlice_dcd__double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_var_state.memview)) __PYX_ERR(1, 118, __pyx_L3_error)
-    __pyx_v_z_state = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_z_state.memview)) __PYX_ERR(1, 119, __pyx_L3_error)
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("state_sim", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 115, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.state_sim", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_16state_sim(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), __pyx_v_x_state, __pyx_v_mu_state, __pyx_v_var_state, __pyx_v_z_state);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_16state_sim(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, __Pyx_memviewslice __pyx_v_x_state, __Pyx_memviewslice __pyx_v_mu_state, __Pyx_memviewslice __pyx_v_var_state, __Pyx_memviewslice __pyx_v_z_state) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  Py_ssize_t __pyx_t_1;
-  int __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
-  Py_ssize_t __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
-  __Pyx_RefNannySetupContext("state_sim", 0);
-
-  /* "probDE/cython/kalmantv.pyx":120
- *                   double[::1, :] var_state,
- *                   double[::1] z_state):
- *         self.ktv.state_sim(& x_state[0], & mu_state[0],             # <<<<<<<<<<<<<<
- *                            & var_state[0, 0], & z_state[0])
- *         return
- */
-  __pyx_t_1 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_1 < 0) {
-    __pyx_t_1 += __pyx_v_x_state.shape[0];
-    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_1 >= __pyx_v_x_state.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 120, __pyx_L1_error)
-  }
-  __pyx_t_3 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_3 < 0) {
-    __pyx_t_3 += __pyx_v_mu_state.shape[0];
-    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_3 >= __pyx_v_mu_state.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 120, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":121
- *                   double[::1] z_state):
- *         self.ktv.state_sim(& x_state[0], & mu_state[0],
- *                            & var_state[0, 0], & z_state[0])             # <<<<<<<<<<<<<<
- *         return
- */
-  __pyx_t_4 = 0;
-  __pyx_t_5 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_4 < 0) {
-    __pyx_t_4 += __pyx_v_var_state.shape[0];
-    if (unlikely(__pyx_t_4 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_4 >= __pyx_v_var_state.shape[0])) __pyx_t_2 = 0;
-  if (__pyx_t_5 < 0) {
-    __pyx_t_5 += __pyx_v_var_state.shape[1];
-    if (unlikely(__pyx_t_5 < 0)) __pyx_t_2 = 1;
-  } else if (unlikely(__pyx_t_5 >= __pyx_v_var_state.shape[1])) __pyx_t_2 = 1;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 121, __pyx_L1_error)
-  }
-  __pyx_t_6 = 0;
-  __pyx_t_2 = -1;
-  if (__pyx_t_6 < 0) {
-    __pyx_t_6 += __pyx_v_z_state.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __pyx_t_2 = 0;
-  } else if (unlikely(__pyx_t_6 >= __pyx_v_z_state.shape[0])) __pyx_t_2 = 0;
-  if (unlikely(__pyx_t_2 != -1)) {
-    __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(1, 121, __pyx_L1_error)
-  }
-
-  /* "probDE/cython/kalmantv.pyx":120
- *                   double[::1, :] var_state,
- *                   double[::1] z_state):
- *         self.ktv.state_sim(& x_state[0], & mu_state[0],             # <<<<<<<<<<<<<<
- *                            & var_state[0, 0], & z_state[0])
- *         return
- */
-  __pyx_v_self->ktv->state_sim((&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_x_state.data) + __pyx_t_1)) )))), (&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mu_state.data) + __pyx_t_3)) )))), (&(*((double *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((double *) __pyx_v_var_state.data) + __pyx_t_4)) ) + __pyx_t_5 * __pyx_v_var_state.strides[1]) )))), (&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_z_state.data) + __pyx_t_6)) )))));
-
-  /* "probDE/cython/kalmantv.pyx":122
- *         self.ktv.state_sim(& x_state[0], & mu_state[0],
- *                            & var_state[0, 0], & z_state[0])
- *         return             # <<<<<<<<<<<<<<
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-
-  /* "probDE/cython/kalmantv.pyx":115
- *         return
- * 
- *     def state_sim(self,             # <<<<<<<<<<<<<<
- *                   double[::1] x_state,
- *                   double[::1] mu_state,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.state_sim", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_x_state, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_mu_state, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_var_state, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_z_state, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_wgt_meas, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_x_meass, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_z_state_sim, 1);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -4732,19 +2641,19 @@ static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_16state_sim(struct
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_18__reduce_cython__(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_6__reduce_cython__(((struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_18__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self) {
+static PyObject *__pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_6__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4771,7 +2680,7 @@ static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_18__reduce_cython_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("probDE.cython.kalmantest.KalmanTest.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -4786,19 +2695,19 @@ static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_18__reduce_cython_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_20__setstate_cython__(((struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_8__setstate_cython__(((struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_20__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_6probDE_6cython_10kalmantest_10KalmanTest_8__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4825,7 +2734,7 @@ static PyObject *__pyx_pf_6probDE_6cython_8kalmantv_8KalmanTV_20__setstate_cytho
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("probDE.cython.kalmantv.KalmanTV.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("probDE.cython.kalmantest.KalmanTest.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -17606,7 +15515,7 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *__
   return __pyx_r;
 }
 
-static PyObject *__pyx_tp_new_6probDE_6cython_8kalmantv_KalmanTV(PyTypeObject *t, PyObject *a, PyObject *k) {
+static PyObject *__pyx_tp_new_6probDE_6cython_10kalmantest_KalmanTest(PyTypeObject *t, PyObject *a, PyObject *k) {
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -17614,14 +15523,14 @@ static PyObject *__pyx_tp_new_6probDE_6cython_8kalmantv_KalmanTV(PyTypeObject *t
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  if (unlikely(__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_1__cinit__(o, a, k) < 0)) goto bad;
+  if (unlikely(__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_6probDE_6cython_8kalmantv_KalmanTV(PyObject *o) {
+static void __pyx_tp_dealloc_6probDE_6cython_10kalmantest_KalmanTest(PyObject *o) {
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -17631,32 +15540,26 @@ static void __pyx_tp_dealloc_6probDE_6cython_8kalmantv_KalmanTV(PyObject *o) {
     PyObject *etype, *eval, *etb;
     PyErr_Fetch(&etype, &eval, &etb);
     ++Py_REFCNT(o);
-    __pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_3__dealloc__(o);
+    __pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_3__dealloc__(o);
     --Py_REFCNT(o);
     PyErr_Restore(etype, eval, etb);
   }
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static PyMethodDef __pyx_methods_6probDE_6cython_8kalmantv_KalmanTV[] = {
-  {"predict", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_5predict, METH_VARARGS|METH_KEYWORDS, 0},
-  {"update", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_7update, METH_VARARGS|METH_KEYWORDS, 0},
-  {"filter", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_9filter, METH_VARARGS|METH_KEYWORDS, 0},
-  {"smooth_mv", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_11smooth_mv, METH_VARARGS|METH_KEYWORDS, 0},
-  {"smooth_sim", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_13smooth_sim, METH_VARARGS|METH_KEYWORDS, 0},
-  {"smooth", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_15smooth, METH_VARARGS|METH_KEYWORDS, 0},
-  {"state_sim", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_17state_sim, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_19__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6probDE_6cython_8kalmantv_8KalmanTV_21__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_6probDE_6cython_10kalmantest_KalmanTest[] = {
+  {"filter_smooth", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_5filter_smooth, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_7__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_6probDE_6cython_10kalmantest_10KalmanTest_9__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6probDE_6cython_8kalmantv_KalmanTV = {
+static PyTypeObject __pyx_type_6probDE_6cython_10kalmantest_KalmanTest = {
   PyVarObject_HEAD_INIT(0, 0)
-  "probDE.cython.kalmantv.KalmanTV", /*tp_name*/
-  sizeof(struct __pyx_obj_6probDE_6cython_8kalmantv_KalmanTV), /*tp_basicsize*/
+  "probDE.cython.kalmantest.KalmanTest", /*tp_name*/
+  sizeof(struct __pyx_obj_6probDE_6cython_10kalmantest_KalmanTest), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6probDE_6cython_8kalmantv_KalmanTV, /*tp_dealloc*/
+  __pyx_tp_dealloc_6probDE_6cython_10kalmantest_KalmanTest, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -17684,7 +15587,7 @@ static PyTypeObject __pyx_type_6probDE_6cython_8kalmantv_KalmanTV = {
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6probDE_6cython_8kalmantv_KalmanTV, /*tp_methods*/
+  __pyx_methods_6probDE_6cython_10kalmantest_KalmanTest, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -17694,7 +15597,7 @@ static PyTypeObject __pyx_type_6probDE_6cython_8kalmantv_KalmanTV = {
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6probDE_6cython_8kalmantv_KalmanTV, /*tp_new*/
+  __pyx_tp_new_6probDE_6cython_10kalmantest_KalmanTest, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -17831,7 +15734,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "probDE.cython.kalmantv.array", /*tp_name*/
+  "probDE.cython.kalmantest.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -17939,7 +15842,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "probDE.cython.kalmantv.Enum", /*tp_name*/
+  "probDE.cython.kalmantest.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -18189,7 +16092,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "probDE.cython.kalmantv.memoryview", /*tp_name*/
+  "probDE.cython.kalmantest.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -18316,7 +16219,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "probDE.cython.kalmantv._memoryviewslice", /*tp_name*/
+  "probDE.cython.kalmantest._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -18387,17 +16290,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_kalmantv(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_kalmantest(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_kalmantv},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_kalmantest},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "kalmantv",
+    "kalmantest",
     0, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -18439,7 +16342,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Indirect_dimensions_not_supporte, __pyx_k_Indirect_dimensions_not_supporte, sizeof(__pyx_k_Indirect_dimensions_not_supporte), 0, 0, 1, 0},
   {&__pyx_kp_s_Invalid_mode_expected_c_or_fortr, __pyx_k_Invalid_mode_expected_c_or_fortr, sizeof(__pyx_k_Invalid_mode_expected_c_or_fortr), 0, 0, 1, 0},
   {&__pyx_kp_s_Invalid_shape_in_axis_d_d, __pyx_k_Invalid_shape_in_axis_d_d, sizeof(__pyx_k_Invalid_shape_in_axis_d_d), 0, 0, 1, 0},
-  {&__pyx_n_s_KalmanTV, __pyx_k_KalmanTV, sizeof(__pyx_k_KalmanTV), 0, 0, 1, 1},
+  {&__pyx_n_s_KalmanTest, __pyx_k_KalmanTest, sizeof(__pyx_k_KalmanTest), 0, 0, 1, 1},
   {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
   {&__pyx_kp_s_MemoryView_of_r_at_0x_x, __pyx_k_MemoryView_of_r_at_0x_x, sizeof(__pyx_k_MemoryView_of_r_at_0x_x), 0, 0, 1, 0},
   {&__pyx_kp_s_MemoryView_of_r_object, __pyx_k_MemoryView_of_r_object, sizeof(__pyx_k_MemoryView_of_r_object), 0, 0, 1, 0},
@@ -18476,15 +16379,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_memview, __pyx_k_memview, sizeof(__pyx_k_memview), 0, 0, 1, 1},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
-  {&__pyx_n_s_mu_meas, __pyx_k_mu_meas, sizeof(__pyx_k_mu_meas), 0, 0, 1, 1},
   {&__pyx_n_s_mu_state, __pyx_k_mu_state, sizeof(__pyx_k_mu_state), 0, 0, 1, 1},
-  {&__pyx_n_s_mu_state_filt, __pyx_k_mu_state_filt, sizeof(__pyx_k_mu_state_filt), 0, 0, 1, 1},
-  {&__pyx_n_s_mu_state_next, __pyx_k_mu_state_next, sizeof(__pyx_k_mu_state_next), 0, 0, 1, 1},
-  {&__pyx_n_s_mu_state_past, __pyx_k_mu_state_past, sizeof(__pyx_k_mu_state_past), 0, 0, 1, 1},
-  {&__pyx_n_s_mu_state_pred, __pyx_k_mu_state_pred, sizeof(__pyx_k_mu_state_pred), 0, 0, 1, 1},
-  {&__pyx_n_s_mu_state_smooth, __pyx_k_mu_state_smooth, sizeof(__pyx_k_mu_state_smooth), 0, 0, 1, 1},
+  {&__pyx_n_s_mu_state_smooths, __pyx_k_mu_state_smooths, sizeof(__pyx_k_mu_state_smooths), 0, 0, 1, 1},
   {&__pyx_n_s_n_meas, __pyx_k_n_meas, sizeof(__pyx_k_n_meas), 0, 0, 1, 1},
   {&__pyx_n_s_n_state, __pyx_k_n_state, sizeof(__pyx_k_n_state), 0, 0, 1, 1},
+  {&__pyx_n_s_n_steps, __pyx_k_n_steps, sizeof(__pyx_k_n_steps), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_name_2, __pyx_k_name_2, sizeof(__pyx_k_name_2), 0, 0, 1, 1},
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
@@ -18522,20 +16421,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_unable_to_allocate_shape_and_str, __pyx_k_unable_to_allocate_shape_and_str, sizeof(__pyx_k_unable_to_allocate_shape_and_str), 0, 0, 1, 0},
   {&__pyx_n_s_unpack, __pyx_k_unpack, sizeof(__pyx_k_unpack), 0, 0, 1, 1},
   {&__pyx_n_s_update, __pyx_k_update, sizeof(__pyx_k_update), 0, 0, 1, 1},
-  {&__pyx_n_s_var_meas, __pyx_k_var_meas, sizeof(__pyx_k_var_meas), 0, 0, 1, 1},
   {&__pyx_n_s_var_state, __pyx_k_var_state, sizeof(__pyx_k_var_state), 0, 0, 1, 1},
-  {&__pyx_n_s_var_state_filt, __pyx_k_var_state_filt, sizeof(__pyx_k_var_state_filt), 0, 0, 1, 1},
-  {&__pyx_n_s_var_state_next, __pyx_k_var_state_next, sizeof(__pyx_k_var_state_next), 0, 0, 1, 1},
-  {&__pyx_n_s_var_state_past, __pyx_k_var_state_past, sizeof(__pyx_k_var_state_past), 0, 0, 1, 1},
-  {&__pyx_n_s_var_state_pred, __pyx_k_var_state_pred, sizeof(__pyx_k_var_state_pred), 0, 0, 1, 1},
-  {&__pyx_n_s_var_state_smooth, __pyx_k_var_state_smooth, sizeof(__pyx_k_var_state_smooth), 0, 0, 1, 1},
+  {&__pyx_n_s_var_state_smooths, __pyx_k_var_state_smooths, sizeof(__pyx_k_var_state_smooths), 0, 0, 1, 1},
   {&__pyx_n_s_wgt_meas, __pyx_k_wgt_meas, sizeof(__pyx_k_wgt_meas), 0, 0, 1, 1},
   {&__pyx_n_s_wgt_state, __pyx_k_wgt_state, sizeof(__pyx_k_wgt_state), 0, 0, 1, 1},
-  {&__pyx_n_s_x_meas, __pyx_k_x_meas, sizeof(__pyx_k_x_meas), 0, 0, 1, 1},
-  {&__pyx_n_s_x_state, __pyx_k_x_state, sizeof(__pyx_k_x_state), 0, 0, 1, 1},
-  {&__pyx_n_s_x_state_next, __pyx_k_x_state_next, sizeof(__pyx_k_x_state_next), 0, 0, 1, 1},
-  {&__pyx_n_s_x_state_smooth, __pyx_k_x_state_smooth, sizeof(__pyx_k_x_state_smooth), 0, 0, 1, 1},
-  {&__pyx_n_s_z_state, __pyx_k_z_state, sizeof(__pyx_k_z_state), 0, 0, 1, 1},
+  {&__pyx_n_s_x0_state, __pyx_k_x0_state, sizeof(__pyx_k_x0_state), 0, 0, 1, 1},
+  {&__pyx_n_s_x_meass, __pyx_k_x_meass, sizeof(__pyx_k_x_meass), 0, 0, 1, 1},
+  {&__pyx_n_s_z_state_sim, __pyx_k_z_state_sim, sizeof(__pyx_k_z_state_sim), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
@@ -18890,14 +16782,14 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_6probDE_6cython_8kalmantv_KalmanTV) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
-  __pyx_type_6probDE_6cython_8kalmantv_KalmanTV.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6probDE_6cython_8kalmantv_KalmanTV.tp_dictoffset && __pyx_type_6probDE_6cython_8kalmantv_KalmanTV.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6probDE_6cython_8kalmantv_KalmanTV.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (PyType_Ready(&__pyx_type_6probDE_6cython_10kalmantest_KalmanTest) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_type_6probDE_6cython_10kalmantest_KalmanTest.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6probDE_6cython_10kalmantest_KalmanTest.tp_dictoffset && __pyx_type_6probDE_6cython_10kalmantest_KalmanTest.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_6probDE_6cython_10kalmantest_KalmanTest.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_KalmanTV, (PyObject *)&__pyx_type_6probDE_6cython_8kalmantv_KalmanTV) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6probDE_6cython_8kalmantv_KalmanTV) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
-  __pyx_ptype_6probDE_6cython_8kalmantv_KalmanTV = &__pyx_type_6probDE_6cython_8kalmantv_KalmanTV;
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_KalmanTest, (PyObject *)&__pyx_type_6probDE_6cython_10kalmantest_KalmanTest) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6probDE_6cython_10kalmantest_KalmanTest) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_ptype_6probDE_6cython_10kalmantest_KalmanTest = &__pyx_type_6probDE_6cython_10kalmantest_KalmanTest;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
   if (PyType_Ready(&__pyx_type___pyx_array) < 0) __PYX_ERR(0, 105, __pyx_L1_error)
@@ -18989,11 +16881,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initkalmantv(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initkalmantv(void)
+__Pyx_PyMODINIT_FUNC initkalmantest(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initkalmantest(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_kalmantv(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_kalmantv(void)
+__Pyx_PyMODINIT_FUNC PyInit_kalmantest(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_kalmantest(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -19060,7 +16952,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_kalmantv(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_kalmantest(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -19070,7 +16962,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_kalmantv(PyObject *__pyx_pyinit_mo
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'kalmantv' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module 'kalmantest' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -19085,7 +16977,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_kalmantv(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_kalmantest(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -19124,7 +17016,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("kalmantv", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("kalmantest", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -19143,14 +17035,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_probDE__cython__kalmantv) {
+  if (__pyx_module_is_main_probDE__cython__kalmantest) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(1, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "probDE.cython.kalmantv")) {
-      if (unlikely(PyDict_SetItemString(modules, "probDE.cython.kalmantv", __pyx_m) < 0)) __PYX_ERR(1, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "probDE.cython.kalmantest")) {
+      if (unlikely(PyDict_SetItemString(modules, "probDE.cython.kalmantest", __pyx_m) < 0)) __PYX_ERR(1, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -19171,10 +17063,10 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   #endif
 
-  /* "probDE/cython/kalmantv.pyx":1
- * from KalmanTV cimport KalmanTV as CKalmanTV             # <<<<<<<<<<<<<<
+  /* "probDE/cython/kalmantest.pyx":1
+ * from KalmanTest cimport KalmanTest as CKalmanTest             # <<<<<<<<<<<<<<
  * 
- * cdef class KalmanTV:
+ * cdef class KalmanTest:
  */
   __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -19341,11 +17233,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init probDE.cython.kalmantv", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init probDE.cython.kalmantest", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init probDE.cython.kalmantv");
+    PyErr_SetString(PyExc_ImportError, "init probDE.cython.kalmantest");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -22336,17 +20228,17 @@ no_fail:
 }
 
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_double(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dcd__double(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
-    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
+    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW) };
     int retcode;
     if (obj == Py_None) {
         result.memview = (struct __pyx_memoryview_obj *) Py_None;
         return result;
     }
-    retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
-                                                 (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 1,
+    retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_F_CONTIG,
+                                                 (PyBUF_F_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 2,
                                                  &__Pyx_TypeInfo_double, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
@@ -22359,17 +20251,17 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dcd__double(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dcd_d__double(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
-    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW) };
+    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW) };
     int retcode;
     if (obj == Py_None) {
         result.memview = (struct __pyx_memoryview_obj *) Py_None;
         return result;
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_F_CONTIG,
-                                                 (PyBUF_F_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 2,
+                                                 (PyBUF_F_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 3,
                                                  &__Pyx_TypeInfo_double, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))

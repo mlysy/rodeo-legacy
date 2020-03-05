@@ -40,35 +40,42 @@ ext_modules = [Extension("probDE.cython.kalmantv",
                          include_dirs=[
                              np.get_include(),
                              "cython/eigen-3.3.7"],
-                         extra_compile_args=['-O3'],
+                         extra_compile_args=["-O3"],
+                         language='c++'),
+               Extension("probDE.cython.KalmanTest.kalmantest",
+                         ["cython/KalmanTest/kalmantest"+ext_cpp],
+                         include_dirs=[
+                             np.get_include(),
+                             "cython/eigen-3.3.7"],
+                         extra_compile_args=["-O3"],
                          language='c++'),
                Extension("probDE.cython.mat_mult",
                          ["cython/mat_mult"+ext_c],
                          include_dirs=[
                              np.get_include(),
                              sp.get_include()],
-                         extra_compile_args=['-O3'],
+                         extra_compile_args=["-O3"],
                          language='c'),
                Extension("probDE.cython.kalman_ode_higher",
                          ["cython/kalman_ode_higher"+ext_c],
                          include_dirs=[
                              np.get_include()
                          ],
-                         extra_compile_args=['-O3'],
+                         extra_compile_args=["-O3"],
                          language='c'),
                Extension("probDE.cython.kalman_ode_solve_cy",
                          ["cython/kalman_ode_solve_cy"+ext_c],
                          include_dirs=[
                              np.get_include()
                          ],
-                         extra_compile_args=['-O3'],
+                         extra_compile_args=["-O3"],
                          language='c'),
                Extension("probDE.cython.kalman_ode_offline_cy",
                          ["cython/kalman_ode_offline_cy"+ext_c],
                          include_dirs=[
                              np.get_include()
                          ],
-                         extra_compile_args=['-O3'],
+                         extra_compile_args=["-O3"],
                          language='c')]
 
 
