@@ -49,10 +49,11 @@ void kalman_ode_chkrebtii(double* mu_state_smooths,
   // initialization
   // use (i), (i,j), for elementwise access, and .block() for matrix subblocks.
   // more on all this here: https://eigen.tuxfamily.org/dox/group__TutorialBlockOperations.html
-  mu_state_filts.col(0) = x0_state_;
-  x_meass.col(0) = (wgt_meas_*x0_state_).adjoint();
-  mu_state_preds.col(0) = mu_state_filts.col(0);
-  var_state_preds.block(0, 0, n_dim_state, n_dim_state) = var_state_filts.block(0, 0, n_dim_state, n_dim_state);
+  mu_state_filts.col(0).noalias() = x0_state_;
+  x_meass.col(0).noalias() = (wgt_meas_*x0_state_).adjoint();
+  mu_state_preds.col(0).noalias() = mu_state_filts.col(0);
+  var_state_preds.block(0, 0, n_dim_state, n_dim_state).noalias() = \
+    var_state_filts.block(0, 0, n_dim_state, n_dim_state);
 
   // forward pass
   KalmanTV::KalmanTV KFS(n_dim_meas, n_dim_state);

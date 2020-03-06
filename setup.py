@@ -49,6 +49,13 @@ ext_modules = [Extension("probDE.cython.kalmantv",
                              "cython/eigen-3.3.7"],
                          extra_compile_args=["-O3"],
                          language='c++'),
+               Extension("probDE.cython.KalmanTest.kalmantvpre",
+                         ["cython/KalmanTest/kalmantvpre"+ext_cpp],
+                         include_dirs=[
+                             np.get_include(),
+                             "cython/eigen-3.3.7"],
+                         extra_compile_args=["-O3"],
+                         language='c++'),
                Extension("probDE.cython.mat_mult",
                          ["cython/mat_mult"+ext_c],
                          include_dirs=[

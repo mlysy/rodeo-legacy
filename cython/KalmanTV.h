@@ -217,7 +217,7 @@ namespace KalmanTV {
     /// Simulate a random state given the mean and variance.
     void state_sim(RefVectorXd x_state,
                    cRefVectorXd& mu_state,
-                   cRefMatrixXd& var_State,
+                   cRefMatrixXd& var_state,
                    cRefVectorXd& z_state);
     /// Raw buffer equivalent.
     void state_sim(double* x_state,
