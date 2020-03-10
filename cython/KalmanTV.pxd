@@ -59,7 +59,7 @@ cdef extern from "KalmanTV.h" namespace "KalmanTV":
                     const double* wgt_state,
                     const double* z_state)
         void state_sim(double* x_state,
-                       const double* mu_state,
-                       const double* var_state,
+                       const double* mu,
+                       const double* var,
                        const double* z_state)
             

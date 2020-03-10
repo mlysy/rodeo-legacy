@@ -47,13 +47,13 @@ namespace KalmanTVPre {
   /// - `x_n = x_state[n]`
   /// - `W_n = wgt_meas[n]`
   /// - `E[x_n | y_0:n] = mu_state_curr`
-  /// - `var(x_n | y_0:N) = var_state_smooth`
+  /// - `var(x_n | y_0:N) = var_state_smooths`
   ///
   class KalmanTVPre {
   private:
     int n_meas_; ///< Number of measurement dimensions.
     int n_state_; ///< Number of state dimensions.
-    int n_steps_; ///< Number of time points to evaluate.
+    int n_steps_; ///< Number of time steps to evaluate.
     VectorXd x0_state_; ///< Initial x0 value of ODE.
     VectorXd mu_meas; ///< C++ level memory allocation.
     MatrixXd var_meas;
@@ -63,16 +63,15 @@ namespace KalmanTVPre {
     MatrixXd var_state_preds;
     VectorXd tmu_state_; ///< Temporary storage for mean vector.
     VectorXd tmu_state2_;
-    VectorXd tmu_state3_;
     MatrixXd tvar_state_; ///< Temporary storage for variance matrix.
     MatrixXd tvar_state2_;
     MatrixXd tvar_state3_;
     MatrixXd tvar_state4_;
     MatrixXd tchol_state_;
     VectorXd tmu_meas_;
+    MatrixXd tvar_meas_;
     MatrixXd twgt_meas_;
     MatrixXd twgt_meas2_;
-    MatrixXd tvar_meas_;
     LLT<MatrixXd> llt_meas_;
     LLT<MatrixXd> llt_state_;
   public:
@@ -127,53 +126,41 @@ namespace KalmanTVPre {
     /// Perform one step of the Kalman mean/variance smoother.
     ///
     /// Calculates `theta_n|N` from `theta_n+1|N`, `theta_n+1|n+1`, and `theta_n+1|n`.  **Is the indexing correct?**
-    void smooth_mv(const int cur_step,
-                   RefVectorXd mu_state_smooth,
-                   RefMatrixXd var_state_smooth,
-                   cRefVectorXd& mu_state_next,
-                   cRefMatrixXd& var_state_next,
+    void smooth_mv(RefMatrixXd mu_state_smooths,
+                   RefMatrixXd var_state_smooths,
+                   const int cur_step,
                    cRefMatrixXd& wgt_state);
     /// Raw buffer equivalent.
-    void smooth_mv(const int cur_step,
-                   double* mu_state_smooth,
-                   double* var_state_smooth,
-                   const double* mu_state_next,
-                   const double* var_state_next,
+    void smooth_mv(double* mu_state_smooths,
+                   double* var_state_smooths,
+                   const int cur_step,
                    const double* wgt_state);
     /// Perform one step of the Kalman sampling smoother.
     ///
     /// Calculates a draw `x_n|N` from `x_n+1|N`, `theta_n+1|n+1`, and `theta_n+1|n`.  **Is the indexing correct?**
-    void smooth_sim(const int cur_step,
-                    RefVectorXd x_state_smooth,
-                    cRefVectorXd& x_state_next,
+    void smooth_sim(RefMatrixXd x_state_smooths,
+                    const int cur_step,
                     cRefMatrixXd& wgt_state,
-                    cRefVectorXd& z_state);
+                    cRefMatrixXd& z_states);
     /// Raw buffer equivalent.                    
-    void smooth_sim(const int cur_step,
-                    double* x_state_smooth,
-                    const double* x_state_next,
+    void smooth_sim(double* x_state_smooths,
+                    const int cur_step,
                     const double* wgt_state,
-                    const double* z_state);    
+                    const double* z_states);    
     /// Perfrom one step of both Kalman mean/variance and sampling smoothers.
-    void smooth(const int cur_step,
-                RefVectorXd x_state_smooth,
-                RefVectorXd mu_state_smooth,
-                RefMatrixXd var_state_smooth,
-                cRefVectorXd& x_state_next,
-                cRefVectorXd& mu_state_next,
-                cRefMatrixXd& var_state_next,
+    void smooth(RefMatrixXd x_state_smooths,
+                RefMatrixXd mu_state_smooths,
+                RefMatrixXd var_state_smooths,
+                const int cur_step,
                 cRefMatrixXd& wgt_state,
-                cRefVectorXd& z_state);
+                cRefMatrixXd& z_states);
     /// Raw buffer equivalent.                    
-    void smooth(const int cur_step,
-                double* x_state_smooth,
-                double* mu_state_smooth,
-                double* var_state_smooth,
-                const double* x_state_next,
-                const double* mu_state_next,
-                const double* var_state_next,
+    void smooth(double* x_state_smooths,
+                double* mu_state_smooths,
+                double* var_state_smooths,
+                const int cur_step,
                 const double* wgt_state,
-                const double* z_state);
+                const double* z_states);
     /// Simulate a random state given the mean and variance.
     void state_sim(RefVectorXd x_state,
                    cRefVectorXd& mu,
@@ -185,15 +172,25 @@ namespace KalmanTVPre {
                    const double* var,
                    const double* z_state);
     /// Update the first step of smoothing.
-    void smooth_update(RefVectorXd x_state_smooth,
-                       RefVectorXd mu_state_smooth,
-                       RefMatrixXd var_state_smooth,
-                       cRefVectorXd& z_state);
+    void smooth_update(RefMatrixXd x_state_smooths,
+                       RefMatrixXd mu_state_smooths,
+                       RefMatrixXd var_state_smooths,
+                       cRefMatrixXd& z_states);
     /// Raw buffer equivalent.
-    void smooth_update(double* x_state_smooth,
-                       double* mu_state_smooth,
-                       double* var_state_smooth,
-                       const double* z_state);
+    void smooth_update(double* x_state_smooths,
+                       double* mu_state_smooths,
+                       double* var_state_smooths,
+                       const double* z_states);
+    /// Perform one step of chkrebtii interrogation.
+    void chkrebtii_int(RefVectorXd x_state,
+                       const int cur_step,
+                       cRefMatrixXd& wgt_meas,
+                       cRefMatrixXd& z_states);
+    /// Raw buffer equivalent.
+    void chkrebtii_int(double* x_state,
+                       const int cur_step,
+                       const double* wgt_meas,
+                       const double* z_states);
     // void printX() {
     //   int n = 2;
     //   int p = 3;
@@ -205,6 +202,8 @@ namespace KalmanTVPre {
 
   /// @param[in] n_meas Number of measurement variables.
   /// @param[in] n_state Number of state variables.
+  /// @param[in] n_steps Number of time steps to evaluate.
+  /// @param[in] x0_state Initial value of ODE.
   inline KalmanTVPre::KalmanTVPre(int n_meas, int n_state, int n_steps, double* x0_state) {
     // Eigen::internal::set_is_malloc_allowed(true);
     // problem dimensions
@@ -226,7 +225,6 @@ namespace KalmanTVPre {
     // temporary storage
     tmu_state_ = VectorXd::Zero(n_state_);
     tmu_state2_ = VectorXd::Zero(n_state_);
-    // tmu_state3_ = VectorXd::Zero(n_state_);
     tvar_state_ = MatrixXd::Identity(n_state_, n_state_);
     tvar_state2_ = MatrixXd::Identity(n_state_, n_state_);
     tvar_state3_ = MatrixXd::Identity(n_state_, n_state_);
@@ -242,10 +240,11 @@ namespace KalmanTVPre {
     // Eigen::internal::set_is_malloc_allowed(false);
   }
 
-  /// @param[out] mu_state_pred Predicted state mean `mu_n|n-1`.
-  /// @param[out] var_state_pred Predicted state variance `Sigma_n|n-1`.
-  /// @param[in] mu_state_past Previous state mean `mu_n-1|n-1`.
-  /// @param[in] var_state_past Previous state variance `Sigma_n-1|n-1`.
+  /// @param[out] mu_state_preds Predicted state mean `mu_n|n-1`.
+  /// @param[out] var_state_preds Predicted state variance `Sigma_n|n-1`.
+  /// @param[in] mu_state_filts Previous state mean `mu_n-1|n-1`.
+  /// @param[in] var_state_filts Previous state variance `Sigma_n-1|n-1`.
+  /// @param[in] cur_step Current step, n.
   /// @param[in] mu_state Current state mean `c_n`.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
   /// @param[in] var_state Current state variance `R_n`.
@@ -273,10 +272,11 @@ namespace KalmanTVPre {
     return;
   }
 
-  /// @param[out] mu_state_filt Current state mean `mu_n|n`.
-  /// @param[out] var_state_filt Current state variance `Sigma_n|n`.
-  /// @param[in] mu_state_pred Predicted state mean `mu_n|n-1`.
-  /// @param[in] var_state_pred Predicted state variance `Sigma_n|n-1`.
+  /// @param[out] mu_state_filts Current state mean `mu_n|n`.
+  /// @param[out] var_state_filts Current state variance `Sigma_n|n`.
+  /// @param[in] mu_state_preds Predicted state mean `mu_n|n-1`.
+  /// @param[in] var_state_preds Predicted state variance `Sigma_n|n-1`.
+  /// @param[in] cur_step Current step, n.
   /// @param[in] x_meas Current measure `y_n`.
   /// @param[in] mu_meas Current measure mean `d_n`.
   /// @param[in] wgt_meas Current measure transition matrix `W_n`.
@@ -323,12 +323,13 @@ namespace KalmanTVPre {
     return;    
   }
   
-  /// @param[out] mu_state_pred Predicted state mean `mu_n|n-1`.
-  /// @param[out] var_state_pred Predicted state variance `Sigma_n|n-1`.
-  /// @param[out] mu_state_filt Current state mean `mu_n|n`.
-  /// @param[out] var_state_filt Current state variance `Sigma_n|n`.
-  /// @param[in] mu_state_past Previous state mean `mu_n-1|n-1`.
-  /// @param[in] var_state_past Previous state variance `Sigma_n-1|n-1`.
+  /// @param[out] mu_state_preds Predicted state mean `mu_n|n-1`.
+  /// @param[out] var_state_preds Predicted state variance `Sigma_n|n-1`.
+  /// @param[out] mu_state_filts Current state mean `mu_n|n`.
+  /// @param[out] var_state_filts Current state variance `Sigma_n|n`.
+  /// @param[in] mu_state_preds Previous state mean `mu_n-1|n-1`.
+  /// @param[in] var_state_preds Previous state variance `Sigma_n-1|n-1`.
+  /// @param[in] cur_step Current step, n.
   /// @param[in] mu_state Current state mean `c_n`.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
   /// @param[in] var_state Current state variance `R_n`.
@@ -358,69 +359,64 @@ namespace KalmanTVPre {
     return;    
   }
   
-  /// @param[out] mu_state_smooth Smoothed state mean `mu_n|N`.
-  /// @param[out] var_state_smooth Smoothed state variance `Sigma_n|N`.
-  /// @param[in] mu_state_next Next smoothed state mean `mu_n+1|N`.
-  /// @param[in] var_state_next Next smoothed state variance `Sigma_n+1|N`.
-  /// @param[in] mu_state_filt Current state mean `mu_n|n`.
-  /// @param[in] var_state_filt Current state variance `Sigma_n|n`.
-  /// @param[in] mu_state_pred Predicted state mean `mu_n+1|n`.
-  /// @param[in] var_state_pred Predicted state variance `Sigma_n+1|n`.
-  /// @param[in] wgt_meas Current measure transition matrix `W_n`.
-  inline void KalmanTVPre::smooth_mv(const int cur_step,
-                                     RefVectorXd mu_state_smooth,
-                                     RefMatrixXd var_state_smooth,
-                                     cRefVectorXd& mu_state_next,
-                                     cRefMatrixXd& var_state_next,
+  /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
+  /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
+  /// @param[in] mu_state_smooths Next smoothed state mean `mu_n+1|N`.
+  /// @param[in] var_state_smooths Next smoothed state variance `Sigma_n+1|N`.
+  /// @param[in] mu_state_filts Current state mean `mu_n|n`.
+  /// @param[in] var_state_filts Current state variance `Sigma_n|n`.
+  /// @param[in] mu_state_preds Predicted state mean `mu_n+1|n`.
+  /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
+  /// @param[in] cur_step Current step, n.
+  /// @param[in] wgt_state Current state transition matrix `T_n`.
+  inline void KalmanTVPre::smooth_mv(RefMatrixXd mu_state_smooths,
+                                     RefMatrixXd var_state_smooths,
+                                     const int cur_step,
                                      cRefMatrixXd& wgt_state) {
     tvar_state_.noalias() = wgt_state * var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_).adjoint();  
     llt_state_.compute(var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_)); 
     llt_state_.solveInPlace(tvar_state_); // equivalent to var_state_temp_tilde
-    tmu_state_.noalias() = mu_state_next - mu_state_preds.col(cur_step+1);
-    tvar_state2_.noalias() = var_state_next - var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_);
+    tmu_state_.noalias() = mu_state_smooths.col(cur_step+1) - mu_state_preds.col(cur_step+1);
+    tvar_state2_.noalias() = \
+      var_state_smooths.block(0, n_state_*(cur_step+1), n_state_, n_state_) - var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_);
     tvar_state3_.noalias() = tvar_state_.adjoint() * tvar_state2_; 
-    var_state_smooth.noalias() = tvar_state3_ * tvar_state_;          
-    mu_state_smooth.noalias() = tvar_state_.adjoint() * tmu_state_;
-    mu_state_smooth += mu_state_filts.col(cur_step);
-    var_state_smooth += var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_);
+    var_state_smooths.block(0, n_state_*cur_step, n_state_, n_state_).noalias() = tvar_state3_ * tvar_state_;          
+    mu_state_smooths.col(cur_step).noalias() = tvar_state_.adjoint() * tmu_state_;
+    mu_state_smooths.col(cur_step) += mu_state_filts.col(cur_step);
+    var_state_smooths.block(0, n_state_*cur_step, n_state_, n_state_) += var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_);
     return;
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::smooth_mv(const int cur_step,
-                                     double* mu_state_smooth,
-                                     double* var_state_smooth,
-                                     const double* mu_state_next,
-                                     const double* var_state_next,
+  inline void KalmanTVPre::smooth_mv(double* mu_state_smooths,
+                                     double* var_state_smooths,
+                                     const int cur_step,
                                      const double* wgt_state) {
-    MapVectorXd mu_state_smooth_(mu_state_smooth, n_state_);
-    MapMatrixXd var_state_smooth_(var_state_smooth, n_state_, n_state_);
-    cMapVectorXd mu_state_next_(mu_state_next, n_state_);
-    cMapMatrixXd var_state_next_(var_state_next, n_state_, n_state_);
+    MapMatrixXd mu_state_smooths_(mu_state_smooths, n_state_, n_steps_);
+    MapMatrixXd var_state_smooths_(var_state_smooths, n_state_, n_state_*n_steps_);
     cMapMatrixXd wgt_state_(wgt_state, n_state_, n_state_);
-    smooth_mv(cur_step, mu_state_smooth_, var_state_smooth_,
-              mu_state_next_, var_state_next_, wgt_state_);
+    smooth_mv(mu_state_smooths_, var_state_smooths_,
+              cur_step, wgt_state_);
     return;
   }
   
-  /// @param[out] x_state_smooth Smoothed state `X_n`.
-  /// @param[in] mu_state_next Next smoothed state mean `mu_n+1|N`.
-  /// @param[in] var_state_next Next smoothed state variance `Sigma_n+1|N`.
-  /// @param[in] mu_state_filt Current state mean `mu_n|n`.
-  /// @param[in] var_state_filt Current state variance `Sigma_n|n`.
-  /// @param[in] mu_state_pred Predicted state mean `mu_n+1|n`.
-  /// @param[in] var_state_pred Predicted state variance `Sigma_n+1|n`.
-  /// @param[in] wgt_meas Current measure transition matrix `W_n`.
-  /// @param[in] z_state Random draws from `N(0,1)` for simulating the smoothed state.
-  inline void KalmanTVPre::smooth_sim(const int cur_step,
-                                      RefVectorXd x_state_smooth,
-                                      cRefVectorXd& x_state_next,
+  /// @param[out] x_state_smooths Smoothed state `X_n`.
+  /// @param[in] x_state_smooths Smoothed state `X_n+1`.
+  /// @param[in] mu_state_filts Current state mean `mu_n|n`.
+  /// @param[in] var_state_filts Current state variance `Sigma_n|n`.
+  /// @param[in] mu_state_preds Predicted state mean `mu_n+1|n`.
+  /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
+  /// @param[in] cur_step Current step, n.
+  /// @param[in] wgt_state Current state transition matrix `T_n`.
+  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  inline void KalmanTVPre::smooth_sim(RefMatrixXd x_state_smooths,
+                                      const int cur_step,
                                       cRefMatrixXd& wgt_state,
-                                      cRefVectorXd& z_state) {
+                                      cRefMatrixXd& z_states) {
     tvar_state_.noalias() = wgt_state * var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_).adjoint();
     tvar_state2_.noalias() = tvar_state_; // equivalent to var_state_temp
     llt_state_.compute(var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_)); 
     llt_state_.solveInPlace(tvar_state_); // equivalent to var_state_temp_tilde
-    tmu_state_.noalias() = x_state_next - mu_state_preds.col(cur_step+1);
+    tmu_state_.noalias() = x_state_smooths.col(cur_step+1) - mu_state_preds.col(cur_step+1);
     // std::cout << "tvar_state_ = " << tvar_state_ << std::endl;
     tmu_state2_.noalias() = tvar_state_.adjoint() * tmu_state_;
     tmu_state2_ += mu_state_filts.col(cur_step);
@@ -431,69 +427,59 @@ namespace KalmanTVPre {
     // tvar_state4_.noalias() = tvar_state3_ * tvar_state3_.adjoint(); // only for testing (requires semi-positive)
     // var_state_sim.noalias() = tvar_state4_; // testing
     // Cholesky
-    state_sim(x_state_smooth, tmu_state2_,
-              tvar_state3_, z_state);
-/*     llt_state2_.compute(tvar_state4_); // use tvar_state3_ in the algorithm
-    tchol_state_ = llt_state2_.matrixL();
-    x_state_smooth.noalias() = tchol_state_ * z_state;
-    x_state_smooth += tmu_state2_; */
+    state_sim(x_state_smooths.col(cur_step), tmu_state2_,
+              tvar_state3_, z_states.col(n_steps_+ cur_step));
     return;
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::smooth_sim(const int cur_step,
-                                      double* x_state_smooth,
-                                      const double* x_state_next,
+  inline void KalmanTVPre::smooth_sim(double* x_state_smooths,
+                                      const int cur_step,
                                       const double* wgt_state,
-                                      const double* z_state) {
-    MapVectorXd x_state_smooth_(x_state_smooth, n_state_);
-    cMapVectorXd x_state_next_(x_state_next, n_state_);
+                                      const double* z_states) {
+    MapVectorXd x_state_smooths_(x_state_smooths, n_state_, n_steps_);
     cMapMatrixXd wgt_state_(wgt_state, n_state_, n_state_);
-    cMapVectorXd z_state_(z_state, n_state_);
-    smooth_sim(cur_step, x_state_smooth_, x_state_next_, 
-               wgt_state_, z_state_);
+    cMapMatrixXd z_states_(z_states, n_state_, 2*n_steps_);
+    smooth_sim(x_state_smooths_, cur_step, 
+               wgt_state_, z_states_);
     return;
   }
 
-  /// @param[out] x_state_smooth Smoothed state `X_n`.
-  /// @param[out] mu_state_smooth Smoothed state mean `mu_n|N`.
-  /// @param[out] var_state_smooth Smoothed state variance `Sigma_n|N`.
-  /// @param[in] mu_state_next Next smoothed state mean `mu_n+1|N`.
-  /// @param[in] var_state_next Next smoothed state variance `Sigma_n+1|N`.
-  /// @param[in] mu_state_filt Current state mean `mu_n|n`.
-  /// @param[in] var_state_filt Current state variance `Sigma_n|n`.
-  /// @param[in] mu_state_pred Predicted state mean `mu_n+1|n`.
-  /// @param[in] var_state_pred Predicted state variance `Sigma_n+1|n`.
-  /// @param[in] wgt_meas Current measure transition matrix `W_n`.
-  /// @param[in] z_state Random draws from `N(0,1)` for simulating the smoothed state.
-  inline void KalmanTVPre::smooth(const int cur_step,
-                                  RefVectorXd x_state_smooth,
-                                  RefVectorXd mu_state_smooth,
-                                  RefMatrixXd var_state_smooth,
-                                  cRefVectorXd& x_state_next,
-                                  cRefVectorXd& mu_state_next,
-                                  cRefMatrixXd& var_state_next,
+  /// @param[out] x_state_smooths Smoothed state `X_n`.
+  /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
+  /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
+  /// @param[in] x_state_smooths Smoothed state `X_n+1`.
+  /// @param[in] mu_state_smooths Next smoothed state mean `mu_n+1|N`.
+  /// @param[in] var_state_smooths Next smoothed state variance `Sigma_n+1|N`.
+  /// @param[in] mu_state_filts Current state mean `mu_n|n`.
+  /// @param[in] var_state_filts Current state variance `Sigma_n|n`.
+  /// @param[in] mu_state_preds Predicted state mean `mu_n+1|n`.
+  /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
+  /// @param[in] cur_step Current step, n.
+  /// @param[in] wgt_state Current state transition matrix `T_n`.
+  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  inline void KalmanTVPre::smooth(RefMatrixXd x_state_smooths,
+                                  RefMatrixXd mu_state_smooths,
+                                  RefMatrixXd var_state_smooths,
+                                  const int cur_step,
                                   cRefMatrixXd& wgt_state,
-                                  cRefVectorXd& z_state) {
-    smooth_mv(cur_step, mu_state_smooth, var_state_smooth,
-              mu_state_next, var_state_next, wgt_state);
-    smooth_sim(cur_step, x_state_smooth, x_state_next, 
-               wgt_state, z_state);
+                                  cRefMatrixXd& z_states) {
+    smooth_mv(mu_state_smooths, var_state_smooths,
+              cur_step, wgt_state);
+    smooth_sim(x_state_smooths, cur_step, 
+               wgt_state, z_states);
     return;
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::smooth(const int cur_step,
-                                  double* x_state_smooth,
-                                  double* mu_state_smooth,
-                                  double* var_state_smooth,
-                                  const double* x_state_next,
-                                  const double* mu_state_next,
-                                  const double* var_state_next,
+  inline void KalmanTVPre::smooth(double* x_state_smooths,
+                                  double* mu_state_smooths,
+                                  double* var_state_smooths,
+                                  const int cur_step,
                                   const double* wgt_state,
-                                  const double* z_state) {
-    smooth_mv(cur_step, mu_state_smooth, var_state_smooth,
-              mu_state_next, var_state_next, wgt_state);
-    smooth_sim(cur_step, x_state_smooth, x_state_next, 
-               wgt_state, z_state);
+                                  const double* z_states) {
+    smooth_mv(mu_state_smooths, var_state_smooths,
+              cur_step, wgt_state);
+    smooth_sim(x_state_smooths, cur_step, 
+               wgt_state, z_states);
     return;
   }
 
@@ -524,26 +510,62 @@ namespace KalmanTVPre {
               var_, z_state_);
     return;
   }
-  inline void KalmanTVPre::smooth_update(RefVectorXd x_state_smooth,
-                                         RefVectorXd mu_state_smooth,
-                                         RefMatrixXd var_state_smooth,
-                                         cRefVectorXd& z_state) {
-  mu_state_smooth.noalias() = mu_state_filts.col(n_steps_-1);
-  var_state_smooth.noalias() = var_state_filts.block(0, n_state_*(n_steps_-1), n_state_, n_state_);
-  state_sim(x_state_smooth, mu_state_smooth, var_state_smooth, z_state); 
-  return;
+  /// @param[out] x_state_smooths Smoothed state `X_n`.
+  /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
+  /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
+  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  inline void KalmanTVPre::smooth_update(RefMatrixXd x_state_smooths,
+                                         RefMatrixXd mu_state_smooths,
+                                         RefMatrixXd var_state_smooths,
+                                         cRefMatrixXd& z_states) {
+    mu_state_smooths.col(n_steps_-1).noalias() = mu_state_filts.col(n_steps_-1);
+    var_state_smooths.block(0, n_state_*(n_steps_-1), n_state_, n_state_).noalias() = \
+      var_state_filts.block(0, n_state_*(n_steps_-1), n_state_, n_state_);
+    state_sim(x_state_smooths.col(n_steps_-1), mu_state_smooths.col(n_steps_-1), 
+              var_state_smooths.block(0, n_state_*(n_steps_-1), n_state_, n_state_), z_states.col(n_steps_-1)); 
+    return;
   }
-  inline void KalmanTVPre::smooth_update(double* x_state_smooth,
-                                         double* mu_state_smooth,
-                                         double* var_state_smooth,
-                                         const double* z_state) {
-  MapVectorXd x_state_smooth_(x_state_smooth, n_state_);
-  MapVectorXd mu_state_smooth_(mu_state_smooth, n_state_);
-  MapMatrixXd var_state_smooth_(var_state_smooth, n_state_, n_state_);
-  cMapVectorXd z_state_(z_state, n_state_);
-  smooth_update(x_state_smooth_, mu_state_smooth_,
-                var_state_smooth_, z_state_);
-  return;
+  inline void KalmanTVPre::smooth_update(double* x_state_smooths,
+                                         double* mu_state_smooths,
+                                         double* var_state_smooths,
+                                         const double* z_states) {
+    MapMatrixXd x_state_smooths_(x_state_smooths, n_state_, n_steps_);
+    MapMatrixXd mu_state_smooths_(mu_state_smooths, n_state_, n_steps_);
+    MapMatrixXd var_state_smooths_(var_state_smooths, n_state_, n_state_*n_steps_);
+    cMapMatrixXd z_states_(z_states, n_state_, 2*n_steps_);
+    smooth_update(x_state_smooths_, mu_state_smooths_,
+                  var_state_smooths_, z_states_);
+    return;
+  }
+  /// @param[out] x_state Simulated state.
+  /// @param[out] var_meas Variance of simulated measure.
+  /// @param[in] mu_state_preds Predicted state mean `mu_n+1|n`.
+  /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
+  /// @param[in] cur_step Current step, n.
+  /// @param[in] wgt_meas Current measure transition matrix `W_n`.
+  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  inline void KalmanTVPre::chkrebtii_int(RefVectorXd x_state,
+                                         const int cur_step,
+                                         cRefMatrixXd& wgt_meas,
+                                         cRefMatrixXd& z_states) {
+    twgt_meas_.noalias() = wgt_meas * var_state_preds.block(0, n_state_*(cur_step+1),
+                                                            n_state_, n_state_); // n_meas x n_state
+    var_meas.noalias() = twgt_meas_ * wgt_meas.adjoint();
+    state_sim(x_state, mu_state_preds.col(cur_step+1),
+              var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
+              z_states.col(cur_step));
+    return;
+  }
+  inline void KalmanTVPre::chkrebtii_int(double* x_state,
+                                         const int cur_step,
+                                         const double* wgt_meas,
+                                         const double* z_states) {
+    MapVectorXd x_state_(x_state, n_state_);
+    cMapMatrixXd wgt_meas_(wgt_meas, n_meas_, n_state_);
+    cMapMatrixXd z_states_(z_states, n_state_, 2*n_steps_);
+    chkrebtii_int(x_state_, cur_step,
+                  wgt_meas_, z_states_);
+    return;
   }
 } // end namespace KalmanTVPre
 

@@ -36,40 +36,33 @@ cdef class KalmanTVPre:
         return
 
     def smooth_mv(self,
+                  double[::1, :] mu_state_smooths,
+                  double[::1, :, :] var_state_smooths,
                   const int cur_step,
-                  double[::1] mu_state_smooth,
-                  double[::1, :] var_state_smooth,
-                  const double[::1] mu_state_next,
-                  const double[::1, :] var_state_next,
                   const double[::1, :] wgt_state):
-        self.ktvpre.smooth_mv(cur_step, & mu_state_smooth[0], & var_state_smooth[0, 0],
-                              & mu_state_next[0], & var_state_next[0, 0], & wgt_state[0, 0])
+        self.ktvpre.smooth_mv(& mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0], 
+                              cur_step, & wgt_state[0, 0])
         return
 
     def smooth_sim(self,
+                   double[::1, :] x_state_smooths,
                    const int cur_step,
-                   double[::1] x_state_smooth,
-                   const double[::1] x_state_next,
                    const double[::1, :] wgt_state,
-                   const double[::1] z_state):
-        self.ktvpre.smooth_sim(cur_step, & x_state_smooth[0], & x_state_next[0],
-                               & wgt_state[0, 0], & z_state[0])
+                   const double[::1, :] z_states):
+        self.ktvpre.smooth_sim(& x_state_smooths[0, 0], cur_step,
+                               & wgt_state[0, 0], & z_states[0, 0])
         return
 
     def smooth(self,
+               double[::1, :] x_state_smooths,
+               double[::1, :] mu_state_smooths,
+               double[::1, :, :] var_state_smooths,
                const int cur_step,
-               double[::1] x_state_smooth,
-               double[::1] mu_state_smooth,
-               double[::1, :] var_state_smooth,
-               const double[::1] x_state_next,
-               const double[::1] mu_state_next,
-               const double[::1, :] var_state_next,
                const double[::1, :] wgt_state,
-               const double[::1] z_state):
-        self.ktvpre.smooth(cur_step, & x_state_smooth[0], & mu_state_smooth[0],
-                           & var_state_smooth[0, 0], & x_state_next[0],
-                           & mu_state_next[0], & var_state_next[0, 0],
-                           & wgt_state[0, 0], & z_state[0])
+               const double[::1, :] z_states):
+        self.ktvpre.smooth(& x_state_smooths[0, 0], & mu_state_smooths[0, 0],
+                           & var_state_smooths[0, 0, 0], cur_step,
+                           & wgt_state[0, 0], & z_states[0, 0])
         return
 
     def state_sim(self,
@@ -82,11 +75,19 @@ cdef class KalmanTVPre:
         return
 
     def smooth_update(self,
-                      double[::1] x_state_smooth,
-                      double[::1] mu_state_smooth,
-                      double[::1, :] var_state_smooth,
-                      double[::1] z_state):
-        self.ktvpre.smooth_update(& x_state_smooth[0], & mu_state_smooth[0],
-                                  & var_state_smooth[0, 0], & z_state[0])
+                      double[::1, :] x_state_smooths,
+                      double[::1, :] mu_state_smooths,
+                      double[::1, :, :] var_state_smooths,
+                      double[::1, :] z_states):
+        self.ktvpre.smooth_update(& x_state_smooths[0, 0], & mu_state_smooths[0, 0],
+                                  & var_state_smooths[0, 0, 0], & z_states[0, 0])
         return
-                      
+    
+    def chkrebtii_int(self,
+                      double[::1] x_state,
+                      const int cur_step,
+                      const double[::1, :] wgt_meas,
+                      const double[::1, :] z_states):
+        self.ktvpre.chkrebtii_int(& x_state[0], cur_step,
+                                  & wgt_meas[0, 0], & z_states[0, 0])
+        return
