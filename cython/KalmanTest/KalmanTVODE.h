@@ -1,55 +1,18 @@
-/// @file KalmanTVPre.h
+/// @file KalmanTVODE.h
 
-#ifndef KalmanTVPre_h
-#define KalmanTVPre_h 1
+#ifndef KalmanTVODE_h
+#define KalmanTVODE_h 1
 
 // #undef NDEBUG
 // #define EIGEN_RUNTIME_NO_MALLOC
 #include <Eigen/Dense>
 #include <iostream>
+#include "KalmanTV.h"
 
-namespace KalmanTVPre {
+namespace KalmanTVODE {
   using namespace Eigen;
 
-  /// Time-Varying Kalman Filter and Smoother.
-  ///
-  /// Model is
-  ///
-  /// ~~~~
-  /// x_n = c_n + T_n x_n-1 + R_n^{1/2} eps_n   
-  /// y_n = d_n + W_n x_n + H_n^{1/2} eta_n,     
-  /// ~~~~
-  ///
-  /// where `x_n` is the state variable of dimension `s`, `y_n` is the measurement variable of dimension `m`, and `eps_n ~iid N(0, I_s)` and `eta_n ~iid N(0, I_m)` are noise variables independent of each other.  The `KalmanTVPre` library uses the following naming conventions to describe the variables above:
-  ///
-  /// - The state-level variables `x_n`, `c_n`, `T_n`, `R_n` and `eps_n` are denoted by `state`.
-  /// - The measurement-level variables `y_n`, `d_n`, `W_n`, `H_n` and `eta_n` are denoted by `meas`.
-  /// - The output variables `x_n` and `y_n` are denoted by `x`.
-  /// - The mean vectors `c_n` and `d_n` are denoted by `mu`.
-  /// - The variance matrices `R_n` and `H_n` are denoted by `var`.
-  /// - The weight matrices `T_n` and `W_n` are denoted by `wgt`.
-  /// - The conditional means and variances are denoted by `mu_n|m = E[x_n | y_0:m]` and `Sigma_n|m = var(x_n | y_0:m)`, and jointly as `theta_n|m = (mu_n|m, Sigma_n|m)`.
-  /// - Similarly, `x_n|m` denotes a draw from `p(x_n | x_n+1, y_0:m)`.
-  ///
-  /// **OLD CONVENTIONS**
-  ///
-  /// - `x`, `mu`, `var`, `wgt`.
-  /// - `_past`: `n-1|n-1` (filter)
-  /// - `_pred`: `n|n-1`
-  /// - `_filt`: `n|n`
-  /// - `_next`: `n+1|N` (smoother)
-  /// - `_smooth`: `n|N`
-  /// - `mu_n|m = E[x_n | y_0:m]`
-  /// - similarly for `Sigma_n|m` and `theta_n|m = (mu_n|m, Sigma_n|m)`.
-  /// - `x_n|m` is a draw from `p(x_n | x_n+1, y_0:m)`.
-  ///
-  /// So for example we have:
-  /// - `x_n = x_state[n]`
-  /// - `W_n = wgt_meas[n]`
-  /// - `E[x_n | y_0:n] = mu_state_curr`
-  /// - `var(x_n | y_0:N) = var_state_smooths`
-  ///
-  class KalmanTVPre {
+  class KalmanTVODE : public KalmanTV::KalmanTV {
   private:
     int n_meas_; ///< Number of measurement dimensions.
     int n_state_; ///< Number of state dimensions.
@@ -61,19 +24,7 @@ namespace KalmanTVPre {
     MatrixXd var_state_filts;
     MatrixXd mu_state_preds;
     MatrixXd var_state_preds;
-    VectorXd tmu_state_; ///< Temporary storage for mean vector.
-    VectorXd tmu_state2_;
-    MatrixXd tvar_state_; ///< Temporary storage for variance matrix.
-    MatrixXd tvar_state2_;
-    MatrixXd tvar_state3_;
-    MatrixXd tvar_state4_;
-    MatrixXd tchol_state_;
-    VectorXd tmu_meas_;
-    MatrixXd tvar_meas_;
     MatrixXd twgt_meas_;
-    MatrixXd twgt_meas2_;
-    LLT<MatrixXd> llt_meas_;
-    LLT<MatrixXd> llt_state_;
   public:
     /// Typedefs
     typedef Ref<VectorXd> RefVectorXd;
@@ -85,7 +36,7 @@ namespace KalmanTVPre {
     typedef Map<MatrixXd> MapMatrixXd;
     typedef Map<const MatrixXd> cMapMatrixXd;
     /// Constructor
-    KalmanTVPre(int n_meas, int n_state, int n_steps, double* x0_state);
+    KalmanTVODE(int n_meas, int n_state, int n_steps, double* x0_state);
     /// Perform one prediction step of the Kalman filter.
     ///
     /// Calculates `theta_n|n-1` from `theta_n-1|n-1`.
@@ -161,26 +112,22 @@ namespace KalmanTVPre {
                 const int cur_step,
                 const double* wgt_state,
                 const double* z_states);
-    /// Simulate a random state given the mean and variance.
-    void state_sim(RefVectorXd x_state,
-                   cRefVectorXd& mu,
-                   cRefMatrixXd& var,
-                   cRefVectorXd& z_state);
-    /// Raw buffer equivalent.
-    void state_sim(double* x_state,
-                   const double* mu,
-                   const double* var,
-                   const double* z_state);
-    /// Update the first step of smoothing.
+    /// Performes the smoothing steps.
     void smooth_update(RefMatrixXd x_state_smooths,
                        RefMatrixXd mu_state_smooths,
                        RefMatrixXd var_state_smooths,
-                       cRefMatrixXd& z_states);
+                       cRefMatrixXd& wgt_state,
+                       cRefMatrixXd& z_states,
+                       const bool smooth_mv,
+                       const bool smooth_sim);
     /// Raw buffer equivalent.
     void smooth_update(double* x_state_smooths,
                        double* mu_state_smooths,
                        double* var_state_smooths,
-                       const double* z_states);
+                       const double* wgt_state,
+                       const double* z_states,
+                       const bool smooth_mv,
+                       const bool smooth_sim);
     /// Perform one step of chkrebtii interrogation.
     void chkrebtii_int(RefVectorXd x_state,
                        const int cur_step,
@@ -191,21 +138,13 @@ namespace KalmanTVPre {
                        const int cur_step,
                        const double* wgt_meas,
                        const double* z_states);
-    // void printX() {
-    //   int n = 2;
-    //   int p = 3;
-    //   MatrixXd X = MatrixXd::Constant(n, p, 3.14);
-    //   std::cout << "X =\n" << X << std::endl;
-    //   return;
-    // }
   };
 
   /// @param[in] n_meas Number of measurement variables.
   /// @param[in] n_state Number of state variables.
   /// @param[in] n_steps Number of time steps to evaluate.
   /// @param[in] x0_state Initial value of ODE.
-  inline KalmanTVPre::KalmanTVPre(int n_meas, int n_state, int n_steps, double* x0_state) {
-    // Eigen::internal::set_is_malloc_allowed(true);
+  inline KalmanTVODE::KalmanTVODE(int n_meas, int n_state, int n_steps, double* x0_state) : KalmanTV(n_meas, n_state) {
     // problem dimensions
     n_meas_ = n_meas;
     n_state_ = n_state;
@@ -223,21 +162,7 @@ namespace KalmanTVPre {
     mu_state_filts.col(0) = x0_state_;
     mu_state_preds.col(0) = mu_state_filts.col(0);
     // temporary storage
-    tmu_state_ = VectorXd::Zero(n_state_);
-    tmu_state2_ = VectorXd::Zero(n_state_);
-    tvar_state_ = MatrixXd::Identity(n_state_, n_state_);
-    tvar_state2_ = MatrixXd::Identity(n_state_, n_state_);
-    tvar_state3_ = MatrixXd::Identity(n_state_, n_state_);
-    tvar_state4_ = MatrixXd::Identity(n_state_, n_state_);
-    tchol_state_ = MatrixXd::Identity(n_state_, n_state_);
-    tmu_meas_ = VectorXd::Zero(n_meas_);
-    tvar_meas_ = MatrixXd::Identity(n_meas_, n_meas_);
     twgt_meas_ = MatrixXd::Zero(n_meas_, n_state_);
-    twgt_meas2_ = MatrixXd::Zero(n_meas_, n_state_);
-    // cholesky solvers
-    llt_meas_.compute(MatrixXd::Identity(n_meas_, n_meas_));
-    llt_state_.compute(MatrixXd::Identity(n_state_, n_state_));
-    // Eigen::internal::set_is_malloc_allowed(false);
   }
 
   /// @param[out] mu_state_preds Predicted state mean `mu_n|n-1`.
@@ -248,20 +173,21 @@ namespace KalmanTVPre {
   /// @param[in] mu_state Current state mean `c_n`.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
   /// @param[in] var_state Current state variance `R_n`.
-  inline void KalmanTVPre::predict(const int cur_step,
+  inline void KalmanTVODE::predict(const int cur_step,
                                    cRefVectorXd& mu_state,
                                    cRefMatrixXd& wgt_state,
                                    cRefMatrixXd& var_state) {
-    mu_state_preds.col(cur_step+1).noalias() = wgt_state * mu_state_filts.col(cur_step);
-    mu_state_preds.col(cur_step+1) += mu_state;
-    // // need to assign to temporary for matrix triple product
-    tvar_state_.noalias() = wgt_state * var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_);
-    var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_).noalias() = tvar_state_ * wgt_state.adjoint();
-    var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_) += var_state;
+    KalmanTV::predict(mu_state_preds.col(cur_step+1),
+                      var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
+                      mu_state_filts.col(cur_step),
+                      var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_),
+                      mu_state,
+                      wgt_state,
+                      var_state);
     return;
   }
   /// @note Arguments updated to be identical to those with `Eigen` types, so we don't need to re-document.
-  inline void KalmanTVPre::predict(const int cur_step,
+  inline void KalmanTVODE::predict(const int cur_step,
                                    const double* mu_state,
                                    const double* wgt_state,
                                    const double* var_state) {
@@ -281,40 +207,21 @@ namespace KalmanTVPre {
   /// @param[in] mu_meas Current measure mean `d_n`.
   /// @param[in] wgt_meas Current measure transition matrix `W_n`.
   /// @param[in] var_meas Current measure variance `H_n`.
-  inline void KalmanTVPre::update(const int cur_step,
+  inline void KalmanTVODE::update(const int cur_step,
                                   cRefVectorXd& x_meas,
                                   cRefMatrixXd& wgt_meas) {
-    tmu_meas_.noalias() = wgt_meas * mu_state_preds.col(cur_step+1);
-    tmu_meas_ += mu_meas; // n_meas
-    // std::cout << "tmu_meas_ = " << tmu_meas_ << std::endl;
-    twgt_meas_.noalias() = wgt_meas * var_state_preds.block(0, n_state_*(cur_step+1),
-                                                            n_state_, n_state_); // n_meas x n_state
-    // std::cout << "twgt_meas_ = " << twgt_meas_ << std::endl;
-    tvar_meas_.noalias() = twgt_meas_ * wgt_meas.adjoint();
-    tvar_meas_ += var_meas; // n_meas x n_meas
-    // std::cout << "tvar_meas_ = " << tvar_meas_ << std::endl;
-    llt_meas_.compute(tvar_meas_);
-    twgt_meas2_.noalias() = twgt_meas_;
-    // std::cout << "twgt_meas2_ = " << twgt_meas2_ << std::endl;
-    llt_meas_.solveInPlace(twgt_meas_);
-    // std::cout << "twgt_meas_ = " << twgt_meas_ << std::endl;
-    tmu_meas_.noalias() = x_meas - tmu_meas_;
-    // std::cout << "tmu_meas_ = " << tmu_meas_ << std::endl;
-    // QUESTION: is it wasteful to call adjoint() twice?
-    // does it require a temporary assignment?
-    mu_state_filts.col(cur_step+1).noalias() = twgt_meas_.adjoint() * tmu_meas_ ;
-    mu_state_filts.col(cur_step+1) += mu_state_preds.col(cur_step+1);
-    // std::cout << "mu_state_filt = " << mu_state_filt << std::endl;
-    var_state_filts.block(0, n_state_*(cur_step+1), n_state_, n_state_).noalias() = twgt_meas_.adjoint() * twgt_meas2_;
-    // std::cout << "var_state_filt = " << var_state_filt << std::endl;
-    var_state_filts.block(0, n_state_*(cur_step+1), n_state_, n_state_).noalias() = \
-      var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_) \
-      - var_state_filts.block(0, n_state_*(cur_step+1), n_state_, n_state_);
-    // std::cout << "var_state_filt = " << var_state_filt << std::endl;
+    KalmanTV::update(mu_state_filts.col(cur_step+1),
+                     var_state_filts.block(0, n_state_*(cur_step+1), n_state_, n_state_),
+                     mu_state_preds.col(cur_step+1),
+                     var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
+                     x_meas,
+                     mu_meas,
+                     wgt_meas,
+                     var_meas);
     return;
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::update(const int cur_step,
+  inline void KalmanTVODE::update(const int cur_step,
                                   const double* x_meas,
                                   const double* wgt_meas) {
     cMapVectorXd x_meas_(x_meas, n_meas_);
@@ -337,7 +244,7 @@ namespace KalmanTVPre {
   /// @param[in] mu_meas Current measure mean `d_n`.
   /// @param[in] wgt_meas Current measure transition matrix `W_n`.
   /// @param[in] var_meas Current measure variance `H_n`.
-  inline void KalmanTVPre::filter(const int cur_step,
+  inline void KalmanTVODE::filter(const int cur_step,
                                   cRefVectorXd& mu_state,
                                   cRefMatrixXd& wgt_state,
                                   cRefMatrixXd& var_state,
@@ -348,7 +255,7 @@ namespace KalmanTVPre {
     return;    
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::filter(const int cur_step,
+  inline void KalmanTVODE::filter(const int cur_step,
                                   const double* mu_state,
                                   const double* wgt_state,
                                   const double* var_state,
@@ -369,25 +276,23 @@ namespace KalmanTVPre {
   /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
-  inline void KalmanTVPre::smooth_mv(RefMatrixXd mu_state_smooths,
+  inline void KalmanTVODE::smooth_mv(RefMatrixXd mu_state_smooths,
                                      RefMatrixXd var_state_smooths,
                                      const int cur_step,
                                      cRefMatrixXd& wgt_state) {
-    tvar_state_.noalias() = wgt_state * var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_).adjoint();  
-    llt_state_.compute(var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_)); 
-    llt_state_.solveInPlace(tvar_state_); // equivalent to var_state_temp_tilde
-    tmu_state_.noalias() = mu_state_smooths.col(cur_step+1) - mu_state_preds.col(cur_step+1);
-    tvar_state2_.noalias() = \
-      var_state_smooths.block(0, n_state_*(cur_step+1), n_state_, n_state_) - var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_);
-    tvar_state3_.noalias() = tvar_state_.adjoint() * tvar_state2_; 
-    var_state_smooths.block(0, n_state_*cur_step, n_state_, n_state_).noalias() = tvar_state3_ * tvar_state_;          
-    mu_state_smooths.col(cur_step).noalias() = tvar_state_.adjoint() * tmu_state_;
-    mu_state_smooths.col(cur_step) += mu_state_filts.col(cur_step);
-    var_state_smooths.block(0, n_state_*cur_step, n_state_, n_state_) += var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_);
+    KalmanTV::smooth_mv(mu_state_smooths.col(cur_step),
+                        var_state_smooths.block(0, n_state_*cur_step, n_state_, n_state_),
+                        mu_state_smooths.col(cur_step+1),
+                        var_state_smooths.block(0, n_state_*(cur_step+1), n_state_, n_state_),
+                        mu_state_filts.col(cur_step),
+                        var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_),
+                        mu_state_preds.col(cur_step+1),
+                        var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
+                        wgt_state);
     return;
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::smooth_mv(double* mu_state_smooths,
+  inline void KalmanTVODE::smooth_mv(double* mu_state_smooths,
                                      double* var_state_smooths,
                                      const int cur_step,
                                      const double* wgt_state) {
@@ -408,31 +313,22 @@ namespace KalmanTVPre {
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
   /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
-  inline void KalmanTVPre::smooth_sim(RefMatrixXd x_state_smooths,
+  inline void KalmanTVODE::smooth_sim(RefMatrixXd x_state_smooths,
                                       const int cur_step,
                                       cRefMatrixXd& wgt_state,
                                       cRefMatrixXd& z_states) {
-    tvar_state_.noalias() = wgt_state * var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_).adjoint();
-    tvar_state2_.noalias() = tvar_state_; // equivalent to var_state_temp
-    llt_state_.compute(var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_)); 
-    llt_state_.solveInPlace(tvar_state_); // equivalent to var_state_temp_tilde
-    tmu_state_.noalias() = x_state_smooths.col(cur_step+1) - mu_state_preds.col(cur_step+1);
-    // std::cout << "tvar_state_ = " << tvar_state_ << std::endl;
-    tmu_state2_.noalias() = tvar_state_.adjoint() * tmu_state_;
-    tmu_state2_ += mu_state_filts.col(cur_step);
-    // mu_state_sim.noalias() = tmu_state2_;
-    // std::cout << "tmu_state_= " << tmu_state_ << std::endl;
-    tvar_state3_.noalias() = tvar_state_.adjoint() * tvar_state2_;
-    tvar_state3_.noalias() = var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_) - tvar_state3_;
-    // tvar_state4_.noalias() = tvar_state3_ * tvar_state3_.adjoint(); // only for testing (requires semi-positive)
-    // var_state_sim.noalias() = tvar_state4_; // testing
-    // Cholesky
-    state_sim(x_state_smooths.col(cur_step), tmu_state2_,
-              tvar_state3_, z_states.col(n_steps_+ cur_step));
+    KalmanTV::smooth_sim(x_state_smooths.col(cur_step),
+                         x_state_smooths.col(cur_step+1),
+                         mu_state_filts.col(cur_step),
+                         var_state_filts.block(0, n_state_*cur_step, n_state_, n_state_),
+                         mu_state_preds.col(cur_step+1),
+                         var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
+                         wgt_state,
+                         z_states.col(n_steps_ + cur_step));
     return;
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::smooth_sim(double* x_state_smooths,
+  inline void KalmanTVODE::smooth_sim(double* x_state_smooths,
                                       const int cur_step,
                                       const double* wgt_state,
                                       const double* z_states) {
@@ -457,7 +353,7 @@ namespace KalmanTVPre {
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
   /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
-  inline void KalmanTVPre::smooth(RefMatrixXd x_state_smooths,
+  inline void KalmanTVODE::smooth(RefMatrixXd x_state_smooths,
                                   RefMatrixXd mu_state_smooths,
                                   RefMatrixXd var_state_smooths,
                                   const int cur_step,
@@ -470,7 +366,7 @@ namespace KalmanTVPre {
     return;
   }
   /// Raw buffer equivalent.
-  inline void KalmanTVPre::smooth(double* x_state_smooths,
+  inline void KalmanTVODE::smooth(double* x_state_smooths,
                                   double* mu_state_smooths,
                                   double* var_state_smooths,
                                   const int cur_step,
@@ -483,58 +379,60 @@ namespace KalmanTVPre {
     return;
   }
 
-  /// @param[out] x_state Simulated state.
-  /// @param[in] mu State mean.
-  /// @param[in] var State variance.
-  /// @param[in] z_state Random draws from `N(0,1)` for simulating the state.
-  inline void KalmanTVPre::state_sim(RefVectorXd x_state,
-                                     cRefVectorXd& mu,
-                                     cRefMatrixXd& var,
-                                     cRefVectorXd& z_state) {
-    llt_state_.compute(var);
-    tchol_state_ = llt_state_.matrixL();
-    x_state.noalias() = tchol_state_ * z_state;
-    x_state += mu;
-    return;
-  }
-  /// Raw buffer equivalent.
-  inline void KalmanTVPre::state_sim(double* x_state,
-                                     const double* mu,
-                                     const double* var,
-                                     const double* z_state) {
-    MapVectorXd x_state_(x_state, n_state_);
-    cMapVectorXd mu_(mu, n_state_);
-    cMapMatrixXd var_(var, n_state_, n_state_);
-    cMapVectorXd z_state_(z_state, n_state_);
-    state_sim(x_state_, mu_,
-              var_, z_state_);
-    return;
-  }
   /// @param[out] x_state_smooths Smoothed state `X_n`.
   /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
   /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
   /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
-  inline void KalmanTVPre::smooth_update(RefMatrixXd x_state_smooths,
+  inline void KalmanTVODE::smooth_update(RefMatrixXd x_state_smooths,
                                          RefMatrixXd mu_state_smooths,
                                          RefMatrixXd var_state_smooths,
-                                         cRefMatrixXd& z_states) {
+                                         cRefMatrixXd& wgt_state,
+                                         cRefMatrixXd& z_states,
+                                         const bool smooths_mv,
+                                         const bool smooths_sim) {
     mu_state_smooths.col(n_steps_-1).noalias() = mu_state_filts.col(n_steps_-1);
     var_state_smooths.block(0, n_state_*(n_steps_-1), n_state_, n_state_).noalias() = \
       var_state_filts.block(0, n_state_*(n_steps_-1), n_state_, n_state_);
     state_sim(x_state_smooths.col(n_steps_-1), mu_state_smooths.col(n_steps_-1), 
-              var_state_smooths.block(0, n_state_*(n_steps_-1), n_state_, n_state_), z_states.col(n_steps_-1)); 
+              var_state_smooths.block(0, n_state_*(n_steps_-1), n_state_, n_state_), z_states.col(n_steps_-1));
+    for(int t=n_steps_-2; t>-1; t--) {
+      if(smooths_mv && smooths_sim) {
+        smooth(x_state_smooths,
+               mu_state_smooths,
+               var_state_smooths,
+               t,
+               wgt_state,
+               z_states);
+      
+      } else if(smooths_mv) {
+        smooth_mv(mu_state_smooths,
+                  var_state_smooths,
+                  t,
+                  wgt_state);
+      } else if(smooths_sim) {
+        smooth_sim(x_state_smooths,
+                   t,
+                   wgt_state,
+                   z_states);
+      }
+    }
     return;
   }
-  inline void KalmanTVPre::smooth_update(double* x_state_smooths,
+  inline void KalmanTVODE::smooth_update(double* x_state_smooths,
                                          double* mu_state_smooths,
                                          double* var_state_smooths,
-                                         const double* z_states) {
+                                         const double* wgt_state,
+                                         const double* z_states,
+                                         const bool smooths_mv,
+                                         const bool smooths_sim) {
     MapMatrixXd x_state_smooths_(x_state_smooths, n_state_, n_steps_);
     MapMatrixXd mu_state_smooths_(mu_state_smooths, n_state_, n_steps_);
     MapMatrixXd var_state_smooths_(var_state_smooths, n_state_, n_state_*n_steps_);
+    cMapMatrixXd wgt_state_(wgt_state, n_state_, n_state_);
     cMapMatrixXd z_states_(z_states, n_state_, 2*n_steps_);
     smooth_update(x_state_smooths_, mu_state_smooths_,
-                  var_state_smooths_, z_states_);
+                  var_state_smooths_, wgt_state_,
+                  z_states_, smooths_mv, smooths_sim);
     return;
   }
   /// @param[out] x_state Simulated state.
@@ -544,7 +442,7 @@ namespace KalmanTVPre {
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_meas Current measure transition matrix `W_n`.
   /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
-  inline void KalmanTVPre::chkrebtii_int(RefVectorXd x_state,
+  inline void KalmanTVODE::chkrebtii_int(RefVectorXd x_state,
                                          const int cur_step,
                                          cRefMatrixXd& wgt_meas,
                                          cRefMatrixXd& z_states) {
@@ -556,7 +454,7 @@ namespace KalmanTVPre {
               z_states.col(cur_step));
     return;
   }
-  inline void KalmanTVPre::chkrebtii_int(double* x_state,
+  inline void KalmanTVODE::chkrebtii_int(double* x_state,
                                          const int cur_step,
                                          const double* wgt_meas,
                                          const double* z_states) {
@@ -567,7 +465,7 @@ namespace KalmanTVPre {
                   wgt_meas_, z_states_);
     return;
   }
-} // end namespace KalmanTVPre
+} // end namespace KalmanTVODE
 
 
 #endif

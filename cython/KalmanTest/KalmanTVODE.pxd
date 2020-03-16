@@ -1,6 +1,6 @@
-cdef extern from "KalmanTVPre.h" namespace "KalmanTVPre":
-    cdef cppclass KalmanTVPre:
-        KalmanTVPre(int, int, int, double*) except +
+cdef extern from "KalmanTVODE.h" namespace "KalmanTVODE":
+    cdef cppclass KalmanTVODE:
+        KalmanTVODE(int, int, int, double*) except +
         void predict(const int cur_step,
                      const double* mu_state,
                      const double* wgt_state,
@@ -28,14 +28,13 @@ cdef extern from "KalmanTVPre.h" namespace "KalmanTVPre":
                     const int cur_step,
                     const double* wgt_state,
                     const double* z_states)
-        void state_sim(double* x_state,
-                       const double* mu,
-                       const double* var,
-                       const double* z_state)
         void smooth_update(double* x_state_smooths,
                            double* mu_state_smooths,
                            double* var_state_smooths,
-                           const double* z_states)
+                           const double* wgt_state,
+                           const double* z_states,
+                           const bint smooths_mv,
+                           const bint smooths_sim)
         void chkrebtii_int(double* x_state,
                            const int cur_step,
                            const double* wgt_meas,
