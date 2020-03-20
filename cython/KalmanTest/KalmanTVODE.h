@@ -193,7 +193,7 @@ namespace KalmanTVODE {
                      var_state_filts.block(0, n_state_*(cur_step+1), n_state_, n_state_),
                      mu_state_preds.col(cur_step+1),
                      var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
-                     _x_meas_.col(cur_step),
+                     _x_meas_.col(cur_step+1),
                      mu_meas,
                      _wgt_meas_,
                      var_meas);

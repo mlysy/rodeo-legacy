@@ -13,7 +13,7 @@ from probDE.Kalman.higher_mvncond import higher_mvncond
 from probDE.Kalman.kalman_ode_higher import kalman_ode_higher
 from probDE.Kalman.kalman_initial_draw import kalman_initial_draw
 
-def kalman_solver(fun, tmin, tmax, n_eval, mu, sigma, roots, w, init, draws=1):
+def kalman_solver(fun, tmin, tmax, n_eval, mu, sigma, roots, w, init, z_states, draws=1):
     """
     Provides a probabilistic solver for univariate ordinary differential equations (ODEs) of the form
     :math:`w'x_t = f(x_t, t), \qquad x_L = a`.
@@ -56,10 +56,10 @@ def kalman_solver(fun, tmin, tmax, n_eval, mu, sigma, roots, w, init, draws=1):
         X_init = init
 
     if draws == 1:
-        XSample, meanX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_vec)
+        XSample, meanX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_vec, z_states)
         return XSample, meanX, varX
     else:
         XSampleDraws = np.zeros((draws, n_eval, p))
         for i in range(draws):
-            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_vec)
+            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_vec, z_states[i])
         return XSampleDraws

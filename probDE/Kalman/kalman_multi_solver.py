@@ -77,10 +77,10 @@ def kalman_multi_solver(fun, tmin, tmax, n_eval, mu, sigmalst, rootlst, W, init,
             X_init[p*i:p*(i+1)] = init[i]
 
     if draws == 1:
-        XSample, meanX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat)
+        XSample, meanX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat, z_states)
         return XSample, meanX, varX
     else:
         XSampleDraws = np.zeros((draws, n_eval, n*p))
         for i in range(draws):
-            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat)
+            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat, z_states[i])
         return XSampleDraws
