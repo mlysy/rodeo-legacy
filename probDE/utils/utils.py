@@ -67,7 +67,9 @@ def norm_sim(z, mu, V):
         (ndarray(n_dim)): Vector x in :math:`x ~ N(mu, V)`.
     
     """
-    L = np.linalg.cholesky(V)
+    
+    L = scl.cholesky(V, True)
+    #L = np.linalg.cholesky(V)
     return np.dot(L, z) + mu
 
 
@@ -102,3 +104,21 @@ def zero_pad(x0, p):
     X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0, 0))])
     return X0
 
+def rand_mat(n, p, pd=True):
+    """
+    Simulate a nxp random matrix from N(0, 1).
+
+    Args:
+        n (int): Size of first dimension.
+        p (int): Size of second dimension.
+        pd (bool): Flag for returning positve definite matrix.
+    
+    Returns:
+        (ndarray(p, n)): Random N(0, 1) matrix.
+    
+    """
+    V = np.zeros((p, n), order='F')
+    V[:] = np.random.randn(p, n)
+    if (p==n) and pd:
+        V[:] = np.matmul(V, V.T)
+    return V

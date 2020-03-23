@@ -14,7 +14,7 @@ from probDE.Kalman.multi_mvncond import multi_mvncond
 from probDE.Kalman.kalman_ode_higher import kalman_ode_higher
 from probDE.Kalman.kalman_initial_draw import kalman_initial_draw
 
-def kalman_multi_solver(fun, tmin, tmax, n_eval, mu, sigmalst, rootlst, W, init, draws=1):
+def kalman_multi_solver(fun, tmin, tmax, n_eval, mu, sigmalst, rootlst, W, init, z_states, draws=1):
     """
     Provides a probabilistic solver for multivariate ordinary differential equations (ODEs) of the form
 
@@ -77,10 +77,10 @@ def kalman_multi_solver(fun, tmin, tmax, n_eval, mu, sigmalst, rootlst, W, init,
             X_init[p*i:p*(i+1)] = init[i]
 
     if draws == 1:
-        XSample, meanX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat, z_states)
+        XSample, meanX, varX = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat, z_states, True, True)
         return XSample, meanX, varX
     else:
         XSampleDraws = np.zeros((draws, n_eval, n*p))
         for i in range(draws):
-            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat, z_states[i])
+            XSampleDraws[i],_,_ = kalman_ode_higher(fun, X_init, tmin, tmax, n_eval-1, T_mat, c, R_mat, W_mat, z_states[i], True, True)
         return XSampleDraws

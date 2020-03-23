@@ -58,45 +58,28 @@ namespace KalmanTVODE {
     ///
     /// Calculates `theta_n|n-1` from `theta_n-1|n-1`.
     void predict(const int cur_step);
-    /// Raw buffer equivalent.
-    // void predict(const int cur_step);
     /// Perform one update step of the Kalman filter.
     ///
     /// Calculates `theta_n|n` from `theta_n|n-1`.
     void update(const int cur_step);
-    /// Raw buffer equivalent.
-    // void update(const int cur_step);
     /// Perform one step of the Kalman filter.
     /// Combines `predict` and `update` steps to get `theta_n|n` from `theta_n-1|n-1`.
     void filter(const int cur_step);
-    /// Raw buffer equivalent.
-    // void filter(const int cur_step);
     /// Perform one step of the Kalman mean/variance smoother.
     ///
-    /// Calculates `theta_n|N` from `theta_n+1|N`, `theta_n+1|n+1`, and `theta_n+1|n`.  **Is the indexing correct?**
+    /// Calculates `theta_n|N` from `theta_n+1|N`, `theta_n+1|n+1`, and `theta_n+1|n`. 
     void smooth_mv(const int cur_step);
-    /// Raw buffer equivalent.
-    // void smooth_mv(const int cur_step);
     /// Perform one step of the Kalman sampling smoother.
     ///
-    /// Calculates a draw `x_n|N` from `x_n+1|N`, `theta_n+1|n+1`, and `theta_n+1|n`.  **Is the indexing correct?**
+    /// Calculates a draw `x_n|N` from `x_n+1|N`, `theta_n+1|n+1`, and `theta_n+1|n`. 
     void smooth_sim(const int cur_step);
-    /// Raw buffer equivalent.                    
-    // void smooth_sim(const int cur_step);    
-    /// Perfrom one step of both Kalman mean/variance and sampling smoothers.
+    /// Perform one step of both Kalman mean/variance and sampling smoothers.
     void smooth(const int cur_step);
-    /// Raw buffer equivalent.                    
-    // void smooth(const int cur_step);
-    /// Performes the smoothing steps.
+    /// Perform the smoothing steps.
     void smooth_update(const bool smooth_mv,
                        const bool smooth_sim);
-    /// Raw buffer equivalent.
-    // void smooth_update(const bool smooth_mv,
-    //                    const bool smooth_sim);
     /// Perform one step of chkrebtii interrogation.
     void forecast(const int cur_step);
-    /// Raw buffer equivalent.
-    // void forecast(const int cur_step);
   };
 
   /// @param[in] n_meas Number of measurement variables.
@@ -171,12 +154,6 @@ namespace KalmanTVODE {
                       _var_state_);
     return;
   }
-  // /// @note Arguments updated to be identical to those with `Eigen` types, so we don't need to re-document.
-  // inline void KalmanTVODE::predict(const int cur_step) {
-  //   predict(cur_step);
-  //   return;
-  // }
-
   /// @param[out] mu_state_filts Current state mean `mu_n|n`.
   /// @param[out] var_state_filts Current state variance `Sigma_n|n`.
   /// @param[in] mu_state_preds Predicted state mean `mu_n|n-1`.
@@ -199,12 +176,6 @@ namespace KalmanTVODE {
                      var_meas);
     return;
   }
-  // /// Raw buffer equivalent.
-  // inline void KalmanTVODE::update(const int cur_step) {
-  //   update(cur_step);
-  //   return;    
-  // }
-  
   /// @param[out] mu_state_preds Predicted state mean `mu_n|n-1`.
   /// @param[out] var_state_preds Predicted state variance `Sigma_n|n-1`.
   /// @param[out] mu_state_filts Current state mean `mu_n|n`.
@@ -224,13 +195,6 @@ namespace KalmanTVODE {
     update(cur_step);
     return;    
   }
-  // /// Raw buffer equivalent.
-  // inline void KalmanTVODE::filter(const int cur_step) {
-  //   predict(cur_step);
-  //   update(cur_step);
-  //   return;    
-  // }
-  
   /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
   /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
   /// @param[in] mu_state_smooths Next smoothed state mean `mu_n+1|N`.
@@ -256,12 +220,6 @@ namespace KalmanTVODE {
                         _wgt_state_);
     return;
   }
-  // /// Raw buffer equivalent.
-  // inline void KalmanTVODE::smooth_mv(const int cur_step) {
-  //   smooth_mv(cur_step);
-  //   return;
-  // }
-  
   /// @param[out] x_state_smooths Smoothed state `X_n`.
   /// @param[in] x_state_smooths Smoothed state `X_n+1`.
   /// @param[in] mu_state_filts Current state mean `mu_n|n`.
@@ -285,12 +243,6 @@ namespace KalmanTVODE {
                          _z_states_.col(n_steps_ + cur_step));
     return;
   }
-  // /// Raw buffer equivalent.
-  // inline void KalmanTVODE::smooth_sim(const int cur_step) {
-  //   smooth_sim(cur_step);
-  //   return;
-  // }
-
   /// @param[out] x_state_smooths Smoothed state `X_n`.
   /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
   /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
@@ -309,13 +261,6 @@ namespace KalmanTVODE {
     smooth_sim(cur_step);
     return;
   }
-  // /// Raw buffer equivalent.
-  // inline void KalmanTVODE::smooth(const int cur_step) {
-  //   smooth_mv(cur_step);
-  //   smooth_sim(cur_step);
-  //   return;
-  // }
-
   /// @param[out] x_state_smooths Smoothed state `X_n`.
   /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
   /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
@@ -331,7 +276,9 @@ namespace KalmanTVODE {
       var_state_filts.block(0, n_state_*(n_steps_-1), n_state_, n_state_);
     state_sim(_x_state_smooths_.col(n_steps_-1), _mu_state_smooths_.col(n_steps_-1), 
               _var_state_smooths_.block(0, n_state_*(n_steps_-1), n_state_, n_state_), _z_states_.col(n_steps_-1));
-    for(int t=n_steps_-2; t>-1; t--) {
+    _mu_state_smooths_.col(0) = mu_state_filts.col(0);
+    _x_state_smooths_.col(0) = mu_state_filts.col(0);
+    for(int t=n_steps_-2; t>0; t--) {
       if(smooths_mv && smooths_sim) {
         smooth(t);
       } else if(smooths_mv) {
@@ -342,11 +289,6 @@ namespace KalmanTVODE {
     }
     return;
   }
-  // inline void KalmanTVODE::smooth_update(const bool smooths_mv,
-  //                                        const bool smooths_sim) {
-  //   smooth_update(smooths_mv, smooths_sim);
-  //   return;
-  // }
   /// @param[out] x_state Simulated state.
   /// @param[out] var_meas Variance of simulated measure.
   /// @param[in] mu_state_preds Predicted state mean `mu_n+1|n`.
@@ -366,10 +308,6 @@ namespace KalmanTVODE {
               _z_states_.col(cur_step));
     return;
   }
-  // inline void KalmanTVODE::forecast(const int cur_step) {
-  //   forecast(cur_step);
-  //   return;
-  // }
 } // end namespace KalmanTVODE
 
 

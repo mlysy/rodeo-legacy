@@ -31,8 +31,8 @@ def multi_mvncond(delta_t, rootlst, sigmalst):
     """
     n = len(rootlst) # number of variables
     p = len(rootlst[0])
-    wgtState = np.zeros((n*p, n*p))
-    varState = np.zeros((n*p, n*p))
+    wgtState = np.zeros((n*p, n*p), order='F')
+    varState = np.zeros((n*p, n*p), order='F')
     for i in range(n):
         wgtState[p*i:p*(i+1), p*i:p*(i+1)], varState[p*i:p*(i+1), p*i:p*(i+1)] = higher_mvncond(delta_t, rootlst[i], sigmalst[i])
     return wgtState, varState

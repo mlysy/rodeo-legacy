@@ -43,7 +43,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
 
     Returns:
         (tuple):
-        - **x_states** (ndarray(n_timesteps, n_dim_state)): Sample solution at time t given observations from times [0...N] for
+        - **x_state_smooths** (ndarray(n_timesteps, n_dim_state)): Sample solution at time t given observations from times [0...N] for
           :math:`t = 0,1/N,\ldots,1`.
         - **mu_state_smooths** (ndarray(n_timesteps, n_dim_state)): Posterior mean of the solution process :math:`y_n` at times
           :math:`t = 0,1/N,\ldots,1`.
@@ -66,13 +66,15 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     var_state_preds = np.zeros((n_timesteps, n_dim_state, n_dim_state))
     mu_state_smooths = np.zeros((n_timesteps, n_dim_state))
     var_state_smooths = np.zeros((n_timesteps, n_dim_state, n_dim_state))
-    x_states = np.zeros((n_timesteps, n_dim_state))
+    x_state_smooths = np.zeros((n_timesteps, n_dim_state))
 
     # initialize things
     mu_state_filts[0] = x0_state
     x_meass[0] = x0_state.dot(wgt_meas.T)
     mu_state_preds[0] = mu_state_filts[0]
     var_state_preds[0] = var_state_filts[0]
+    mu_state_smooths[0] = mu_state_filts[0]
+    x_state_smooths[0] = x0_state
 
     # forward pass
     KFS = KalmanTV(n_dim_meas, n_dim_state)
@@ -107,15 +109,15 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     # backward pass
     mu_state_smooths[-1] = mu_state_filts[-1]
     var_state_smooths[-1] = var_state_filts[-1]
-    # x_states[-1] = np.random.multivariate_normal(
-    #     mu_state_smooths[-1], var_state_smooths[-1], tol=1e-6)
-    x_states[-1] = norm_sim(z=z_state_sim[:, n_eval],
+    #x_states[-1] = np.random.multivariate_normal(
+    #    mu_state_smooths[-1], var_state_smooths[-1], tol=1e-6)
+    x_state_smooths[-1] = norm_sim(z=z_state_sim[:, n_eval],
                             mu=mu_state_smooths[-1],
                             V=var_state_smooths[-1])
-    for t in reversed(range(n_eval)):
+    for t in reversed(range(1, n_eval)):
         if smooth_mv and smooth_sim:
-            mu_state_smooths[t], var_state_smooths[t], x_states[t] = (
-                KFS.smooth(x_state_next=x_states[t+1],
+            mu_state_smooths[t], var_state_smooths[t], x_state_smooths[t] = (
+                KFS.smooth(x_state_next=x_state_smooths[t+1],
                            mu_state_next=mu_state_smooths[t+1],
                            var_state_next=var_state_smooths[t+1],
                            mu_state_filt=mu_state_filts[t],
@@ -136,8 +138,8 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
                               wgt_state=wgt_state)
             )
         elif smooth_sim:
-            x_states[t] = (
-                KFS.smooth_sim(x_state_next=x_states[t+1],
+            x_state_smooths[t] = (
+                KFS.smooth_sim(x_state_next=x_state_smooths[t+1],
                                mu_state_filt=mu_state_filts[t],
                                var_state_filt=var_state_filts[t],
                                mu_state_pred=mu_state_preds[t+1],
@@ -147,8 +149,8 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
             )
 
     if smooth_sim and smooth_mv:
-        return x_states, mu_state_smooths, var_state_smooths
+        return x_state_smooths, mu_state_smooths, var_state_smooths
     elif smooth_mv:
         return mu_state_smooths, var_state_smooths
     elif smooth_sim:
-        return x_states
+        return x_state_smooths
