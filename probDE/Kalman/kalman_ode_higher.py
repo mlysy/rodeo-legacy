@@ -10,7 +10,7 @@ from probDE.Kalman.KalmanTV import KalmanTV
 from probDE.utils import norm_sim
 
 
-def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, var_state, wgt_meas, z_state_sim, smooth_mv=True, smooth_sim=False):
+def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, var_state, wgt_meas, z_state_sim, theta=None, smooth_mv=True, smooth_sim=False):
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
 
@@ -95,7 +95,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
         x_state_tt = norm_sim(z=z_state_sim[:, t],
                               mu=mu_state_preds[t+1],
                               V=var_state_preds[t+1])
-        x_meass[t+1] = fun(x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval)
+        x_meass[t+1] = fun(x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
 
         mu_state_filts[t+1], var_state_filts[t+1] = (
             KFS.update(mu_state_pred=mu_state_preds[t+1],

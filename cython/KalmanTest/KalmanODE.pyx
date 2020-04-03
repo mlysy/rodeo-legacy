@@ -47,7 +47,7 @@ cdef class KalmanODE:
         return x0_state
     
     cpdef np.ndarray[DTYPE_t, ndim=1] multi_initialize(self, double[:, ::1] w_mat, double tau, list sigmalst, 
-                                                       double scale, np.ndarray[DTYPE_t, ndim=2] x0):
+                                                       np.ndarray[DTYPE_t, ndim=2] x0, double scale=1):
         cdef int n_var, i, w_len
         cdef list rootlst
         n_var = len(x0)
@@ -76,7 +76,7 @@ cdef class KalmanODE:
             kalman_sim, kalman_mu, kalman_var = \
                 kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
                           self.wgt_state, self.mu_state, self.var_state,
-                          self.wgt_meas, self.z_states, None, mv, sim)
+                          self.wgt_meas, self.z_states, None, theta, mv, sim)
             kalman_sim = np.ascontiguousarray(kalman_sim.T)
             kalman_mu = np.ascontiguousarray(kalman_mu.T)
             kalman_var = np.ascontiguousarray(kalman_var.T)
@@ -85,7 +85,7 @@ cdef class KalmanODE:
             kalman_mu, kalman_var = \
                 kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
                           self.wgt_state, self.mu_state, self.var_state,
-                          self.wgt_meas, self.z_states, None, mv, sim)
+                          self.wgt_meas, self.z_states, None, theta, mv, sim)
             kalman_mu = np.ascontiguousarray(kalman_mu.T)
             kalman_var = np.ascontiguousarray(kalman_var.T)
             return kalman_mu, kalman_var
@@ -93,6 +93,6 @@ cdef class KalmanODE:
             kalman_sim = \
                 kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
                           self.wgt_state, self.mu_state, self.var_state,
-                          self.wgt_meas, self.z_states, None, mv, sim)
+                          self.wgt_meas, self.z_states, None, theta, mv, sim)
             kalman_sim = np.ascontiguousarray(kalman_sim.T)
             return kalman_sim

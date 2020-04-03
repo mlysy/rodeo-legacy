@@ -27,6 +27,7 @@ cpdef kalman_ode(fun,
                  double[::1, :] wgt_meas, 
                  double[::1, :] z_state_sim,
                  double[::1, :] x_meass,
+                 theta,
                  bint smooth_mv=True,
                  bint smooth_sim=False,
                  bint offline=False):
@@ -93,27 +94,28 @@ cpdef kalman_ode(fun,
     # forward pass
     if not offline:
         ktvode = new KalmanTVODE(n_dim_meas, n_dim_state, n_steps, & x0_state[0],
-                                & x_state[0], & mu_state[0], & wgt_state[0, 0],
-                                & var_state[0, 0], & x_meas[0, 0], & wgt_meas[0, 0], 
-                                & z_state_sim[0, 0], & x_state_smooths[0, 0],
-                                & mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0])
+                                 & x_state[0], & mu_state[0], & wgt_state[0, 0],
+                                 & var_state[0, 0], & x_meas[0, 0], & wgt_meas[0, 0], 
+                                 & z_state_sim[0, 0], & x_state_smooths[0, 0],
+                                 & mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0])
     else:
         ktvode = new KalmanTVODE(n_dim_meas, n_dim_state, n_steps, & x0_state[0],
-                                & x_state[0], & mu_state[0], & wgt_state[0, 0],
-                                & var_state[0, 0], & x_meass[0, 0], & wgt_meas[0, 0], 
-                                & z_state_sim[0, 0], & x_state_smooths[0, 0],
-                                & mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0])
+                                 & x_state[0], & mu_state[0], & wgt_state[0, 0],
+                                 & var_state[0, 0], & x_meass[0, 0], & wgt_meas[0, 0], 
+                                 & z_state_sim[0, 0], & x_state_smooths[0, 0],
+                                 & mu_state_smooths[0, 0], & var_state_smooths[0, 0, 0])
     for t in range(n_eval):
         if not offline:
             # kalman filter:
             ktvode.predict(t)
             ktvode.forecast(t)
-            x_meas[:, t+1] = fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval)
+            x_meas[:, t+1] = fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
             ktvode.update(t)
         else:
             ktvode.filter(t)
     # backward pass
     ktvode.smooth_update(smooth_mv, smooth_sim)
+    del ktvode
     if smooth_mv and smooth_sim:
         return x_state_smooths, mu_state_smooths, var_state_smooths
     elif smooth_mv:

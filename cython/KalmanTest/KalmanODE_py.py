@@ -31,7 +31,7 @@ class KalmanODE_py:
         self.mu_state = np.zeros(self.n_state)
         return x0_state
     
-    def multi_initialize(self, w_mat, tau, sigmalst, scale, x0):
+    def multi_initialize(self, w_mat, tau, sigmalst, x0, scale=1):
         n_var = len(x0)
         delta_t = np.array([(self.tmax - self.tmin)/self.n_eval])
         roots = root_gen(tau, self.n_state)
@@ -57,5 +57,5 @@ class KalmanODE_py:
             
         return kalman_ode_higher(self.fun, x0_state, self.tmin, self.tmax, self.n_eval, 
                                  self.wgt_state, self.mu_state, self.var_state, self.wgt_meas,
-                                 self.z_states, mv, sim)
+                                 self.z_states, theta, mv, sim)
                                  
