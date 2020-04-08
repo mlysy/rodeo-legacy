@@ -22,31 +22,27 @@ class KalmanODE_py:
         self.wgt_meas = None
         self.z_states = None
     
-    def initialize(self, w, tau, sigma, x0):
-        delta_t = np.array([(self.tmax - self.tmin)/self.n_eval])
-        self.wgt_meas = zero_pad(w, self.n_state)
-        roots = root_gen(tau, self.n_state)
-        x0_state = kalman_initial_draw(roots, sigma, x0, self.n_state)
-        self.wgt_state, self.var_state = higher_mvncond(delta_t, roots, sigma)
-        self.mu_state = np.zeros(self.n_state)
-        return x0_state
-    
-    def multi_initialize(self, w_mat, tau, sigmalst, x0, scale=1):
-        n_var = len(x0)
-        delta_t = np.array([(self.tmax - self.tmin)/self.n_eval])
-        roots = root_gen(tau, self.n_state)
-        rootlst = [roots*scale]*n_var
-        W_mat = np.zeros((n_var, n_var*self.n_state), order='F')
-        x0_state = np.zeros(n_var*self.n_state)
-        for i in range(n_var):
-            w_len = len(w_mat[i])
-            W_mat[i, self.n_state*i : self.n_state*i + w_len] = w_mat[i]
-            x0_state[self.n_state*i : self.n_state*(i+1)] = kalman_initial_draw(rootlst[i], sigmalst[i], x0[i], self.n_state)
-        self.wgt_meas = W_mat
-        self.wgt_state, self.var_state = multi_mvncond(delta_t, rootlst, sigmalst)
-        self.mu_state = np.zeros(self.n_state*n_var)
-        return x0_state
-    
+    # def initialize(self, kinit):
+    #     wgt_meas, wgt_state, var_state, _ = kinit
+    #     mu_state = np.zeros(self.n_state)
+    #     z_states = rand_mat(2*(self.n_eval+1), self.n_state)
+    #     self.wgt_state = wgt_state
+    #     self.mu_state = mu_state
+    #     self.var_state = var_state
+    #     self.wgt_meas = wgt_meas
+    #     self.z_states = z_states
+    #     return
+    @classmethod
+    def initialize(cls, kinit, n_state, n_meas, tmin, tmax, n_eval, fun):
+        kode = cls(n_state, n_meas, tmin, tmax, n_eval, fun)
+        wgt_meas, wgt_state, var_state, _ = kinit
+        kode.wgt_meas = wgt_meas
+        kode.wgt_state = wgt_state
+        kode.var_state = var_state
+        kode.mu_state = np.zeros(n_state)
+        kode.z_states = rand_mat(2*(n_eval+1), n_state)
+        return kode
+
     def solve(self, x0_state, theta=None, mv=False, sim=True):
         if (self.wgt_state is None or self.mu_state is None or 
             self.var_state is None or self.wgt_meas is None):

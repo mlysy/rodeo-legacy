@@ -37,34 +37,17 @@ cdef class KalmanODE:
         self.wgt_meas = None
         self.z_states = None
     
-    cpdef np.ndarray[DTYPE_t, ndim=1] initialize(self, double[::1] w, double tau, double sigma, np.ndarray[DTYPE_t, ndim=1] x0):
-        cdef np.ndarray[DTYPE_t, ndim=1] delta_t = np.array([(self.tmax - self.tmin)/self.n_eval])
-        self.wgt_meas = zero_pad(w, self.n_state)
-        cdef np.ndarray[DTYPE_t, ndim=1] roots = root_gen(tau, self.n_state)
-        cdef np.ndarray[DTYPE_t, ndim=1] x0_state = kalman_initial_draw(roots, sigma, x0, self.n_state)
-        self.wgt_state, self.var_state = higher_mvncond(delta_t, roots, sigma)
-        self.mu_state = np.zeros(self.n_state)
-        return x0_state
+    @classmethod
+    def initialize(cls, kinit, n_state, n_meas, tmin, tmax, n_eval, fun):
+        kode = cls(n_state, n_meas, tmin, tmax, n_eval, fun)
+        wgt_meas, wgt_state, var_state, _ = kinit
+        kode.wgt_meas = wgt_meas
+        kode.wgt_state = wgt_state
+        kode.var_state = var_state
+        kode.mu_state = np.zeros(n_state)
+        kode.z_states = rand_mat(2*(n_eval+1), n_state)
+        return kode
     
-    cpdef np.ndarray[DTYPE_t, ndim=1] multi_initialize(self, double[:, ::1] w_mat, double tau, list sigmalst, 
-                                                       np.ndarray[DTYPE_t, ndim=2] x0, double scale=1):
-        cdef int n_var, i, w_len
-        cdef list rootlst
-        n_var = len(x0)
-        cdef np.ndarray[DTYPE_t, ndim=1] delta_t = np.array([(self.tmax - self.tmin)/self.n_eval])
-        cdef np.ndarray[DTYPE_t, ndim=1] roots = root_gen(tau, self.n_state)
-        rootlst = [roots*scale]*n_var
-        cdef np.ndarray[DTYPE_t, ndim=2] W_mat = np.zeros((n_var, n_var*self.n_state), order='F')
-        cdef np.ndarray[DTYPE_t, ndim=1] x0_state = np.zeros(n_var*self.n_state)
-        for i in range(n_var):
-            w_len = len(w_mat[i])
-            W_mat[i, self.n_state*i : self.n_state*i + w_len] = w_mat[i]
-            x0_state[self.n_state*i : self.n_state*(i+1)] = kalman_initial_draw(rootlst[i], sigmalst[i], x0[i], self.n_state)
-        self.wgt_meas = W_mat
-        self.wgt_state, self.var_state = multi_mvncond(delta_t, rootlst, sigmalst)
-        self.mu_state = np.zeros(self.n_state*n_var)
-        return x0_state
-
     cpdef solve(self, double[::1] x0_state, theta=None, bint mv=False, bint sim=True):
         if (self.wgt_state is None or self.mu_state is None or 
            self.var_state is None or self.wgt_meas is None):

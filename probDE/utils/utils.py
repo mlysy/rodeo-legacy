@@ -91,14 +91,11 @@ def root_gen(tau, p):
 def zero_pad(x0, p):
     """
     Pad x0 with p-len(x0) 0s at the end of x0.
-
     Args:
         x0 (ndarray(n_dim)): Any vector.
         p (int): Size of the padded vector.
-
     Returns:
         (ndarray(1, p)): Padded vector of length p.
-
     """
     q = len(x0)
     X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0, 0))])
