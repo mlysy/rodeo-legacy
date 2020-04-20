@@ -5,5 +5,8 @@ Docs/build
 /dist
 /probDE.egg-info
 /probDE/Examples/Lorenz1000.npy
+/probDE/cython/fitz_det_theta.npy
+/probDE/cython/fitz_theta.npy
+/probDE/cython/fitz_theta2.npy
 /probDE/cython/*.cp37-win_amd64.pyd
 .idea

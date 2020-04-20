@@ -8,7 +8,7 @@ import numpy as np
 
 from probDE.Kalman.KalmanTV import KalmanTV
 from probDE.utils import norm_sim
-
+import scipy as sp
 
 def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, var_state, wgt_meas, z_state_sim, theta=None, smooth_mv=True, smooth_sim=False):
     """
@@ -45,7 +45,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
         (tuple):
         - **x_state_smooths** (ndarray(n_timesteps, n_dim_state)): Sample solution at time t given observations from times [0...N] for
           :math:`t = 0,1/N,\ldots,1`.
-        - **mu_state_smooths** (ndarray(n_timesteps, n_dim_state)): Posterior mean of the solution process :math:`y_n` at times
+        - **mu_state_smooths** (ndarray(n_timesteps, n_dim_state)): Posterior mean of the solution process :math:`X_t` at times
           :math:`t = 0,1/N,\ldots,1`.
         - **var_state_smooths** (ndarray(n_timesteps, n_dim_state, n_dim_state)): Posterior variance of the solution process at
           times :math:`t = 0,1/N,\ldots,1`.
@@ -89,9 +89,9 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
 
         var_meass[t+1] = np.linalg.multi_dot(
             [wgt_meas, var_state_preds[t+1], wgt_meas.T])
-        # I_tt = np.random.normal(loc=0.0, scale=1.0, size=n_dim_state)
-        # R_tt = np.linalg.cholesky(var_state_preds[t+1])
-        # x_state_tt = mu_state_preds[t+1] + R_tt.dot(z_state_sim[:, t])
+        #I_tt = np.random.normal(loc=0.0, scale=1.0, size=n_dim_state)
+        #R_tt = np.linalg.cholesky(var_state_preds[t+1])
+        #x_state_tt = mu_state_preds[t+1] + R_tt.dot(z_state_sim[:, t])
         x_state_tt = norm_sim(z=z_state_sim[:, t],
                               mu=mu_state_preds[t+1],
                               V=var_state_preds[t+1])
