@@ -18,7 +18,7 @@ def euler(X0, n_eval, h, fun, theta):
         X_t[i+1] = X_t[i] + fun(X_t[i], h*i, theta) * h
     return X_t[one_ind::one_ind]
 
-def theta_plot(Theta, h_eval, levels):
+def theta_plot(Theta, h_eval, levels, pairwise=False):
     n_h, _, n_theta = Theta.shape
     _, axs = plt.subplots(n_theta, n_theta, sharex='col', figsize=(20, 5))
     patches = [None]*n_h
@@ -27,9 +27,10 @@ def theta_plot(Theta, h_eval, levels):
         for row in range(n_theta):
             sns.kdeplot(Theta[i, :, row], ax=axs[row, row])
             axs[row, row].set_title('$\\theta_{}$'.format(row))
-                
-            for col in range(row):
-                sns.kdeplot(Theta[i, :, col], Theta[i, :, row], levels=levels, ax=axs[row, col])
+
+            if pairwise:  
+                for col in range(row):
+                    sns.kdeplot(Theta[i, :, col], Theta[i, :, row], levels=levels, ax=axs[row, col])
 
     axs[0,1].set_axis_off()
     axs[0,2].set_axis_off()
@@ -83,7 +84,7 @@ class Fitz:
         return Y_t, X_t
 
     def mwg(self, n_samples, Y_t, start_ind, tmin, tmax, n_eval, w_mat, x0, theta0, 
-            theta_true, theta_sd, gamma, tau, sigma, rwsd, accept = False):
+            theta_true, theta_sd, gamma, tau, sigma, rwsd, scale, accept = False):
         
         # Get problem dimensions and initialization
         n_theta = len(theta0)
@@ -95,8 +96,8 @@ class Fitz:
         n_skip = n_eval//n_obs
         # MCMC process
         dt = (tmax - tmin)/n_eval
-        kinit = indep_ode_init([car_init(self._n_state1, tau[0], sigma[0], dt, w_mat[0], x0[0], 0.1),
-                                car_init(self._n_state2, tau[1], sigma[1], dt, w_mat[1], x0[1], 0.1)],
+        kinit = indep_ode_init([car_init(self._n_state1, tau[0], sigma[0], dt, w_mat[0], x0[0], scale),
+                                car_init(self._n_state2, tau[1], sigma[1], dt, w_mat[1], x0[1], scale)],
                                 self._n_state)
         x0_state = kinit[-1]
         kode = KalmanODE.initialize(kinit, self._n_state, self._n_meas, tmin, tmax, n_eval, self._fitz)

@@ -80,6 +80,8 @@ namespace KalmanTVODE {
                        const bool smooth_sim);
     /// Perform one step of chkrebtii interrogation.
     void forecast(const int cur_step);
+    /// Perform one step of Kersting interrogation.
+    void forecast_ker(const int cur_step);
   };
 
   /// @param[in] n_meas Number of measurement variables.
@@ -308,7 +310,14 @@ namespace KalmanTVODE {
               _z_states_.col(cur_step));
     return;
   }
+  /// @param[out] x_state Simulated state.
+  /// @param[in] mu_state_preds Predicted state mean `mu_n+1|n`.
+  /// @param[in] cur_step Current step, n.
+  inline void KalmanTVODE::forecast_ker(const int cur_step) {
+    MapVectorXd _x_state_(x_state_, n_state_);
+    _x_state_.noalias() = mu_state_preds.col(cur_step+1);
+    return;
+  }
 } // end namespace KalmanTVODE
-
 
 #endif
