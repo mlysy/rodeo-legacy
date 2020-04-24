@@ -6,6 +6,7 @@ Docs/build
 /probDE.egg-info
 /probDE/Examples/Lorenz1000.npy
 /cython/fitz_det_theta.npy
+/cython/fitz_det_theta2.npy
 /cython/fitz_theta.npy
 /cython/fitz_theta2.npy
 /cython/fitz_theta3.npy
