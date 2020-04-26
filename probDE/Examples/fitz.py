@@ -6,6 +6,7 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.integrate import odeint
 
 from probDE.Kalman.ode_init import car_init, indep_ode_init
 from probDE.cython.KalmanTest.KalmanODE import KalmanODE
@@ -18,11 +19,9 @@ def euler(X0, n_eval, h, fun, theta):
         X_t[i+1] = X_t[i] + fun(X_t[i], h*i, theta) * h
     return X_t[one_ind::one_ind]
 
-
-def theta_plot(Theta_euler, Theta_kalman, Theta_ode, theta_true, h_eval):
+def theta_plot(Theta_euler, Theta_kalman, Theta_ode, theta_true, h_eval, burn):
     n_h, _, n_theta = Theta_euler.shape
     nrow = 2
-    burn = 50
     _, axs = plt.subplots(nrow, n_theta, sharex='col', figsize=(20, 5))
     patches = [None]*(n_h+2)
     for col in range(n_theta):
@@ -190,16 +189,18 @@ class Fitz:
         n_skip = n_eval//n_obs
 
         # MCMC process
-        tseq = np.linspace(tmin, tmax, n_eval+1)
-        X_curr = odeint(fitz0, x0, tseq, args=(theta_curr,))[start_ind::n_skip]
+        old_state1 = self._n_state1
+        old_state2 = self._n_state2
         self._n_state1 = 1
         self._n_state2 = 1
+        tseq = np.linspace(tmin, tmax, n_eval+1)
+        X_curr = odeint(self._fitz, x0, tseq, args=(theta_curr,))[start_ind::n_skip]
         lp_curr = self._logprior(Y_t, X_curr, gamma, theta_curr, theta_true, theta_sd)
         for i in range(n_samples):
             for j in range(n_theta):
                 theta_prop[j] += rwsd[j]*np.random.randn()
                 if theta_prop[j]>0:
-                    X_prop = odeint(fitz0, x0, tseq, args=(theta_prop,))[start_ind::n_skip]
+                    X_prop = odeint(self._fitz, x0, tseq, args=(theta_prop,))[start_ind::n_skip]
                     lp_prop = self._logprior(Y_t, X_prop, gamma, theta_prop, theta_true, theta_sd)
                     lacc = lp_prop - lp_curr
                     if lacc > 0 or np.random.uniform() < np.exp(lacc):

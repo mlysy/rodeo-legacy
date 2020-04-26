@@ -108,7 +108,8 @@ cpdef kalman_ode(fun,
         if not offline:
             # kalman filter:
             ktvode.predict(t)
-            ktvode.forecast(t)
+            #ktvode.forecast(t)
+            ktvode.forecast_sch(t)
             x_meas[:, t+1] = fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
             ktvode.update(t)
         else:

@@ -10,4 +10,4 @@ cdef extern from "KalmanTVODE.h" namespace "KalmanTVODE":
         void smooth_update(const bint smooths_mv,
                            const bint smooths_sim)
         void forecast(const int cur_step)
-        void forecast_ker(const int cur_step)
+        void forecast_sch(const int cur_step)
