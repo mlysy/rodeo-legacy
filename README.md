@@ -39,4 +39,4 @@ For `x_t^{(1)}`:
 ![chkrebtii_x1](/Docs/Figures/chkrebtii_x1.png)
 
 ## C++
-C++ version is being worked on. For a quick look at the graphs and timings, you can checkout some examples [here] (https://nbviewer.jupyter.org/github/mlysy/probDE/blob/cythonize/cython/KalmanODE.ipynb).
+C++ version is being worked on. For a quick look at the graphs and timings, you can checkout some examples [here](https://nbviewer.jupyter.org/github/mlysy/probDE/blob/cythonize/cython/KalmanODE.ipynb).
