@@ -33,10 +33,10 @@ x_0^{(0)} = -1
 The results for N = 50, 100, and 200 grid points for both solvers is shown below.
 
 For `x_t^{(0)}`:
-![chkrebtii_x0](/docs/Figures/chkrebtii_x0.png)
+![chkrebtii_x0](/docs/figures/chkrebtii_x0.png)
 
 For `x_t^{(1)}`:
-![chkrebtii_x1](/docs/Figures/chkrebtii_x1.png)
+![chkrebtii_x1](/docs/figures/chkrebtii_x1.png)
 
 ## Unit Testing
 
