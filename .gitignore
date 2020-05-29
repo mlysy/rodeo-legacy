@@ -1,6 +1,6 @@
 .ipynb_checkpoints
 __pycache__
-Docs/build
+docs/build
 /build
 /dist
 /probDE.egg-info
