@@ -74,88 +74,79 @@ The Python code to implement all this is as follows.
 
 .. code-block:: python
 
-    from math import sin, cos
     import numpy as np
-    import matplotlib.pyplot as plt # for plotting
-    from probDE.utils.utils import root_gen
-    from probDE.Kalman.kalman_solver import kalman_solver
+    import matplotlib.pyplot as plt
+    from scipy.integrate import odeint
+
+    from probDE.car import car_init
+    from probDE.cython.KalmanODE import KalmanODE
+    from probDE.utils import indep_init
 
 .. code-block:: python
 
     # RHS of ODE
-    def ode_fun(x_t, t):
+    from math import sin, cos
+    def ode_fun(x_t, t, theta=None):
         return sin(2*t) - x_t[0]
 
     # LHS vector of ODE
     w_vec = np.array([0.0, 0.0, 1.0])
 
     # These parameters define the order of the ODE and the CAR(p) process
-    q = 2 # ODE order
-    p = q+2 # number of continuous derivatives of CAR(p) solution prior
+    n_meas = 1
+    n_state = 4
 
-    # it is assumed that the solution is sought on the interval [L,U].
-    N = 100 # Number of grids points that are evaluated; in particular, the grid size delta = (U-L)*1/N
-    L = 0
-    U = 10 
-
-    # Now we need the parameters for the solver
-    # First we need to generate roots, rho, for the CAR(p) prior
-    # We suggest using root_gen to parametrize them as desribed: rho_k = -exp(k/tau)
-    tau = 50 # decorrelation parameter
-    roots = root_gen(tau, p)
+    # it is assumed that the solution is sought on the interval [tmin, tmax].
+    n_eval = 200
+    tmin = 0
+    tmax = 10
 
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use
-    mu = np.zeros(p)
-    sigma = .5
+    tau = 50
+    sigma = .001
 
     # Initial value, x0, for the IVP
-    a = np.array([-1.0, 0.0, 1.0])
+    x0 = np.array([-1., 0., 1.])
 
+    # Get parameters needed to run the solver
+    dt = (tmax-tmin)/n_eval
+    # All necessary parameters are in kinit, namely, T, c, R, W
+    kinit, x0_state = indep_init([car_init(n_state, tau, sigma, dt, w_vec, x0)], n_state)
+
+    # Initialize the Kalman class
+    kalmanode = KalmanODE(n_state, n_meas, tmin, tmax, n_eval, ode_fun, **kinit)
     # Run the solver to get an approximation
-    Xn, Xn_mean, Xn_var = kalman_solver(ode_fun, L, U, N, mu, sigma, roots, w_vec, a)
+    kalman_sim = kalmanode.solve(x0_state, mv=False, sim=True)
 
 We drew 100 samples from the solver to compare them to the exact solution and the Euler approximation to the problem. 
 
 For :math:`x^{(0)}_t`:
 
-.. image:: Figures/chkrebtii_x0.png
+.. image:: figures/chkrebtii_x0.png
 
 For :math:`x^{(1)}_t`:
 
-.. image:: Figures/chkrebtii_x1.png
+.. image:: figures/chkrebtii_x1.png
 
-..
-   Installation
-   ============
+Installation
+============
 
-   You can get the very latest code by getting it from GitHub and then performing
-   the installation.
+You can get the very latest code by getting it from GitHub and then performing
+the installation.
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       git clone https://github.com/mlysy/probDE.git
-       cd filterpy
-       python setup.py install
-
+    git clone https://github.com/mlysy/probDE.git
+    cd probDE
+    pip install .
 
 Functions Documentation
 =======================
-
-Documentation for Generalized Bayesian Solver
----------------------------------------------
 .. toctree::
-   :caption: Generalized Bayesian Solver
    :maxdepth: 1
 
-   Bayesian/Bayesian_ODE
-   Bayesian/Covariance_Priors
-
-Documentation for Kalman Solver
--------------------------------
-.. toctree::
-   :caption: Kalman Solver
-   :maxdepth: 1
-
-   Kalman/Kalman_ODE_Higher
-   Kalman/KalmanTV
+   ./car
+   ./KalmanODE
+   ./utils
+   

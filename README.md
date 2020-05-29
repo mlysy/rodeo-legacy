@@ -17,7 +17,7 @@ Download the repo from GitHub and then install with the `setup.py` script:
 ```bash
 git clone https://github.com/mlysy/probDE.git
 cd probDE
-python setup.py install
+pip install .
 ```
 
 ## Usage
@@ -38,10 +38,18 @@ For `x_t^{(0)}`:
 For `x_t^{(1)}`:
 ![chkrebtii_x1](/Docs/Figures/chkrebtii_x1.png)
 
+## Unit Testing
+
+The unit tests are done against the deterministic ode solver **odeint** to ensure that the solutions are approximately equal.
+```bash
+cd probDE
+python -m unittest discover -v
+```
+
 ## TODO
 
 The **probDE** library is still in its early development stages, with a number of improvements projected for the not-so-distant future:
 
-- Convert the code base to [Cython](https://cython.org/) to achieve two orders of magnitude in computational accelerations.
-- Add multivariate ODE support.
-- Implement a few more related probabilistic solvers; namely, those of [Kersting & Hennig (2016)](http://www.auai.org/uai2016/proceedings/papers/163.pdf) and [Schober et al (2019)](https://link.springer.com/content/pdf/10.1007/s11222-017-9798-7.pdf).
+- [x] Add multivariate ODE support.
+- [x] Implement a few more related probabilistic solvers; namely, those of [Kersting & Hennig (2016)](http://www.auai.org/uai2016/proceedings/papers/163.pdf) and [Schober et al (2019)](https://link.springer.com/content/pdf/10.1007/s11222-017-9798-7.pdf).
+- [x] Convert the code base to [Cython](https://cython.org/) to achieve two orders of magnitude in computational accelerations.

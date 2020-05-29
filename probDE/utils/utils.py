@@ -1,9 +1,3 @@
-"""
-.. module:: utils
-
-Helpful functions used in Kalman.
-
-"""
 from math import exp
 import numpy as np
 import scipy.linalg as scl
@@ -19,8 +13,7 @@ def mvncond(mu, Sigma, icond):
         icond (ndarray(2*nd_dim)): Conditioning on the terms given.
 
     Returns:
-        tuple containing
-
+        (tuple):
         - **A** (ndarray(n_dim, n_dim)): For :math:`y \sim N(\mu, \Sigma)` 
           such that :math:`y[!icond] | y[icond] \sim N(A y[icond] + b, V)` Calculate A.
         - **b** (ndarray(n_dim)): For :math:`y \sim N(\mu, \Sigma)` 
@@ -53,53 +46,56 @@ def solveV(V, B):
     L, low = scl.cho_factor(V)
     return scl.cho_solve((L, low), B)
 
+def indep_init(init, n_state):
+    """
+    Computes the necessary parameters for the Kalman filter and smoother.
+
+    Args:
+        init (list(n_var)): Computed initial parameters for each variable
+        n_state (int): Size of the state.
+    
+    Returns:
+        (tuple):
+        - **kinit** (dict): Dictionary holding the computed initial parameters for the
+          Kalman solver.
+        - **x0_state** (ndarray(n_state)): Initial state of the ODE function.
+
+    """
+    n_var = len(init)
+    wgt_meas = np.zeros((n_var, n_state), order='F')
+    x0_state = np.zeros(n_state)
+    mu_state = np.zeros(n_state)
+    wgt_state = np.zeros((n_state, n_state), order='F')
+    var_state = np.zeros((n_state, n_state), order='F')
+    ind = 0
+    for i in range(n_var):
+        wgt_meas_i, wgt_state_i, var_state_i, x0_state_i = init[i]
+        p_i = len(x0_state_i)
+        wgt_meas[i, ind:ind+p_i] = wgt_meas_i
+        x0_state[ind:ind+p_i] = x0_state_i
+        wgt_state[ind:ind+p_i, ind:ind+p_i] = wgt_state_i
+        var_state[ind:ind+p_i, ind:ind+p_i] = var_state_i
+        ind += p_i
+    kinit = {"wgt_state":wgt_state, "mu_state":mu_state,
+            "var_state":var_state, "wgt_meas":wgt_meas}
+    return kinit, x0_state
 
 def norm_sim(z, mu, V):
     """
-    Simulates from :math:`x ~ N(mu, V)`.
+    Simulates from :math:`x \sim N(\mu, V)`.
 
     Args:
         z (ndarray(n_dim)): Random vector drawn from :math:`N(0,1)`.
-        mu (ndarray(n_dim)): Vector mu in :math:`x ~ N(mu, V)`.
-        V (ndarray(n_dim, n_dim)): Matrix V in :math:`x ~ N(mu, V)`.
+        mu (ndarray(n_dim)): Vector mu in :math:`x \sim N(\mu, V)`.
+        V (ndarray(n_dim, n_dim)): Matrix V in :math:`x \sim N(\mu, V)`.
     
     Returns:
-        (ndarray(n_dim)): Vector x in :math:`x ~ N(mu, V)`.
+        (ndarray(n_dim)): Vector x in :math:`x \sim N(\mu, V)`.
     
     """
-    
     L = scl.cholesky(V, True)
     #L = np.linalg.cholesky(V)
     return np.dot(L, z) + mu
-
-
-def root_gen(tau, p):
-    """
-    Creates p CAR model roots.
-
-    Args:
-        tau (int): First root parameter.
-        p (int): Number of roots to generate.
-
-    Returns:
-        (ndarray(p)): Vector size of p roots generated.
-
-    """
-    return np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))
-
-
-def zero_pad(x0, p):
-    """
-    Pad x0 with p-len(x0) 0s at the end of x0.
-    Args:
-        x0 (ndarray(n_dim)): Any vector.
-        p (int): Size of the padded vector.
-    Returns:
-        (ndarray(1, p)): Padded vector of length p.
-    """
-    q = len(x0)
-    X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0, 0))])
-    return X0
 
 def rand_mat(n, p, pd=True):
     """

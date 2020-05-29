@@ -3,7 +3,8 @@ This README provides the structure of the contents of this folder and a brief de
 
     utils
     └── utils.py
-        ├── mvcond                  # Calculates A, b, and V such that y[~icond] | y[icond] ~ N(A*y[icond] + b, V).
+        ├── mvncond                 # Calculates A, b, and V such that y[~icond] | y[icond] ~ N(A*y[icond] + b, V).
         ├── solveV                  # Computes X = V^{-1}B where V is a variance matrix.
-        ├── root_gen                # Creates p CAR model roots.
-        └── zero_pad                # Pad x0 with 0s at the end of x0 so that x0 is of size p.
+        ├── indep_init              # Initializes the necessary parameters in KalmanODE.
+        ├── norm_sim                # Simulates from x ~ N(mu, V).
+        └── rand_mat                # Simulate a nxp random matrix from N(0, 1).

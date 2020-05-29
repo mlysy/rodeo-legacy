@@ -35,57 +35,50 @@ if USE_CYTHON:
 # c/cpp modules
 ext_c = '.pyx' if USE_CYTHON else '.c'
 ext_cpp = '.pyx' if USE_CYTHON else 'cpp'
-ext_modules = [Extension("probDE.cython.kalmantv",
-                         ["cython/kalmantv"+ext_cpp],
+ext_modules = [Extension("probDE.cython.KalmanODE",
+                         ["probDE/kalmanode/KalmanODE"+ext_cpp],
                          include_dirs=[
                              np.get_include(),
-                             "cython/eigen-3.3.7"],
-                         extra_compile_args=["-O3"],
-                         language='c++'),
+                             "probDE/kalmanode/eigen-3.3.7"],
+                         extra_compile_args=['-O3'],
+                         language='c++')]
               #  Extension("probDE.cython.KalmanTest.kalmantest",
-              #            ["cython/KalmanTest/kalmantest"+ext_cpp],
+              #            ["tests/depreciated/kalman/kalmantest"+ext_cpp],
               #            include_dirs=[
               #                np.get_include(),
-              #                "cython/eigen-3.3.7"],
+              #                "probDE/kalmanode/eigen-3.3.7"],
               #            extra_compile_args=["-O3"],
               #            language='c++'),
-               Extension("probDE.cython.KalmanTest.kalman_ode",
-                         ["cython/KalmanTest/kalman_ode"+ext_cpp],
-                         include_dirs=[
-                             np.get_include(),
-                             "cython/eigen-3.3.7"],
-                         extra_compile_args=["-O3"],
-                         language='c++'),
-               Extension("probDE.cython.KalmanTest.KalmanODE",
-                         ["cython/KalmanTest/KalmanODE"+ext_cpp],
-                         include_dirs=[
-                             np.get_include(),
-                             "cython/eigen-3.3.7"],
-                         extra_compile_args=["-O3"],
-                         language='c++')]
+              #  Extension("probDE.cython.kalmantv",
+              #            ["tests/depreciated/kalman/kalmantv"+ext_cpp],
+              #            include_dirs=[
+              #                np.get_include(),
+              #                "probDE/kalmanode/eigen-3.3.7"],
+              #            extra_compile_args=["-O3"],
+              #            language='c++'),
               #  Extension("probDE.cython.mat_mult",
-              #            ["cython/mat_mult"+ext_c],
+              #            ["tests/depreciated/kalman/mat_mult"+ext_c],
               #            include_dirs=[
               #                np.get_include(),
               #                sp.get_include()],
               #            extra_compile_args=["-O3"],
               #            language='c'),
               #  Extension("probDE.cython.kalman_ode_higher",
-              #            ["cython/kalman_ode_higher"+ext_c],
+              #            ["tests/depreciated/kalman/kalman_ode_higher"+ext_c],
               #            include_dirs=[
               #                np.get_include()
               #            ],
               #            extra_compile_args=["-O3"],
               #            language='c'),
               #  Extension("probDE.cython.kalman_ode_solve_cy",
-              #            ["cython/kalman_ode_solve_cy"+ext_c],
+              #            ["tests/depreciated/kalman/kalman_ode_solve_cy"+ext_c],
               #            include_dirs=[
               #                np.get_include()
               #            ],
               #            extra_compile_args=["-O3"],
               #            language='c'),
               #  Extension("probDE.cython.kalman_ode_offline_cy",
-              #            ["cython/kalman_ode_offline_cy"+ext_c],
+              #            ["tests/depreciated/kalman/kalman_ode_offline_cy"+ext_c],
               #            include_dirs=[
               #                np.get_include()
               #            ],
@@ -101,7 +94,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mlysy/probDE",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "examples"]),
 
     # cython
     cmdclass=cmdclass,
