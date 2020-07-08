@@ -41,6 +41,12 @@ ext_modules = [Extension("probDE.cython.KalmanODE",
                              np.get_include(),
                              "probDE/kalmanode/eigen-3.3.7"],
                          extra_compile_args=['-O3'],
+                         language='c++'),
+               Extension("probDE.cython.KalmanODE_blas",
+                         ["probDE/kalmanode/KalmanODE_blas"+ext_cpp],
+                         include_dirs=[
+                             np.get_include()],
+                         extra_compile_args=['-O3'],
                          language='c++')]
               #  Extension("probDE.cython.KalmanTest.kalmantest",
               #            ["tests/depreciated/kalman/kalmantest"+ext_cpp],

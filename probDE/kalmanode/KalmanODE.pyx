@@ -29,9 +29,9 @@ cpdef kalman_ode(fun,
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
 
-    .. math:: w' x_t = F(x_t, t, \\theta)
+    .. math:: w' x_n = F(x_n, n, \theta)
 
-    on the time interval :math:`t \in [a, b]` with initial condition :math:`x_0 = x_0`. The corresponding variable names are
+    on the time interval :math:`n \in [a, b]` with initial condition :math:`x_0 = x_0`. The corresponding variable names are
 
     The specific model we are using to approximate the solution :math:`x_n` is
 
@@ -45,16 +45,16 @@ cpdef kalman_ode(fun,
     :math:`X_n = (x_n, y_n)` at time n and :math:`y_n` denotes the observation at time n.
 
     Args:
-        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
-        x0_state (ndarray(n_state)): Initial value of the state variable :math:`x_t` at time :math:`t = 0`; :math:`x_0`.
-        tmin (int): First time point of the time interval to be evaluated; :math:`a`.
-        tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
+        fun (function): Higher order ODE function :math:`W x_n = F(x_n, n)` taking arguments :math:`x` and :math:`n`.
+        x0_state (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`n = 0`; :math:`x_0`.
+        tmin (double): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (double): Last time point of the time interval to be evaluated; :math:`b`.
         n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated,
             such that discretization timestep is :math:`dt = (b-a)/N`.
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`T`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
         z_state_sim (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
         x_meass (ndarray(n_state, n_steps)): Optional offline observations.
         theta (ndarray(n_theta)): Parameter in the ODE function.
@@ -127,11 +127,11 @@ cdef class KalmanODE:
     Args:
         n_state (int): Size of the state.
         n_meas (int): Size of the measure.
-        tmin (int): First time point of the time interval to be evaluated; :math:`a`.
-        tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
+        tmin (double): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (double): Last time point of the time interval to be evaluated; :math:`b`.
         n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated,
             such that discretization timestep is :math:`dt = b/N`.
-        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
+        fun (function): Higher order ODE function :math:`W x_n = F(x_n, n)` taking arguments :math:`x` and :math:`n`.
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`T`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
@@ -224,15 +224,15 @@ cdef class KalmanODE:
         self.__z_states = None
     
     cpdef solve(self, double[::1] x0_state, theta=None, bint mv=False, bint sim=True):
-        """
+        r"""
         Returns an approximate solution to the higher order ODE
 
-        .. math:: w' x_t = F(x_t, t, \\theta)
+        .. math:: w' x_n = F(x_n, t, \theta)
 
         on the time interval :math:`t \in [a, b]` with initial condition :math:`x_0 = x_0`.
         
         Args:
-            x0_state (ndarray(n_state)): Initial value of the state variable :math:`x_t` at time :math:`t = 0`; :math:`x_0`.
+            x0_state (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`t = 0`; :math:`x_0`.
             theta (ndarray(n_theta)): Parameter in the ODE function.
             smooth_mv (bool): Flag for returning the smoothed mean and variance.
             smooth_sim (bool): Flag for returning the smoothed simulated state.
