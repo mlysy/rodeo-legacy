@@ -4,3 +4,4 @@ docs/build
 /dist
 /probDE.egg-info
 .idea
+*.html
