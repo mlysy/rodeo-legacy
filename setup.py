@@ -38,66 +38,9 @@ ext_cpp = '.pyx' if USE_CYTHON else 'cpp'
 ext_modules = [Extension("probDE.cython.KalmanODE",
                          ["probDE/kalmanode/KalmanODE"+ext_cpp],
                          include_dirs=[
-                             np.get_include(),
-                             "probDE/kalmanode/eigen-3.3.7"],
-                         extra_compile_args=['-O2'],
-                         language='c++'),
-               Extension("probDE.cython.KalmanODE_blas",
-                         ["probDE/kalmanode/KalmanODE_blas"+ext_cpp],
-                         include_dirs=[
                              np.get_include()],
                          extra_compile_args=['-O2'],
-                         language='c++'),
-                Extension("probDE.cython.kalmantv",
-                         ["tests/depreciated/kalman/kalmantv"+ext_cpp],
-                         include_dirs=[
-                             np.get_include(),
-                             "probDE/kalmanode/eigen-3.3.7"],
-                         extra_compile_args=["-O2"],
                          language='c++')]
-              #  Extension("probDE.cython.KalmanTest.kalmantest",
-              #            ["tests/depreciated/kalman/kalmantest"+ext_cpp],
-              #            include_dirs=[
-              #                np.get_include(),
-              #                "probDE/kalmanode/eigen-3.3.7"],
-              #            extra_compile_args=["-O3"],
-              #            language='c++'),
-              #  Extension("probDE.cython.kalmantv",
-              #            ["tests/depreciated/kalman/kalmantv"+ext_cpp],
-              #            include_dirs=[
-              #                np.get_include(),
-              #                "probDE/kalmanode/eigen-3.3.7"],
-              #            extra_compile_args=["-O3"],
-              #            language='c++'),
-              #  Extension("probDE.cython.mat_mult",
-              #            ["tests/depreciated/kalman/mat_mult"+ext_c],
-              #            include_dirs=[
-              #                np.get_include(),
-              #                sp.get_include()],
-              #            extra_compile_args=["-O3"],
-              #            language='c'),
-              #  Extension("probDE.cython.kalman_ode_higher",
-              #            ["tests/depreciated/kalman/kalman_ode_higher"+ext_c],
-              #            include_dirs=[
-              #                np.get_include()
-              #            ],
-              #            extra_compile_args=["-O3"],
-              #            language='c'),
-              #  Extension("probDE.cython.kalman_ode_solve_cy",
-              #            ["tests/depreciated/kalman/kalman_ode_solve_cy"+ext_c],
-              #            include_dirs=[
-              #                np.get_include()
-              #            ],
-              #            extra_compile_args=["-O3"],
-              #            language='c'),
-              #  Extension("probDE.cython.kalman_ode_offline_cy",
-              #            ["tests/depreciated/kalman/kalman_ode_offline_cy"+ext_c],
-              #            include_dirs=[
-              #                np.get_include()
-              #            ],
-              #            extra_compile_args=["-O3"],
-              #            language='c')]
-
 
 setup(
     name='probDE',

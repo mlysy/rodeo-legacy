@@ -13,7 +13,7 @@ def sum_err(X1, X2):
 
 def chkrebtii_kalman(x_t, t, theta=None):
     """Chkrebtii function in kalman format."""
-    return sin(2*t) - x_t[0]
+    return np.array([sin(2*t) - x_t[0]])
 
 def chkrebtii_odeint(x_t, t):
     """Chkrebtii function in odeint format."""

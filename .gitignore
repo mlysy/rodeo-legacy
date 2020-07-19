@@ -5,3 +5,4 @@ docs/build
 /probDE.egg-info
 .idea
 *.html
+/tests/eigen/eigen-3.3.7/
