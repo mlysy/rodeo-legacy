@@ -5,10 +5,16 @@ import numpy as np
 from math import sin, cos
 import matplotlib.pyplot as plt
 
+import os
+cwd = os.getcwd()
+print(cwd)
+
 from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init
-from .euler_approx import euler_approx
+from euler_approx import euler_approx
+
+
 
 # Example ODE Exact Solution for x_t^{(0)}
 def ode_exact_x(t):
@@ -91,7 +97,7 @@ def readme_graph(fun, n_state, n_meas, tmin, tmax, w, init, draws):
     dim_deriv = len(w) - 1
     N = [50, 100, 200]
     Tau = [1/.004, 1/0.02, 1/0.02]
-    Sigma = [.5, .05, .05]
+    Sigma = [.5, .05, .001]
     dim_example = len(N)
     tseq = [None] * dim_example
     Xn = [None] * dim_example

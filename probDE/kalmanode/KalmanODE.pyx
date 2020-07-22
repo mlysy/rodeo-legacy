@@ -196,6 +196,12 @@ cpdef kalman_ode(fun,
                      mu_state_preds[:, t+1],
                      var_state_preds[:, :, t+1],
                      z_states[:, t])
+            #forecast_sch(x_state,
+            #             var_meas,
+            #             twgt_meas,
+            #             wgt_meas,
+            #             mu_state_preds[:, t+1],
+            #             var_state_preds[:, :, t+1])
             x_meas = fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
             ktv.update(mu_state_filts[:, t+1],
                        var_state_filts[:, :, t+1],
