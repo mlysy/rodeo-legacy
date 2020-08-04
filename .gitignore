@@ -7,3 +7,4 @@ docs/build
 *.html
 /tests/eigen/eigen-3.3.7/
 /probDE/kalmanode/eigen-3.3.7/
+*.npy

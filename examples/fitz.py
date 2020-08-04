@@ -1,5 +1,5 @@
 import numpy as np
-from fitz_plot import fitz_plot
+from inference import inference
 from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init
@@ -17,6 +17,7 @@ def fitz_example():
     n_state2 = 3 # State dimension of R_n
     n_state = 6 # Total state
     n_meas = 2 # Total measures
+    state_ind = [0, 3] # Index of 0th derivative of each state
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
     tmin = 0 
@@ -30,9 +31,9 @@ def fitz_example():
     tau = [100]*n_var
     sigma = [.1]*n_var
 
-    # Initial value, a, for the IVP
-    x0 = [-1, 1]
-    v0 = [1, 1/3]
+    # Initial value, x0, for the IVP
+    x0 = np.array([-1., 1.])
+    v0 = np.array([1, 1/3])
     X0 = np.column_stack([x0, v0])
     w_mat = np.array([[0.0, 1.0], [0.0, 1.0]])
 
@@ -47,31 +48,31 @@ def fitz_example():
     # Number of samples to draw from posterior
     n_samples = 100000
 
-    # Initialize fitz_plot class and simulate observed data
-    fplot = fitz_plot(n_state1, tmin, tmax)
-    Y_t, _ = fplot.simulate(x0, theta_true, gamma)
+    # Initialize inference class and simulate observed data
+    inf = inference(state_ind, tmin, tmax, fitz)
+    Y_t = inf.simulate(x0, theta_true, gamma)
 
     # Parameter inference using Euler's approximation
     hlst = np.array([0.1, 0.05, 0.02, 0.01, 0.005])
-    Theta_euler = np.zeros((len(hlst), n_samples, n_theta))
+    theta_euler = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
-        phi_hat, phi_var = fplot.phi_fit(fplot.euler_nlpost, Y_t, x0, hlst[i], theta_true, phi_sd, gamma)
-        Theta_euler[i] = fplot.Theta_sample(phi_hat, phi_var, n_samples)
+        phi_hat, phi_var = inf.phi_fit(Y_t, x0, hlst[i], theta_true, phi_sd, gamma, False)
+        theta_euler[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
 
     # Parameter inference using Kalman solver
-    Theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
+    theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
         kinit, x0_state = indep_init([car_init(n_state1, tau[0], sigma[0], hlst[i], w_mat[0], X0[0]),
-                                    car_init(n_state2, tau[1], sigma[1], hlst[i], w_mat[1], X0[1])],
-                                    n_state)
+                                      car_init(n_state2, tau[1], sigma[1], hlst[i], w_mat[1], X0[1])],
+                                      n_state)
         n_eval = int((tmax-tmin)/hlst[i])
         kode = KalmanODE(n_state, n_meas, tmin, tmax, n_eval, fitz, **kinit)
-        fplot.kode = kode
-        phi_hat, phi_var = fplot.phi_fit(fplot.kalman_nlpost, Y_t, x0_state, hlst[i], theta_true, phi_sd, gamma)
-        Theta_kalman[i] = fplot.Theta_sample(phi_hat, phi_var, n_samples)
+        inf.kode = kode
+        phi_hat, phi_var = inf.phi_fit(Y_t, x0_state, hlst[i], theta_true, phi_sd, gamma, True)
+        theta_kalman[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
     
     # Produces the graph in Figure 3
-    fplot.theta_plot(Theta_euler, Theta_kalman, theta_true, hlst)
+    inf.theta_plot(theta_euler, theta_kalman, theta_true, hlst)
     return
 
 if __name__ == '__main__':
