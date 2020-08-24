@@ -129,7 +129,7 @@ cpdef kalman_ode(fun,
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
         wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
-        z_state_sim (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
+        z_states (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
         x_meass (ndarray(n_state, n_steps)): Optional offline observations.
         theta (ndarray(n_theta)): Parameter in the ODE function.
         smooth_mv (bool): Flag for returning the smoothed mean and variance.
@@ -276,6 +276,27 @@ cpdef kalman_ode(fun,
         return x_state_smooths
     
 cdef class KalmanODE:
+    r"""
+    Create a Kalman Time-Varying object. The methods of the object can predict, update, sample and 
+    smooth the mean and variance of the Kalman Filter. This method is useful if one wants to track 
+    an object with streaming observations.
+
+    Args:
+        n_meas (int): Size of the measure.
+        n_state (int): Size of the state.
+        tmin (int): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
+        n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated,
+            such that discretization timestep is :math:`dt = b/N`.
+        mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; denoted by :math:`c`.
+        wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by :math:`T`.
+        var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
+        mu_meas (ndarray(n_meas)): Transition_offsets defining the measure prior; denoted by :math:`d`.
+        wgt_meas (ndarray(n_meas, n_meas)): Transition matrix defining the measure prior; denoted by :math:`W`.
+        var_meas (ndarray(n_meas, n_meas)): Variance matrix defining the measure prior; denoted by :math:`H`.
+        z_states (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
+
+    """
     cdef int n_state, n_meas, n_eval
     cdef double tmin, tmax
     cdef object fun

@@ -8,12 +8,14 @@ from lorenz_graph import lorenz_graph
 
 # RHS of ODE
 def lorenz(X_t, t, theta=(28, 10, 8/3)):
+    r"Loren63 ODE function"
     rho, sigma, beta = theta
     p = len(X_t)//3
     x, y, z = X_t[p*0], X_t[p*1], X_t[p*2]
     return np.array([-sigma*x + sigma*y, rho*x - y -x*z, -beta*z + x*y])
 
 def lorenz_example():
+    r"Produces the graph in Figure 2 of the paper."
     # LHS Matrix of ODE
     w_mat = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
 

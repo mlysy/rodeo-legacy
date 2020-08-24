@@ -12,6 +12,7 @@ def fitz(X_t, t, theta):
     return np.array([c*(V - V*V*V/3 + R), -1/c*(V - a + b*R)])
 
 def fitz_example():
+    "Perform parameter inference using the FitzHugh-Nagumo function."
     # These parameters define the order of the ODE and the CAR(p) process
     n_state1 = 3 # State dimension of V_n
     n_state2 = 3 # State dimension of R_n

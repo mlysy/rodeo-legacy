@@ -12,13 +12,14 @@ from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init
 
-def lorenz0(state, t, theta=(28, 10, 8/3)):
+def lorenz(state, t, theta=(28, 10, 8/3)):
+    r"Loren63 ODE function"
     rho, sigma, beta = theta
     x, y, z = state  # Unpack the state vector
     return -sigma*x + sigma*y, rho*x - y -x*z, -beta*z + x*y
 
 def lorenz_graph(fun, n_state, n_meas, tmin, tmax, n_eval, W, n_var_states, tau, sigma, init, theta, draws):
-    """
+    r"""
     Produces the graph for the Lorenz63 example in tutorial.
 
     Args:
@@ -35,12 +36,12 @@ def lorenz_graph(fun, n_state, n_meas, tmin, tmax, n_eval, W, n_var_states, tau,
         tau (ndarray(3)) : Decorrelation time.
         sigma (ndarray(3)) : Scale parameter.
         init (ndarray(p)) : The initial values of :math:`X_L = (x_L, y_L)`.
-        theta (ndarray(3)) : Specific :math:`\\theta` for the Lorenz system.
+        theta (ndarray(3)) : Specific :math:`\theta` for the Lorenz system.
         draws (int) : Number of samples we need to draw from the kalman solver.
 
     """
     tseq = np.linspace(tmin, tmax, n_eval+1)
-    exact = odeint(lorenz0, init[:, 0], tseq)
+    exact = odeint(lorenz, init[:, 0], tseq)
     ylabel = ['x', 'y', 'z']
     n_var = len(ylabel)
     dt = (tmax-tmin)/n_eval

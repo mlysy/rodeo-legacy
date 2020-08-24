@@ -13,15 +13,18 @@ warnings.filterwarnings('ignore')
 
 class inference:
     r"""
-    Perform parameter inference for the model via mode/quadrature using Euler's approximation and the KalmanODE solver. 
+    Perform parameter inference for the model via mode/quadrature using Euler's 
+    approximation and the KalmanODE solver. 
 
     Args:
         state_ind (list): Index of the 0th derivative, :math:`x^{(0)}` of each state.
         tmin (int): First time point of the time interval to be evaluated; :math:`a`.
         tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
-        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
+        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking 
+            arguments :math:`x` and :math:`t`.
         kode (object): KalmanODE solver used to perform parameter inference.
-        x0 (ndarray(n_state)): Initial value of the state variable :math:`x_t` at time :math:`t = 0`.
+        x0 (ndarray(n_state)): Initial value of the state variable :math:`x_t` at 
+            time :math:`t = 0`.
         theta_true (ndarray(n_theta)): True value of :math:`\theta` in the ODE function.
         gamma (float): Noise parameter to simulate the observations.
         phi (ndarray(n_theta)): Log of observed :math:`\theta`.
@@ -30,12 +33,15 @@ class inference:
         phi_mean (ndarray(n_theta)): Mean of :math:`\phi`.
         phi_sd (ndarray(n_theta)): Standard deviation of :math:`\phi`.
         theta (ndarray(n_theta)): Observed :math:`\theta`.
-        kalman (bool): Flag to indicate if the KalmanODE solver or Euler's method is used.
+        kalman (bool): Flag to indicate if the KalmanODE solver or Euler's method 
+            is used.
         phi_hat (ndarray(n_theta)): Optimized observed :math:`\phi`.
         phi_var (ndarray(n_theta, n_theta)): Variance matrix of phi_hat.
         n_samples (int): Number of samples of :math:`\theta` to simulate.
-        theta_euler (ndarray(n_samples, n_theta)): Simulated n_samples of :math:`\theta` using Euler's approximation.
-        theta_kalman (ndarray(n_samples, n_theta)): Simulated n_samples of :math:`\theta` using KalmanODE solver.
+        theta_euler (ndarray(n_samples, n_theta)): Simulated n_samples of 
+            :math:`\theta` using Euler's approximation.
+        theta_kalman (ndarray(n_samples, n_theta)): Simulated n_samples of 
+            :math:`\theta` using KalmanODE solver.
     """
     def __init__(self, state_ind, tmin, tmax, fun, kode=None):
         self.state_ind = state_ind

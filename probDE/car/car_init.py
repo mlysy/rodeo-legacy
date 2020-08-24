@@ -21,7 +21,7 @@ def root_gen(tau, p):
 
 def zero_pad(x0, p):
     """
-    Pad x0 with p-len(x0) 0s at the end of x0.
+    Pad x0 with 0 at the end such that its length is p.
 
     Args:
         x0 (ndarray(n_dim)): Any vector.

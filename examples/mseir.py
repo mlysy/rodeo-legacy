@@ -18,6 +18,7 @@ def mseir(X_t, t, theta):
     return np.array([dM, dS, dE, dI, dR])
 
 def mseir_example():
+    "Perform parameter inference using the MSEIR function."
     # LHS Matrix of ODE
     w_mat = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
 

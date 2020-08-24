@@ -5,16 +5,10 @@ import numpy as np
 from math import sin, cos
 import matplotlib.pyplot as plt
 
-import os
-cwd = os.getcwd()
-print(cwd)
-
 from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init
 from euler_approx import euler_approx
-
-
 
 # Example ODE Exact Solution for x_t^{(0)}
 def ode_exact_x(t):

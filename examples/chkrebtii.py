@@ -8,9 +8,11 @@ from probDE.utils import indep_init
 from readme_graph import readme_graph
 
 def ode_fun(x_t, t, theta=None):
+    r"Chkrebtii ODE function"
     return np.array([sin(2*t) - x_t[0]])
 
 def chkrebtii_example():
+    r"Produces the graph in Figure 1 of the paper."
     # LHS vector of ODE
     w_vec = np.array([0.0, 0.0, 1.0])
 
