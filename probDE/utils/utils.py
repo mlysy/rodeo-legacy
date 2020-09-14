@@ -46,39 +46,58 @@ def solveV(V, B):
     L, low = scl.cho_factor(V)
     return scl.cho_solve((L, low), B)
 
-def indep_init(init, n_state):
+def zero_pad(x0, p):
+    """
+    Pad x0 with 0 at the end such that its length is p.
+
+    Args:
+        x0 (ndarray(n_dim)): Any vector.
+        p (int): Size of the padded vector.
+
+    Returns:
+        (ndarray(1, p)): Padded vector of length p.
+
+    """
+    q = len(x0)
+    X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0, 0))])
+    return X0
+
+def indep_init(init, w_mat, p):
     """
     Computes the necessary parameters for the Kalman filter and smoother.
 
     Args:
-        init (list(n_var)): Computed initial parameters for each variable
-        n_state (int): Size of the state.
+        init (list(n_var)): Computed initial parameters for each variable.
+        w_mat (ndarray(n_var, q)): Weight matrix for the observations.
+        p (int): Number of derivatives of the ODE.
     
     Returns:
         (tuple):
         - **kinit** (dict): Dictionary holding the computed initial parameters for the
           Kalman solver.
-        - **x0_state** (ndarray(n_state)): Initial state of the ODE function.
+        - **wgt_meas** (ndarray(n_var, p)): Transition matrix defining the measure prior.
+        - **x0_state** (ndarray(p)): Initial state of the ODE function.
 
     """
-    n_var = len(init)
-    wgt_meas = np.zeros((n_var, n_state), order='F')
-    x0_state = np.zeros(n_state)
-    mu_state = np.zeros(n_state)
-    wgt_state = np.zeros((n_state, n_state), order='F')
-    var_state = np.zeros((n_state, n_state), order='F')
+    n_var = len(init[0])
+    wgt_meas = np.zeros((n_var, p), order='F')
+    x0_state = np.zeros(p)
+    mu_state = np.zeros(p)
+    wgt_state = np.zeros((p, p), order='F')
+    var_state = np.zeros((p, p), order='F')
+    
+    wgt_state_i, var_state_i, x0_state_i = init
     ind = 0
     for i in range(n_var):
-        wgt_meas_i, wgt_state_i, var_state_i, x0_state_i = init[i]
-        p_i = len(x0_state_i)
-        wgt_meas[i, ind:ind+p_i] = wgt_meas_i
-        x0_state[ind:ind+p_i] = x0_state_i
-        wgt_state[ind:ind+p_i, ind:ind+p_i] = wgt_state_i
-        var_state[ind:ind+p_i, ind:ind+p_i] = var_state_i
+        p_i = len(x0_state_i[i])
+        wgt_meas[i, ind:ind+p_i] = zero_pad(w_mat[i], p_i)
+        x0_state[ind:ind+p_i] = x0_state_i[i]
+        wgt_state[ind:ind+p_i, ind:ind+p_i] = wgt_state_i[i]
+        var_state[ind:ind+p_i, ind:ind+p_i] = var_state_i[i]
         ind += p_i
     kinit = {"wgt_state":wgt_state, "mu_state":mu_state,
-            "var_state":var_state, "wgt_meas":wgt_meas}
-    return kinit, x0_state
+            "var_state":var_state}
+    return kinit, wgt_meas, x0_state
 
 def norm_sim(z, mu, V):
     """

@@ -19,22 +19,6 @@ def root_gen(tau, p):
     """
     return np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))
 
-def zero_pad(x0, p):
-    """
-    Pad x0 with 0 at the end such that its length is p.
-
-    Args:
-        x0 (ndarray(n_dim)): Any vector.
-        p (int): Size of the padded vector.
-
-    Returns:
-        (ndarray(1, p)): Padded vector of length p.
-
-    """
-    q = len(x0)
-    X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0, 0))])
-    return X0
-
 def car_initial_draw(roots, sigma, x0, p):
     """
     Computes the initial draw X0 for the kalman process :math:`X0 \sim N(c_0, 0_{pxp})` 
@@ -88,7 +72,7 @@ def car_state(delta_t, roots, sigma):
     wgtState = np.matmul(Q * np.exp(-roots*delta_t[0]), Q_inv, order='F')
     return wgtState, varState
     
-def car_init(p, tau, sigma, dt, w, x0):
+def car_init(p, tau, sigma, dt, x0):
     """
     Calculates the initial parameters necessary for the Kalman solver.
     The specific model we are using for the Kalman solver is
@@ -103,16 +87,14 @@ def car_init(p, tau, sigma, dt, w, x0):
     :math:`X_n = (x_n, y_n)` at time n and :math:`y_n` denotes the observation at time n.
 
     Args:
-        p (int): Size of the initial state, x0_state.
-        tau (float): First root parameter.
-        sigma (float): Parameter in mOU volatility matrix.
+        p (list(int)): Size of the initial state, x0_state.
+        tau (list(float)): First root parameter.
+        sigma (list(float)): Parameter in mOU volatility matrix.
         dt (float): The step size between simulation points.
-        w (ndarray(q+1)): The :math:`w` vector of size :math:`q+1` where :math:`q<p`.
-        x0 (ndarray(q+1)): The initial value, :math:`x0`, to the ODE problem.
+        x0 (ndarray(n_var, q+1)): The initial value, :math:`x0`, to the ODE problem.
         
     Returns:
-        (tuple):
-        - **wgt_meas** (ndarray(p)) Transition matrix defining the measure prior; :math:`W`.
+        (list):
         - **wgt_state** (ndarray(p, p)) Transition matrix defining the solution prior; :math:`T`.
         - **var_state** (ndarray(p, p)) Variance matrix defining the solution prior; :math:`R`.
         - **x0_state** (ndarray(p)): Initial value of the state variable :math:`x_t` at time 
@@ -120,8 +102,12 @@ def car_init(p, tau, sigma, dt, w, x0):
     
     """
     delta_t = np.array([dt])
-    wgt_meas = zero_pad(w, p)
-    roots = root_gen(tau, p)
-    x0_state = car_initial_draw(roots, sigma, x0, p)
-    wgt_state, var_state = car_state(delta_t, roots, sigma)
-    return wgt_meas, wgt_state, var_state, x0_state
+    n_var = len(p)
+    x0_state = [None]*n_var
+    wgt_state = [None]*n_var
+    var_state = [None]*n_var
+    for i in range(n_var):
+        roots = root_gen(tau[i], p[i])
+        x0_state[i] = car_initial_draw(roots, sigma[i], x0[i], p[i])
+        wgt_state[i], var_state[i] = car_state(delta_t, roots, sigma[i])
+    return [wgt_state, var_state, x0_state]

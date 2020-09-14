@@ -4,20 +4,27 @@ from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init
 
-def fitz(X_t, t, theta):
+def fitz(X_out, X_t, t, theta):
     "FitzHugh-Nagumo ODE function."
     a, b, c = theta
-    n_state1 = len(X_t)//2
-    V, R = X_t[0], X_t[n_state1] 
+    n_deriv1 = len(X_t)//2
+    V, R = X_t[0], X_t[n_deriv1] 
+    X_out = c*(V - V*V*V/3 + R), -1/c*(V - a + b*R)
+    return
+
+def fitz_odeint(X_t, t, theta):
+    "FitzHugh-Nagumo ODE function."
+    a, b, c = theta
+    n_deriv1 = len(X_t)//2
+    V, R = X_t[0], X_t[n_deriv1] 
     return np.array([c*(V - V*V*V/3 + R), -1/c*(V - a + b*R)])
 
 def fitz_example():
     "Perform parameter inference using the FitzHugh-Nagumo function."
     # These parameters define the order of the ODE and the CAR(p) process
-    n_state1 = 3 # State dimension of V_n
-    n_state2 = 3 # State dimension of R_n
-    n_state = 6 # Total state
-    n_meas = 2 # Total measures
+    n_deriv = 6 # Total state
+    n_obs = 2 # Total measures
+    n_deriv_var = [3, 3]
     state_ind = [0, 3] # Index of 0th derivative of each state
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
@@ -51,7 +58,7 @@ def fitz_example():
 
     # Initialize inference class and simulate observed data
     inf = inference(state_ind, tmin, tmax, fitz)
-    Y_t = inf.simulate(x0, theta_true, gamma)
+    Y_t = inf.simulate(fitz_odeint, x0, theta_true, gamma)
 
     # Parameter inference using Euler's approximation
     hlst = np.array([0.1, 0.05, 0.02, 0.01, 0.005])
@@ -63,12 +70,11 @@ def fitz_example():
     # Parameter inference using Kalman solver
     theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
-        kinit, x0_state = indep_init([car_init(n_state1, tau[0], sigma[0], hlst[i], w_mat[0], X0[0]),
-                                      car_init(n_state2, tau[1], sigma[1], hlst[i], w_mat[1], X0[1])],
-                                      n_state)
+        kinit, W, x0_state = indep_init(car_init(n_deriv_var, tau, sigma, hlst[i], X0), w_mat, n_deriv)
         n_eval = int((tmax-tmin)/hlst[i])
-        kode = KalmanODE(n_state, n_meas, tmin, tmax, n_eval, fitz, **kinit)
+        kode = KalmanODE(n_deriv, n_obs, tmin, tmax, n_eval, fitz, **kinit)
         inf.kode = kode
+        inf.W = W
         phi_hat, phi_var = inf.phi_fit(Y_t, x0_state, hlst[i], theta_true, phi_sd, gamma, True)
         theta_kalman[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
     

@@ -29,7 +29,7 @@ cpdef kalman_ode(fun,
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
 
-    .. math:: w' x_n = F(x_n, n, \theta)
+    .. math:: W x_n = F(x_n, n, \theta)
 
     on the time interval :math:`n \in [a, b]` with initial condition :math:`x_0 = x_0`. The corresponding variable names are
 
@@ -106,7 +106,7 @@ cpdef kalman_ode(fun,
             ktvode.predict(t)
             ktvode.forecast(t)
             #ktvode.forecast_sch(t)
-            x_meas[:, t+1] = fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
+            fun(x_meas[:, t+1], x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
             ktvode.update(t)
         else:
             ktvode.filter(t)
@@ -135,7 +135,6 @@ cdef class KalmanODE:
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`T`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
         z_states (ndarray(n_state)): Random matrix for simulating from :math:`N(0, 1)`.
 
     """
@@ -145,7 +144,6 @@ cdef class KalmanODE:
     cdef object __wgt_state
     cdef object __mu_state
     cdef object __var_state
-    cdef object __wgt_meas
     cdef object __z_states
         
     def __cinit__(self, int n_state, int n_meas, double tmin, double tmax, int n_eval, object fun, **init):
@@ -158,7 +156,6 @@ cdef class KalmanODE:
         self.__wgt_state = None
         self.__mu_state = None
         self.__var_state = None
-        self.__wgt_meas = None
         self.__z_states = None
         for key in init.keys():
             self.__setattr__(key, init[key])
@@ -200,18 +197,6 @@ cdef class KalmanODE:
         self.__wgt_state = None
 
     @property
-    def wgt_meas(self):
-        return self.__wgt_meas
-
-    @wgt_meas.setter
-    def wgt_meas(self, wgt_meas):
-        self.__wgt_meas = wgt_meas.copy('F')
-    
-    @wgt_meas.deleter
-    def wgt_meas(self):
-        self.__wgt_meas = None
-
-    @property
     def z_states(self):
         return self.__z_states
 
@@ -223,16 +208,17 @@ cdef class KalmanODE:
     def z_states(self):
         self.__z_states = None
     
-    cpdef solve(self, double[::1] x0_state, theta=None, bint mv=False, bint sim=True):
+    cpdef solve(self, double[::1] x0_state, double[::1, :] wgt_meas, theta=None, bint mv=False, bint sim=True):
         r"""
         Returns an approximate solution to the higher order ODE
 
-        .. math:: w' x_n = F(x_n, t, \theta)
+        .. math:: W x_n = F(x_n, t, \theta)
 
         on the time interval :math:`t \in [a, b]` with initial condition :math:`x_0 = x_0`.
         
         Args:
             x0_state (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`t = 0`; :math:`x_0`.
+            wgt_meas (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
             theta (ndarray(n_theta)): Parameter in the ODE function.
             smooth_mv (bool): Flag for returning the smoothed mean and variance.
             smooth_sim (bool): Flag for returning the smoothed simulated state.
@@ -247,8 +233,8 @@ cdef class KalmanODE:
 
         """
         if (self.__wgt_state is None or self.__mu_state is None or 
-           self.__var_state is None or self.__wgt_meas is None):
-            raise ValueError("wgt_state, mu_state, var_state, and/or wgt_meas is not set.")
+           self.__var_state is None):
+            raise ValueError("wgt_state, mu_state, and/or var_state is not set.")
         
         if self.__z_states is None:
             self.__z_states = rand_mat(2*(self.n_eval+1), self.n_state)
@@ -256,7 +242,7 @@ cdef class KalmanODE:
             kalman_sim, kalman_mu, kalman_var = \
                 kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
                           self.__wgt_state, self.__mu_state, self.__var_state,
-                          self.__wgt_meas, self.__z_states, None, theta, mv, sim)
+                          wgt_meas, self.__z_states, None, theta, mv, sim)
             kalman_sim = np.ascontiguousarray(kalman_sim.T)
             kalman_mu = np.ascontiguousarray(kalman_mu.T)
             kalman_var = np.ascontiguousarray(kalman_var.T)
@@ -265,7 +251,7 @@ cdef class KalmanODE:
             kalman_mu, kalman_var = \
                 kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
                           self.__wgt_state, self.__mu_state, self.__var_state,
-                          self.__wgt_meas, self.__z_states, None, theta, mv, sim)
+                          wgt_meas, self.__z_states, None, theta, mv, sim)
             kalman_mu = np.ascontiguousarray(kalman_mu.T)
             kalman_var = np.ascontiguousarray(kalman_var.T)
             return kalman_mu, kalman_var
@@ -273,7 +259,7 @@ cdef class KalmanODE:
             kalman_sim = \
                 kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
                           self.__wgt_state, self.__mu_state, self.__var_state,
-                          self.__wgt_meas, self.__z_states, None, theta, mv, sim)
+                          wgt_meas, self.__z_states, None, theta, mv, sim)
             kalman_sim = np.ascontiguousarray(kalman_sim.T)
             return kalman_sim
         

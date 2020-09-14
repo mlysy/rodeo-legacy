@@ -59,7 +59,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     # argumgents for kalman_filter and kalman_smooth
     mu_meas = np.zeros(n_dim_meas)
     var_meass = np.zeros((n_timesteps, n_dim_meas, n_dim_meas))
-    x_meass = np.zeros((n_timesteps, n_dim_meas))
+    x_meas = np.zeros(n_dim_meas)
     mu_state_filts = np.zeros((n_timesteps, n_dim_state))
     var_state_filts = np.zeros((n_timesteps, n_dim_state, n_dim_state))
     mu_state_preds = np.zeros((n_timesteps, n_dim_state))
@@ -70,7 +70,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
 
     # initialize things
     mu_state_filts[0] = x0_state
-    x_meass[0] = x0_state.dot(wgt_meas.T)
+    #x_meass[0] = x0_state.dot(wgt_meas.T)
     mu_state_preds[0] = mu_state_filts[0]
     var_state_preds[0] = var_state_filts[0]
     mu_state_smooths[0] = mu_state_filts[0]
@@ -95,12 +95,12 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
         x_state_tt = norm_sim(z=z_state_sim[:, t],
                               mu=mu_state_preds[t+1],
                               V=var_state_preds[t+1])
-        x_meass[t+1] = fun(x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
+        fun(x_meas, x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
 
         mu_state_filts[t+1], var_state_filts[t+1] = (
             KFS.update(mu_state_pred=mu_state_preds[t+1],
                        var_state_pred=var_state_preds[t+1],
-                       x_meas=x_meass[t+1],
+                       x_meas=x_meas,
                        mu_meas=mu_meas,
                        wgt_meas=wgt_meas,
                        var_meas=var_meass[t+1])

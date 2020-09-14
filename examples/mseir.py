@@ -4,7 +4,21 @@ from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init
 
-def mseir(X_t, t, theta):
+def mseir(X_out, X_t, t, theta):
+    "MSEIR ODE function"
+    p = len(X_t)//5
+    M, S, E, I, R = X_t[::p]
+    N = M+S+E+I+R
+    Lambda, delta, beta, mu, epsilon, gamma = theta
+    dM = Lambda - delta*M - mu*M
+    dS = delta*M - beta*S*I/N - mu*S
+    dE = beta*S*I/N - (epsilon + mu)*E
+    dI = epsilon*E - (gamma + mu)*I
+    dR = gamma*I - mu*R
+    X_out = dM, dS, dE, dI, dR
+    return
+
+def mseir_odeint(X_t, t, theta):
     "MSEIR ODE function"
     p = len(X_t)//5
     M, S, E, I, R = X_t[::p]
@@ -23,9 +37,9 @@ def mseir_example():
     w_mat = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
 
     # These parameters define the order of the ODE and the CAR(p) process
-    n_meas = 5 # Total measures
-    n_state = 15 # Total state
-    n_state1 = n_state2 = n_state3 = n_state4 = n_state5 = 3
+    n_obs = 5 # Total measures
+    n_deriv = 15 # Total state
+    n_deriv_var= [3, 3, 3, 3, 3]
     state_ind = [0, 3, 6, 9, 12] # Index of 0th derivative of each state
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
@@ -42,7 +56,7 @@ def mseir_example():
     # Initial value, x0, for the IVP
     theta_true = (1.1, 0.7, 0.4, 0.005, 0.02, 0.03) # True theta
     x0 = np.array([1000, 100, 50, 3, 3])
-    v0 = mseir(x0, 0, theta_true)
+    v0 = mseir_odeint(x0, 0, theta_true)
     X0 = np.column_stack([x0, v0])
 
     # logprior parameters
@@ -57,7 +71,7 @@ def mseir_example():
 
     # Initialize inference class and simulate observed data
     inf = inference(state_ind, tmin, tmax, mseir)
-    Y_t = inf.simulate(x0, theta_true, gamma)
+    Y_t = inf.simulate(mseir_odeint, x0, theta_true, gamma)
 
     # Parameter inference using Euler's approximation
     hlst = np.array([0.1, 0.05, 0.02, 0.01, 0.005])
@@ -69,14 +83,11 @@ def mseir_example():
     # Parameter inference using Kalman solver
     theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
-        kinit, x0_state = indep_init([car_init(n_state1, tau[0], sigma[0], hlst[i], w_mat[0], X0[0]),
-                                      car_init(n_state2, tau[1], sigma[1], hlst[i], w_mat[1], X0[1]),
-                                      car_init(n_state3, tau[2], sigma[2], hlst[i], w_mat[2], X0[2]),
-                                      car_init(n_state4, tau[3], sigma[3], hlst[i], w_mat[3], X0[3]),
-                                      car_init(n_state5, tau[4], sigma[4], hlst[i], w_mat[4], X0[4])], n_state)
+        kinit, W, x0_state = indep_init(car_init(n_deriv_var, tau, sigma, hlst[i], X0), w_mat, n_deriv)
         n_eval = int((tmax-tmin)/hlst[i])
-        kode = KalmanODE(n_state, n_meas, tmin, tmax, n_eval, mseir, **kinit)
+        kode = KalmanODE(n_deriv, n_obs, tmin, tmax, n_eval, mseir, **kinit)
         inf.kode = kode
+        inf.W = W
         phi_hat, phi_var = inf.phi_fit(Y_t, x0_state, hlst[i], theta_true, phi_sd, gamma, True)
         theta_kalman[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
     

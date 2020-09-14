@@ -43,31 +43,32 @@ class inference:
         theta_kalman (ndarray(n_samples, n_theta)): Simulated n_samples of 
             :math:`\theta` using KalmanODE solver.
     """
-    def __init__(self, state_ind, tmin, tmax, fun, kode=None):
+    def __init__(self, state_ind, tmin, tmax, fun, W=None, kode=None):
         self.state_ind = state_ind
         self.tmin = tmin
         self.tmax = tmax
         self.fun = fun
+        self.W = W
         self.kode = kode
     
     def loglike(self, x, mean, var):
         r"Calculate the loglikelihood of the lognormal distribution."
         return np.sum(sp.stats.norm.logpdf(x=x, loc=mean, scale=var))
     
-    def simulate(self, x0, theta_true, gamma):
+    def simulate(self, fun, x0, theta_true, gamma):
         r"Simulate observed data for inference"
         tseq = np.linspace(self.tmin, self.tmax, self.tmax-self.tmin+1)
-        X_t = odeint(self.fun, x0, tseq, args=(theta_true,))[1:,]
+        X_t = odeint(fun, x0, tseq, args=(theta_true,))[1:,]
         e_t = np.random.default_rng().normal(loc=0.0, scale=1, size=X_t.shape)
         Y_t = X_t + gamma*e_t
         return Y_t
-    
+
     def kalman_nlpost(self, phi, Y_t, x0, step_size, phi_mean, phi_sd, gamma):
         r"Compute the negative loglikihood of :math:`Y_t` using the Euler method."
         theta = np.exp(phi)
         first_obs = int(1/step_size)
         n_skip = int(1/step_size)
-        X_t = self.kode.solve(x0, theta)
+        X_t = self.kode.solve(x0, self.W, theta)
         X_t = X_t[first_obs::n_skip, self.state_ind]
         lp = self.loglike(Y_t, X_t, gamma)
         lp += self.loglike(phi, phi_mean, phi_sd)
@@ -80,8 +81,10 @@ class inference:
         X_t[0] = x0
         one_ind = int(1/step_size)
         n_skip = int(1/step_size)
+        X_temp = np.zeros(len(x0))
         for i in range(n_eval):
-            X_t[i+1] = X_t[i] + self.fun(X_t[i], step_size*i, theta)*step_size
+            self.fun(X_temp, X_t[i], step_size*i, theta)
+            X_t[i+1] = X_t[i] + X_temp*step_size 
         return X_t[one_ind::n_skip]
     
     def euler_nlpost(self, phi, Y_t, x0, step_size, phi_mean, phi_sd, gamma):
@@ -100,9 +103,10 @@ class inference:
             obj_fun = self.kalman_nlpost
         else:
             obj_fun = self.euler_nlpost
+
         opt_res = sp.optimize.minimize(obj_fun, phi_mean+.1,
-                                       args=(Y_t, x0, step_size, phi_mean, phi_sd, gamma),
-                                       method='Nelder-Mead')
+                                    args=(Y_t, x0, step_size, phi_mean, phi_sd, gamma),
+                                    method='Nelder-Mead')
         phi_hat = opt_res.x
         hes = nd.Hessian(obj_fun)
         phi_fisher = hes(phi_hat, Y_t, x0, step_size, phi_mean, phi_sd, gamma)

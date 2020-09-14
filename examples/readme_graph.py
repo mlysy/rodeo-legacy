@@ -23,29 +23,29 @@ def ode_euler(x,t):
     return np.array([x[1], sin(2*t) -x[0]])
 
 # Helper function to draw samples from Kalman solver
-def readme_kalman_draw(fun, n_state, n_meas, n_eval, tmin, tmax, tau, sigma, w, init, draws):
+def readme_kalman_draw(fun, n_deriv, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws):
     dt = (tmax-tmin)/n_eval
-    X = np.zeros((draws, n_eval+1, n_state))
+    X = np.zeros((draws, n_eval+1, n_deriv))
     for i in range(draws):
-        kinit, x0_state = indep_init([car_init(n_state, tau, sigma, dt, w, init)], n_state)
-        kalmanode = KalmanODE(n_state, n_meas, tmin, tmax, n_eval, fun, **kinit)
-        X[i]= kalmanode.solve(x0_state, mv=False, sim=True)
+        kinit, W, x0_state = indep_init(car_init([n_deriv], tau, sigma, dt, init), w_mat, n_deriv)
+        kalmanode = KalmanODE(n_deriv, n_obs, tmin, tmax, n_eval, fun, **kinit)
+        X[i]= kalmanode.solve(x0_state, W, mv=False, sim=True)
     return X
 
-def readme_solve(fun, n_state, n_meas, tmin, tmax, n_eval, w, tau, sigma, init, draws):
+def readme_solve(fun, n_deriv, n_obs, tmin, tmax, n_eval, w_mat, tau, sigma, init, draws):
     """
     Calculates kalman_ode, euler_ode, and exact_ode on the given grid for the README ode.
 
     Args:
         fun (function) : Higher order ODE function :math:`w x_t = F(x_t, t)` 
             taking arguments :math:`x` and :math:`t`.
-        n_state (int) : Size of the CAR(p) process; :math:`p`.
-        n_meas (int) : Size of the observed state.
+        n_deriv (int) : Size of the CAR(p) process; :math:`p`.
+        n_obs (int) : Size of the observed state.
         tmin (float) : First time point of the time interval to be evaluated; :math:`a`.
         tmax (float) : Last time point of the time interval to be evaluated; :math:`b`.
         n_eval (int) : Number of discretization points of the time interval that is evaluated, 
             such that discretization timestep is :math:`dt = (b-a)/N`.
-        w (ndarray(q+1)) : Corresponds to the :math:`w` vector in the ODE equation.
+        w_mat (ndarray(n_var, q+1)) : Corresponds to the :math:`W` matrix in the ODE equation.
         tau (float): Decorrelation time.
         sigma (float): Scale parameter.
         init (ndarray(q+1)) or (ndarray(p)): The initial values of :math:`x_L` or :math:`X_L = (x_L, y_L)`.
@@ -53,7 +53,7 @@ def readme_solve(fun, n_state, n_meas, tmin, tmax, n_eval, w, tau, sigma, init, 
     Returns:
         (tuple):
         - **tseq** (ndarray(n_eval+1)): Time discretization points for :math:`t = 0,1/N,\ldots,1`.
-        - **Xt** (ndarray(draws, n_eval+1, n_state)): Draws of the solution process :math:`X_t` at times
+        - **Xt** (ndarray(draws, n_eval+1, n_deriv)): Draws of the solution process :math:`X_t` at times
           :math:`t = 0,1/N,\ldots,1`.
         - **x_euler** (ndarray(n_eval+1, 2)): Euler approximation of the solution process at
           times :math:`t = 0,1/N,\ldots,1`.
@@ -61,8 +61,8 @@ def readme_solve(fun, n_state, n_meas, tmin, tmax, n_eval, w, tau, sigma, init, 
 
     """
     tseq = np.linspace(tmin, tmax, n_eval+1)
-    Xt = readme_kalman_draw(fun, n_state, n_meas, n_eval, tmin, tmax, tau, sigma, w, init, draws)
-    x_euler = euler_approx(ode_euler, tseq, init)
+    Xt = readme_kalman_draw(fun, n_deriv, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws)
+    x_euler = euler_approx(ode_euler, tseq, init[0])
     x_exact = np.zeros((n_eval+1, 2))
     for i,t in enumerate(tseq):
         x_exact[i, 0] = ode_exact_x(t)
@@ -71,27 +71,27 @@ def readme_solve(fun, n_state, n_meas, tmin, tmax, n_eval, w, tau, sigma, init, 
     return tseq, Xt, x_euler, x_exact
 
 # Function that produces the graph as shown in README
-def readme_graph(fun, n_state, n_meas, tmin, tmax, w, init, draws):
+def readme_graph(fun, n_deriv, n_obs, tmin, tmax, w_mat, init, draws):
     """
     Produces the graph in README file.
 
     Args:
         fun (function) : Higher order ODE function :math:`W x_t = F(x_t, t)` 
             taking arguments :math:`x` and :math:`t`.
-        n_state (int) : Size of the CAR(p) process; :math:`p`.
-        n_meas (int) : Size of the observed state.
+        n_deriv (int) : Size of the CAR(p) process; :math:`p`.
+        n_obs (int) : Size of the observed state.
         tmin (float) : First time point of the time interval to be evaluated; :math:`a`.
         tmax (float) : Last time point of the time interval to be evaluated; :math:`b`.
-        w (ndarray(q+1)) : Corresponds to the :math:`w` vector in the ODE equation.
+        w_mat (ndarray(n_var, q+1)) : Corresponds to the :math:`W` matrix in the ODE equation.
         init (ndarray(q+1)) or (ndarray(p)): The initial values of :math:`x_L` or :math:`X_L = (x_L, y_L)`.
         draws (int): Number of samples we need to draw from the kalman solver.
     
     """
     # Initialize variables for the graph
-    dim_deriv = len(w) - 1
+    dim_deriv = w_mat.shape[1] - 1
     N = [50, 100, 200]
-    Tau = [1/.004, 1/0.02, 1/0.02]
-    Sigma = [.5, .05, .001]
+    Tau = [[1/.004], [1/0.02], [1/0.02]]
+    Sigma = [[.5], [.05], [.001]]
     dim_example = len(N)
     tseq = [None] * dim_example
     Xn = [None] * dim_example
@@ -100,12 +100,12 @@ def readme_graph(fun, n_state, n_meas, tmin, tmax, w, init, draws):
 
     for i in range(dim_example):
         tseq[i], Xn[i], x_euler[i], x_exact[i] = readme_solve(fun=fun,
-                                                              n_state=n_state,
-                                                              n_meas=n_meas, 
+                                                              n_deriv=n_deriv,
+                                                              n_obs=n_obs, 
                                                               tmin=tmin, 
                                                               tmax=tmax, 
                                                               n_eval=N[i],
-                                                              w=w,
+                                                              w_mat=w_mat,
                                                               tau=Tau[i], 
                                                               sigma=Sigma[i], 
                                                               init=init,
