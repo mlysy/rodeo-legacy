@@ -63,29 +63,48 @@ class inference:
         Y_t = X_t + gamma*e_t
         return Y_t
 
+    def thinning(self, data_tseq, ode_tseq, X):
+        r"Thin a highly discretized ODE solution to match the observed data."
+        data_i = 0
+        ode_i = 0
+        diff = 1000
+        ind = np.zeros(len(data_tseq), dtype=int)
+        while data_i < len(data_tseq) and ode_i < len(ode_tseq):
+            if data_tseq[data_i] > ode_tseq[ode_i]:
+                diff = min(diff, abs(data_tseq[data_i] - ode_tseq[ode_i]))
+                ode_i+=1
+            else:
+                if diff > abs(data_tseq[data_i] - ode_tseq[ode_i]):
+                    ind[data_i] = ode_i
+                else:
+                    ind[data_i] = ode_i-1
+                data_i+=1
+                diff = 1000
+        return X[ind,:]
+
     def kalman_nlpost(self, phi, Y_t, x0, step_size, phi_mean, phi_sd, gamma):
         r"Compute the negative loglikihood of :math:`Y_t` using the Euler method."
         theta = np.exp(phi)
-        first_obs = int(1/step_size)
-        n_skip = int(1/step_size)
+        data_tseq = np.linspace(1, self.tmax, self.tmax-self.tmin)
+        ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
         X_t = self.kode.solve(x0, self.W, theta)
-        X_t = X_t[first_obs::n_skip, self.state_ind]
+        X_t = self.thinning(data_tseq, ode_tseq, X_t)[:, self.state_ind]
         lp = self.loglike(Y_t, X_t, gamma)
         lp += self.loglike(phi, phi_mean, phi_sd)
         return -lp
-    
+        
     def euler(self, x0, step_size, theta):
         r"Evaluate Euler approximation given :math:`\theta`"
         n_eval = int((self.tmax-self.tmin)/step_size)
+        data_tseq = np.linspace(1, self.tmax, self.tmax-self.tmin)
+        ode_tseq = np.linspace(self.tmin, self.tmax, n_eval+1)
         X_t = np.zeros((n_eval+1, len(x0)))
         X_t[0] = x0
-        one_ind = int(1/step_size)
-        n_skip = int(1/step_size)
-        X_temp = np.zeros(len(x0))
         for i in range(n_eval):
-            self.fun(X_temp, X_t[i], step_size*i, theta)
-            X_t[i+1] = X_t[i] + X_temp*step_size 
-        return X_t[one_ind::n_skip]
+            self.fun(X_t[i+1], X_t[i], step_size*i, theta)
+            X_t[i+1] = X_t[i] + X_t[i+1]*step_size
+        X_t = self.thinning(data_tseq, ode_tseq, X_t)
+        return X_t
     
     def euler_nlpost(self, phi, Y_t, x0, step_size, phi_mean, phi_sd, gamma):
         r"Compute the negative loglikihood of :math:`Y_t` using the Euler method."
@@ -96,7 +115,8 @@ class inference:
         return -lp
     
     def phi_fit(self, Y_t, x0, step_size, theta_true, phi_sd, gamma, kalman):
-        r"Compute the optimized :math:`\log{\theta}` and its variance given :math:`Y_t`."
+        r"""Compute the optimized :math:`\log{\theta}` and its variance given 
+            :math:`Y_t`."""
         phi_mean = np.log(theta_true)
         n_theta = len(theta_true)
         if kalman:
@@ -115,13 +135,15 @@ class inference:
         return phi_hat, phi_var
     
     def theta_sample(self, phi_hat, phi_var, n_samples):
-        r"Simulate :math:`\theta` given the :math:`\log{\hat{\theta}}` and its variance."
+        r"""Simulate :math:`\theta` given the :math:`\log{\hat{\theta}}` 
+            and its variance."""
         phi = np.random.multivariate_normal(phi_hat, phi_var, n_samples)
         theta = np.exp(phi)
         return theta
     
     def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes):
-        r"Plot the distribution of :math:`\theta` using the Kalman solver and the Euler approximation."
+        r"""Plot the distribution of :math:`\theta` using the Kalman solver 
+            and the Euler approximation."""
         n_size, _, n_theta = theta_euler.shape
         nrow = 2
         fig, axs = plt.subplots(nrow, n_theta, sharex='col', figsize=(20, 5))

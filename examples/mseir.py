@@ -10,12 +10,11 @@ def mseir(X_out, X_t, t, theta):
     M, S, E, I, R = X_t[::p]
     N = M+S+E+I+R
     Lambda, delta, beta, mu, epsilon, gamma = theta
-    dM = Lambda - delta*M - mu*M
-    dS = delta*M - beta*S*I/N - mu*S
-    dE = beta*S*I/N - (epsilon + mu)*E
-    dI = epsilon*E - (gamma + mu)*I
-    dR = gamma*I - mu*R
-    X_out = dM, dS, dE, dI, dR
+    X_out[0] = Lambda - delta*M - mu*M
+    X_out[1] = delta*M - beta*S*I/N - mu*S
+    X_out[2] = beta*S*I/N - (epsilon + mu)*E
+    X_out[3] = epsilon*E - (gamma + mu)*I
+    X_out[4] = gamma*I - mu*R
     return
 
 def mseir_odeint(X_t, t, theta):

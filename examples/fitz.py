@@ -9,7 +9,8 @@ def fitz(X_out, X_t, t, theta):
     a, b, c = theta
     n_deriv1 = len(X_t)//2
     V, R = X_t[0], X_t[n_deriv1] 
-    X_out = c*(V - V*V*V/3 + R), -1/c*(V - a + b*R)
+    X_out[0] = c*(V - V*V*V/3 + R)
+    X_out[1] = -1/c*(V - a + b*R)
     return
 
 def fitz_odeint(X_t, t, theta):

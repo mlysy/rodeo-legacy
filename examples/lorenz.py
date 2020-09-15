@@ -11,7 +11,9 @@ def lorenz(X_out, X, t, theta=(28, 10, 8/3)):
     rho, sigma, beta = theta
     p = len(X)//3
     x, y, z = X[p*0], X[p*1], X[p*2]
-    X_out[:] = -sigma*x + sigma*y, rho*x - y -x*z, -beta*z + x*y
+    X_out[0] = -sigma*x + sigma*y
+    X_out[1] = rho*x - y -x*z
+    X_out[2] = -beta*z + x*y
     return 
 
 def lorenz_example():

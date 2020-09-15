@@ -8,7 +8,7 @@ from probDE.utils import indep_init
 from readme_graph import readme_graph
 
 def ode_fun(x_out, x, t, theta=None):
-    x_out[:] = np.array([sin(2*t) - x[0]])
+    x_out[0] = sin(2*t) - x[0]
     return
 
 def chkrebtii_example():
