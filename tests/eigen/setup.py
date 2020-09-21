@@ -37,7 +37,7 @@ ext_modules = [Extension("probDE.tests.KalmanODE",
                          include_dirs=[
                              np.get_include(),
                              eigen_path],
-                         extra_compile_args=['-O2'],
+                         extra_compile_args=['-O2', '/openmp'],
                          language='c++')]
               #  Extension("probDE.cython.KalmanTest.kalmantest",
               #            ["tests/depreciated/kalman/kalmantest"+ext_cpp],

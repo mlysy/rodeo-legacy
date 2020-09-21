@@ -72,7 +72,7 @@ def car_state(delta_t, roots, sigma):
     wgtState = np.matmul(Q * np.exp(-roots*delta_t[0]), Q_inv, order='F')
     return wgtState, varState
     
-def car_init(p, tau, sigma, dt, x0):
+def car_init(n_deriv_prior, tau, sigma, dt, x0=None):
     """
     Calculates the initial parameters necessary for the Kalman solver.
     The specific model we are using for the Kalman solver is
@@ -87,7 +87,7 @@ def car_init(p, tau, sigma, dt, x0):
     :math:`X_n = (x_n, y_n)` at time n and :math:`y_n` denotes the observation at time n.
 
     Args:
-        p (list(int)): Size of the initial state, x0_state.
+        n_deriv_prior (list(int)): Size of the initial state, x0_state.
         tau (list(float)): First root parameter.
         sigma (list(float)): Parameter in mOU volatility matrix.
         dt (float): The step size between simulation points.
@@ -102,12 +102,20 @@ def car_init(p, tau, sigma, dt, x0):
     
     """
     delta_t = np.array([dt])
-    n_var = len(p)
-    x0_state = [None]*n_var
+    n_var = len(n_deriv_prior)
+    if x0 is not None:
+        x0_state = np.zeros(sum(n_deriv_prior))
+
     wgt_state = [None]*n_var
     var_state = [None]*n_var
     for i in range(n_var):
-        roots = root_gen(tau[i], p[i])
-        x0_state[i] = car_initial_draw(roots, sigma[i], x0[i], p[i])
+        roots = root_gen(tau[i], n_deriv_prior[i])
+        if x0 is not None:
+            x0_state[sum(n_deriv_prior[:i]):sum(n_deriv_prior[:i+1])] = \
+                car_initial_draw(roots, sigma[i], x0[i], n_deriv_prior[i])
         wgt_state[i], var_state[i] = car_state(delta_t, roots, sigma[i])
-    return [wgt_state, var_state, x0_state]
+  
+    if x0 is not None:
+        return [wgt_state, var_state], x0_state
+    else:
+        return [wgt_state, var_state]

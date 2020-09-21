@@ -46,30 +46,40 @@ def solveV(V, B):
     L, low = scl.cho_factor(V)
     return scl.cho_solve((L, low), B)
 
-def zero_pad(x0, p):
+def zero_pad(x, n_deriv, n_deriv_prior):
     """
-    Pad x0 with 0 at the end such that its length is p.
+    Pad x with 0 at the end for each variable.
 
     Args:
-        x0 (ndarray(n_dim)): Any vector.
-        p (int): Size of the padded vector.
+        x0 (ndarray(n_dim1, n_dim2)): Any matrix or vector.
+        n_deriv (list): Number of derivatives for each variable in ODE IVP.
+        n_deriv_prior (list): Number of derivatives for each variable in Kalman solver.
 
     Returns:
-        (ndarray(1, p)): Padded vector of length p.
+        (ndarray(n_dim1, n_dim2)): Padded matrix or vector.
 
     """
-    q = len(x0)
-    X0 = np.array([np.pad(x0, (0, p-q), 'constant', constant_values=(0, 0))])
-    return X0
+    if len(x.shape)==1:
+        X = np.zeros(sum(n_deriv_prior))
+    else:
+        X = np.zeros((len(n_deriv), sum(n_deriv_prior)), order='F')
+    
+    for i in range(len(n_deriv)):
+        indx = sum(n_deriv[:i])
+        indX = sum(n_deriv_prior[:i])
+        if len(x.shape)==1:
+            X[indX:indX+n_deriv[i]] = x[indx:indx+n_deriv[i]]
+        else:
+            X[i, indX:indX+n_deriv[i]] = x[i, indx:indx+n_deriv[i]]
+    return X
 
-def indep_init(init, w_mat, p):
+def indep_init(init, n_deriv_prior):
     """
     Computes the necessary parameters for the Kalman filter and smoother.
 
     Args:
         init (list(n_var)): Computed initial parameters for each variable.
-        w_mat (ndarray(n_var, q)): Weight matrix for the observations.
-        p (int): Number of derivatives of the ODE.
+        n_deriv_prior (int): Number of derivatives for each variable in Kalman solver.
     
     Returns:
         (tuple):
@@ -80,24 +90,21 @@ def indep_init(init, w_mat, p):
 
     """
     n_var = len(init[0])
-    wgt_meas = np.zeros((n_var, p), order='F')
-    x0_state = np.zeros(p)
+    p = sum(n_deriv_prior)
     mu_state = np.zeros(p)
     wgt_state = np.zeros((p, p), order='F')
     var_state = np.zeros((p, p), order='F')
     
-    wgt_state_i, var_state_i, x0_state_i = init
+    wgt_state_i, var_state_i = init
     ind = 0
     for i in range(n_var):
-        p_i = len(x0_state_i[i])
-        wgt_meas[i, ind:ind+p_i] = zero_pad(w_mat[i], p_i)
-        x0_state[ind:ind+p_i] = x0_state_i[i]
-        wgt_state[ind:ind+p_i, ind:ind+p_i] = wgt_state_i[i]
-        var_state[ind:ind+p_i, ind:ind+p_i] = var_state_i[i]
-        ind += p_i
+        wgt_state[ind:ind+n_deriv_prior[i], ind:ind+n_deriv_prior[i]] = wgt_state_i[i]
+        var_state[ind:ind+n_deriv_prior[i], ind:ind+n_deriv_prior[i]] = var_state_i[i]
+        ind += n_deriv_prior[i]
     kinit = {"wgt_state":wgt_state, "mu_state":mu_state,
             "var_state":var_state}
-    return kinit, wgt_meas, x0_state
+    
+    return kinit
 
 def norm_sim(z, mu, V):
     """

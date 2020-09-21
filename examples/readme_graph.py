@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
-from probDE.utils import indep_init
+from probDE.utils import indep_init, zero_pad
 from euler_approx import euler_approx
 
 # Example ODE Exact Solution for x_t^{(0)}
@@ -23,29 +23,34 @@ def ode_euler(x,t):
     return np.array([x[1], sin(2*t) -x[0]])
 
 # Helper function to draw samples from Kalman solver
-def readme_kalman_draw(fun, n_deriv, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws):
+def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws):
     dt = (tmax-tmin)/n_eval
-    X = np.zeros((draws, n_eval+1, n_deriv))
+    p = sum(n_deriv_prior)
+    X = np.zeros((draws, n_eval+1, p))
+    W = zero_pad(w_mat, n_deriv, n_deriv_prior)
+    ode_init, x0_state = car_init(n_deriv_prior, tau, sigma, dt, init)
+    kinit = indep_init(ode_init, n_deriv_prior)
+    kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fun, **kinit)
     for i in range(draws):
-        kinit, W, x0_state = indep_init(car_init([n_deriv], tau, sigma, dt, init), w_mat, n_deriv)
-        kalmanode = KalmanODE(n_deriv, n_obs, tmin, tmax, n_eval, fun, **kinit)
         X[i]= kalmanode.solve(x0_state, W, mv=False, sim=True)
+        del kalmanode.z_states
     return X
 
-def readme_solve(fun, n_deriv, n_obs, tmin, tmax, n_eval, w_mat, tau, sigma, init, draws):
+def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, tau, sigma, init, draws):
     """
     Calculates kalman_ode, euler_ode, and exact_ode on the given grid for the README ode.
 
     Args:
-        fun (function) : Higher order ODE function :math:`w x_t = F(x_t, t)` 
+        fun (function): Higher order ODE function :math:`w x_t = F(x_t, t)` 
             taking arguments :math:`x` and :math:`t`.
-        n_deriv (int) : Size of the CAR(p) process; :math:`p`.
-        n_obs (int) : Size of the observed state.
-        tmin (float) : First time point of the time interval to be evaluated; :math:`a`.
-        tmax (float) : Last time point of the time interval to be evaluated; :math:`b`.
-        n_eval (int) : Number of discretization points of the time interval that is evaluated, 
+        n_deriv (list(n_var)): Dimensions of the ODE function.
+        n_deriv_prior (list(n_var): Dimensions of the CAR(p) process.
+        n_obs (int): Size of the observed state.
+        tmin (float): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (float): Last time point of the time interval to be evaluated; :math:`b`.
+        n_eval (int): Number of discretization points of the time interval that is evaluated, 
             such that discretization timestep is :math:`dt = (b-a)/N`.
-        w_mat (ndarray(n_var, q+1)) : Corresponds to the :math:`W` matrix in the ODE equation.
+        w_mat (ndarray(n_var, q+1)): Corresponds to the :math:`W` matrix in the ODE equation.
         tau (float): Decorrelation time.
         sigma (float): Scale parameter.
         init (ndarray(q+1)) or (ndarray(p)): The initial values of :math:`x_L` or :math:`X_L = (x_L, y_L)`.
@@ -61,7 +66,7 @@ def readme_solve(fun, n_deriv, n_obs, tmin, tmax, n_eval, w_mat, tau, sigma, ini
 
     """
     tseq = np.linspace(tmin, tmax, n_eval+1)
-    Xt = readme_kalman_draw(fun, n_deriv, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws)
+    Xt = readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws)
     x_euler = euler_approx(ode_euler, tseq, init[0])
     x_exact = np.zeros((n_eval+1, 2))
     for i,t in enumerate(tseq):
@@ -71,14 +76,15 @@ def readme_solve(fun, n_deriv, n_obs, tmin, tmax, n_eval, w_mat, tau, sigma, ini
     return tseq, Xt, x_euler, x_exact
 
 # Function that produces the graph as shown in README
-def readme_graph(fun, n_deriv, n_obs, tmin, tmax, w_mat, init, draws):
+def readme_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, w_mat, init, draws):
     """
     Produces the graph in README file.
 
     Args:
         fun (function) : Higher order ODE function :math:`W x_t = F(x_t, t)` 
             taking arguments :math:`x` and :math:`t`.
-        n_deriv (int) : Size of the CAR(p) process; :math:`p`.
+        n_deriv (list(n_var)): Dimensions of the ODE function.
+        n_deriv_prior (list(n_var): Dimensions of the CAR(p) process.
         n_obs (int) : Size of the observed state.
         tmin (float) : First time point of the time interval to be evaluated; :math:`a`.
         tmax (float) : Last time point of the time interval to be evaluated; :math:`b`.
@@ -101,6 +107,7 @@ def readme_graph(fun, n_deriv, n_obs, tmin, tmax, w_mat, init, draws):
     for i in range(dim_example):
         tseq[i], Xn[i], x_euler[i], x_exact[i] = readme_solve(fun=fun,
                                                               n_deriv=n_deriv,
+                                                              n_deriv_prior=n_deriv_prior,
                                                               n_obs=n_obs, 
                                                               tmin=tmin, 
                                                               tmax=tmax, 

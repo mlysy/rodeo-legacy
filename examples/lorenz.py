@@ -3,28 +3,42 @@ import matplotlib.pyplot as plt
 
 from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
-from probDE.utils import indep_init
+from probDE.utils import indep_init, zero_pad
 from lorenz_graph import lorenz_graph
 
 # RHS of ODE
-def lorenz(X_out, X, t, theta=(28, 10, 8/3)):
+def lorenz(X, t, theta,  out=None):
+    if out is None:
+        out = np.empty(3)
     rho, sigma, beta = theta
     p = len(X)//3
     x, y, z = X[p*0], X[p*1], X[p*2]
-    X_out[0] = -sigma*x + sigma*y
-    X_out[1] = rho*x - y -x*z
-    X_out[2] = -beta*z + x*y
-    return 
+    out[0] = -sigma*x + sigma*y
+    out[1] = rho*x - y -x*z
+    out[2] = -beta*z + x*y
+    return out
 
 def lorenz_example():
     r"Produces the graph in Figure 2 of the paper."
-    # LHS Matrix of ODE
-    w_mat = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+    
+    # prior process definition
+    # number of derivatives per variable in prior
+    n_deriv = [2, 2, 2]
+    # Initial value, x0, for the IVP
+    x0 = [-12, -5, 38]
+    v0 = [70, 125, -124/3]
+    X0 = np.column_stack([x0, v0])
 
-    # These parameters define the order of the ODE and the CAR(p) process
-    n_obs = 3
-    n_deriv = 9 # number of continuous derivatives of CAR(p) solution prior
-    n_deriv_var = [3, 3, 3]
+    # prior process definition
+    # number of derivatives per variable in prior
+    n_deriv_prior = [3, 3, 3]
+    p = sum(n_deriv_prior)
+    n_obs = 3 # Number of observations from interrogation
+    # LHS Matrix of ODE
+    W_mat = np.zeros((len(n_deriv), sum(n_deriv)))
+    for i in range(len(n_deriv)): W_mat[i, sum(n_deriv[:i])+1] = 1
+    # pad the inputs
+    W = zero_pad(W_mat, n_deriv, n_deriv_prior)
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
     n_eval = 5000
@@ -34,29 +48,22 @@ def lorenz_example():
 
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use
-    tau = np.array([1.3, 1.3, 1.3])
+    tau = np.array([1, 1, 1])
     sigma = np.array([.5, .5, .5])
-
-    # Initial value, x0, for the IVP
-    x0 = [-12, -5, 38]
-    v0 = [70, 125, -124/3]
-    x0 = np.column_stack([x0, v0])
 
     # Get parameters needed to run the solver
     dt = (tmax-tmin)/n_eval
-    # Get initial parameters for the Kalman solver using 3 CAR(p) process
-    kinit, W, x0_state = indep_init(car_init(n_deriv_var, tau, sigma, dt, x0), w_mat, n_deriv)
+    ode_init, v_init = car_init(n_deriv_prior, tau, sigma, dt, X0)
+    kinit = indep_init(ode_init, n_deriv_prior)
 
     # Initialize the Kalman class
-    kalmanode = KalmanODE(n_deriv, n_obs, tmin, tmax, n_eval, lorenz, **kinit)
+    kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, lorenz, **kinit)
     # Run the solver to get an approximation
-    kalman_sim = kalmanode.solve(x0_state, W, theta, mv=False, sim=True)
+    kalman_sim = kalmanode.solve(v_init, W, theta, mv=False, sim=True)
 
     # Produce the graph in Figure 2
-    tau = np.array([1, 1, 1])
-    sigma = np.array([.5, .5, .5])
     draws = 1000
-    lorenz_graph(lorenz, n_deriv, n_obs, tmin, tmax, n_eval, w_mat, n_deriv_var, tau, sigma, x0, theta, draws)
+    lorenz_graph(lorenz, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, W_mat, tau, sigma, X0, theta, draws)
 
     return
 

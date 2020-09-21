@@ -1,3 +1,4 @@
+# cython: boundscheck=False, wraparound=False, nonecheck=False, initializedcheck=False
 cimport cython
 import numpy as np
 cimport numpy as np
@@ -8,9 +9,6 @@ from KalmanTVODE cimport KalmanTVODE
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
 cpdef kalman_ode(fun,
                  double[::1] x0_state,
                  double tmin,
@@ -22,7 +20,7 @@ cpdef kalman_ode(fun,
                  double[::1, :] wgt_meas, 
                  double[::1, :] z_state_sim,
                  double[::1, :] x_meass,
-                 theta,
+                 object theta,
                  bint smooth_mv=True,
                  bint smooth_sim=False,
                  bint offline=False):
@@ -106,7 +104,7 @@ cpdef kalman_ode(fun,
             ktvode.predict(t)
             ktvode.forecast(t)
             #ktvode.forecast_sch(t)
-            fun(x_meas[:, t+1], x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
+            fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta, x_meas[:, t+1])
             ktvode.update(t)
         else:
             ktvode.filter(t)

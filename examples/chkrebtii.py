@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 
 from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
-from probDE.utils import indep_init
+from probDE.utils import indep_init, zero_pad
 from readme_graph import readme_graph
 
-def ode_fun(x_out, x, t, theta=None):
-    x_out[0] = sin(2*t) - x[0]
+def ode_fun(x, t, theta=None, out=None):
+    out[0] = sin(2*t) - x[0]
     return
 
 def chkrebtii_example():
@@ -18,8 +18,9 @@ def chkrebtii_example():
 
     # These parameters define the order of the ODE and the CAR(p) process
     n_obs = 1
-    n_deriv = 4
-    n_deriv_var = [4]
+    n_deriv = [3]
+    n_deriv_prior = [4]
+    p = sum(n_deriv_prior)
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
     n_eval = 200
@@ -29,7 +30,7 @@ def chkrebtii_example():
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use
     tau = [50]
-    sigma = [.001]
+    sigma = [.5]
 
     # Initial value, x0, for the IVP
     x0 = np.array([[-1., 0., 1.]])
@@ -37,16 +38,18 @@ def chkrebtii_example():
     # Get parameters needed to run the solver
     dt = (tmax-tmin)/n_eval
     # All necessary parameters are in kinit, namely, T, c, R, W
-    kinit, W, x0_state = indep_init(car_init(n_deriv_var, tau, sigma, dt, x0), w_mat, n_deriv)
+    W = zero_pad(w_mat, n_deriv, n_deriv_prior)
+    ode_init, x0_state = car_init(n_deriv_prior, tau, sigma, dt, x0)
+    kinit = indep_init(ode_init, n_deriv_prior)
 
     # Initialize the Kalman class
-    kalmanode = KalmanODE(n_deriv, n_obs, tmin, tmax, n_eval, ode_fun, **kinit)
+    kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, ode_fun, **kinit)
     # Run the solver to get an approximation
-    kalman_sim = kalmanode.solve(x0_state, W, mv=False, sim=True)
+    kalman_sim = kalmanode.solve(x0_state, W)
 
     # Produces the graph in Figure 1
     draws = 100
-    readme_graph(ode_fun, n_deriv, n_obs, tmin, tmax, w_mat, x0, draws)
+    readme_graph(ode_fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, w_mat, x0, draws)
     return
 
 if __name__ == '__main__':

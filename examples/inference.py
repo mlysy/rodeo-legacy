@@ -101,7 +101,7 @@ class inference:
         X_t = np.zeros((n_eval+1, len(x0)))
         X_t[0] = x0
         for i in range(n_eval):
-            self.fun(X_t[i+1], X_t[i], step_size*i, theta)
+            self.fun(X_t[i], step_size*i, theta, X_t[i+1])
             X_t[i+1] = X_t[i] + X_t[i+1]*step_size
         X_t = self.thinning(data_tseq, ode_tseq, X_t)
         return X_t
@@ -123,7 +123,6 @@ class inference:
             obj_fun = self.kalman_nlpost
         else:
             obj_fun = self.euler_nlpost
-
         opt_res = sp.optimize.minimize(obj_fun, phi_mean+.1,
                                     args=(Y_t, x0, step_size, phi_mean, phi_sd, gamma),
                                     method='Nelder-Mead')

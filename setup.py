@@ -39,7 +39,7 @@ ext_modules = [Extension("probDE.cython.KalmanODE",
                          ["probDE/kalmanode/KalmanODE"+ext_cpp],
                          include_dirs=[
                              np.get_include()],
-                         extra_compile_args=['-O2'],
+                         extra_compile_args=['-O2', '/openmp'],
                          language='c++')]
 
 setup(
