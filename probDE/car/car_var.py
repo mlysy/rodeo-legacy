@@ -7,12 +7,12 @@ def car_var(tseq, roots, sigma=1.):
     Computes the variance function for the CAR(p) process :math:`var(X_t)`
     
     Args:
-        tseq (ndarray(n_timesteps)): Time points at which :math:`x_t` is evaluated. 
+        tseq (ndarray(n_steps)): Time points at which :math:`x_t` is evaluated. 
         roots (ndarray(n_dim_roots)): Roots to the p-th order polynomial of the car(p) process.
         sigma (float): Parameter in mOU volatility matrix.
 
     Returns:
-        (ndarray(n_timesteps, n_dim_roots, n_dim_roots)): Evaluates :math:`var(X_t)`.
+        (ndarray(n_dim_roots, n_dim_roots, n_steps)): Evaluates :math:`var(X_t)`.
 
     """
     p = len(roots)

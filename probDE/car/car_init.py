@@ -50,11 +50,11 @@ def car_initial_draw(roots, sigma, x0, p):
 
 def car_state(delta_t, roots, sigma):    
     """
-    Calculate the state transition matrix and variance matrix used in the model in Kalman solver.
+    Calculate the state transition matrix and variance matrix using the CAR(p) process in Kalman solver.
         
     Args:
         delta_t (ndarray(1)): A vector containing the step size between simulation points.
-        roots (ndarray(n_dim_roots)): Roots to the p-th order polynomial of the car(p) 
+        roots (ndarray(n_dim_roots)): Roots to the p-th order polynomial of the CAR(p) 
             process (roots must be negative).
         sigma (float): Parameter in mOU volatility matrix
 
@@ -87,7 +87,7 @@ def car_init(n_deriv_prior, tau, sigma, dt, x0=None):
     :math:`X_n = (x_n, y_n)` at time n and :math:`y_n` denotes the observation at time n.
 
     Args:
-        n_deriv_prior (list(int)): Size of the initial state, x0_state.
+        n_deriv_prior (list(int)): Dimension of the prior.
         tau (list(float)): First root parameter.
         sigma (list(float)): Parameter in mOU volatility matrix.
         dt (float): The step size between simulation points.
