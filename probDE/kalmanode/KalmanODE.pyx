@@ -3,8 +3,8 @@ cimport cython
 import numpy as np
 cimport numpy as np
 
-from kalmantv.kalmantv cimport KalmanTV, state_sim
-from kalmantv.blas cimport mat_triple_mult, vec_copy, mat_copy
+from kalmantv.cython.kalmantv cimport KalmanTV, state_sim
+from kalmantv.cython.blas cimport mat_triple_mult, vec_copy, mat_copy
 from probDE.utils import rand_mat
 
 DTYPE = np.double

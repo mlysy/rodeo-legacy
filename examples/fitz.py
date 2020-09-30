@@ -1,6 +1,6 @@
 import numpy as np
 from inference import inference
-from probDE.car import car_init
+from probDE.ibm import ibm_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init, zero_pad
 
@@ -31,13 +31,14 @@ def fitz_example():
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use
     n_var = 2
-    tau = [100]*n_var
     sigma = [.1]*n_var
 
     # Initial value, x0, for the IVP
     x0 = np.array([-1., 1.])
     v0 = np.array([1, 1/3])
-    X0 = np.column_stack([x0, v0])
+    X0 = np.ravel([x0, v0], 'F')
+
+    # pad the inputs
     w_mat = np.array([[0., 1., 0., 0.], [0., 0., 0., 1.]])
     W = zero_pad(w_mat, n_deriv, n_deriv_prior)
 
@@ -66,7 +67,8 @@ def fitz_example():
     # Parameter inference using Kalman solver
     theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
-        ode_init, x0_state = car_init(n_deriv_prior, tau, sigma, hlst[i], X0)
+        ode_init = ibm_init(hlst[i], n_deriv_prior, sigma)
+        x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
         kinit = indep_init(ode_init, n_deriv_prior)
         n_eval = int((tmax-tmin)/hlst[i])
         kode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fitz, **kinit)

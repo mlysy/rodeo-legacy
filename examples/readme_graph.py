@@ -5,7 +5,7 @@ import numpy as np
 from math import sin, cos
 import matplotlib.pyplot as plt
 
-from probDE.car import car_init
+from probDE.ibm import ibm_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init, zero_pad
 from euler_approx import euler_approx
@@ -23,12 +23,13 @@ def ode_euler(x,t):
     return np.array([x[1], sin(2*t) -x[0]])
 
 # Helper function to draw samples from Kalman solver
-def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws):
+def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, sigma, w_mat, init, draws):
     dt = (tmax-tmin)/n_eval
     p = sum(n_deriv_prior)
     X = np.zeros((draws, n_eval+1, p))
     W = zero_pad(w_mat, n_deriv, n_deriv_prior)
-    ode_init, x0_state = car_init(n_deriv_prior, tau, sigma, dt, init)
+    x0_state = zero_pad(init, n_deriv, n_deriv_prior)
+    ode_init = ibm_init(dt, n_deriv_prior, sigma)
     kinit = indep_init(ode_init, n_deriv_prior)
     kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fun, **kinit)
     for i in range(draws):
@@ -36,7 +37,7 @@ def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, t
         del kalmanode.z_states
     return X
 
-def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, tau, sigma, init, draws):
+def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, sigma, init, draws):
     """
     Calculates kalman_ode, euler_ode, and exact_ode on the given grid for the README ode.
 
@@ -51,7 +52,6 @@ def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, 
         n_eval (int): Number of discretization points of the time interval that is evaluated, 
             such that discretization timestep is :math:`dt = (b-a)/N`.
         w_mat (ndarray(n_var, q+1)): Corresponds to the :math:`W` matrix in the ODE equation.
-        tau (float): Decorrelation time.
         sigma (float): Scale parameter.
         init (ndarray(q+1)) or (ndarray(p)): The initial values of :math:`x_L` or :math:`X_L = (x_L, y_L)`.
         draws (int): Number of samples we need to draw from the kalman solver.
@@ -66,8 +66,8 @@ def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, 
 
     """
     tseq = np.linspace(tmin, tmax, n_eval+1)
-    Xt = readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, tau, sigma, w_mat, init, draws)
-    x_euler = euler_approx(ode_euler, tseq, init[0])
+    Xt = readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, sigma, w_mat, init, draws)
+    x_euler = euler_approx(ode_euler, tseq, init)
     x_exact = np.zeros((n_eval+1, 2))
     for i,t in enumerate(tseq):
         x_exact[i, 0] = ode_exact_x(t)
@@ -96,7 +96,6 @@ def readme_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, w_mat, init, dr
     # Initialize variables for the graph
     dim_deriv = w_mat.shape[1] - 1
     N = [50, 100, 200]
-    Tau = [[1/.004], [1/0.02], [1/0.02]]
     Sigma = [[.5], [.05], [.001]]
     dim_example = len(N)
     tseq = [None] * dim_example
@@ -113,7 +112,6 @@ def readme_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, w_mat, init, dr
                                                               tmax=tmax, 
                                                               n_eval=N[i],
                                                               w_mat=w_mat,
-                                                              tau=Tau[i], 
                                                               sigma=Sigma[i], 
                                                               init=init,
                                                               draws=draws)

@@ -62,7 +62,7 @@ def lorenz_example():
     kalman_sim = kalmanode.solve(v_init, W, theta, mv=False, sim=True)
 
     # Produce the graph in Figure 2
-    draws = 1000
+    draws = 10
     lorenz_graph(lorenz, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, W_mat, tau, sigma, X0, theta, draws)
 
     return

@@ -1,6 +1,6 @@
 import numpy as np
 from inference import inference
-from probDE.car import car_init
+from probDE.ibm import ibm_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init, zero_pad
 
@@ -35,14 +35,13 @@ def mseir_example():
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use
     n_var = 5
-    tau = [100.]*n_var
     sigma = [.1]*n_var
 
     # Initial value, x0, for the IVP
     theta_true = (1.1, 0.7, 0.4, 0.005, 0.02, 0.03) # True theta
     x0 = np.array([1000, 100, 50, 3, 3])
     v0 = mseir(x0, 0, theta_true)
-    X0 = np.column_stack([x0, v0])
+    X0 = np.ravel([x0, v0], 'F')
 
     # W matrix: dimension is n_eq x sum(n_deriv)
     W_mat = np.zeros((len(n_deriv), sum(n_deriv)))
@@ -73,7 +72,8 @@ def mseir_example():
     # Parameter inference using Kalman solver
     theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
-        ode_init, x0_state = car_init(n_deriv_prior, tau, sigma, hlst[i], X0)
+        ode_init= ibm_init(hlst[i], n_deriv_prior, sigma)
+        x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
         kinit = indep_init(ode_init, n_deriv_prior)
         n_eval = int((tmax-tmin)/hlst[i])
         kode = KalmanODE(p, n_obs, tmin, tmax, n_eval, mseir, **kinit)

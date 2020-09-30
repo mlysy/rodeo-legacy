@@ -2,7 +2,7 @@ import numpy as np
 from math import sin
 import matplotlib.pyplot as plt
 
-from probDE.car import car_init
+from probDE.ibm import ibm_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init, zero_pad
 from readme_graph import readme_graph
@@ -29,17 +29,17 @@ def chkrebtii_example():
 
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use
-    tau = [50]
     sigma = [.5]
 
     # Initial value, x0, for the IVP
-    x0 = np.array([[-1., 0., 1.]])
+    x0 = np.array([-1., 0., 1.])
 
     # Get parameters needed to run the solver
     dt = (tmax-tmin)/n_eval
     # All necessary parameters are in kinit, namely, T, c, R, W
     W = zero_pad(w_mat, n_deriv, n_deriv_prior)
-    ode_init, x0_state = car_init(n_deriv_prior, tau, sigma, dt, x0)
+    x0_state = zero_pad(x0, n_deriv, n_deriv_prior)
+    ode_init = ibm_init(dt, n_deriv_prior, sigma)
     kinit = indep_init(ode_init, n_deriv_prior)
 
     # Initialize the Kalman class
