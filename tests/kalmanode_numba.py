@@ -1,11 +1,14 @@
 import numpy as np
-from numba import intc, float64
+from numba import intc, float64, deferred_type
 from numba import types
 from numba.experimental import jitclass
 from numba.extending import register_jitable
 from numba.core.errors import TypingError
+from numba import types, typeof
 from kalmantv.numba.kalmantv_numba import KalmanTV, _mvn_sim, _quad_form
 
+kalman_type = deferred_type()
+kalman_type.define(KalmanTV.class_type.instance_type)
 
 @register_jitable
 def _fempty(shape):
@@ -46,29 +49,29 @@ def _interrogate_chkrebtii(x_meas, var_meas,
         - **twgt_meas** (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
         - **tchol_state** (ndarray(n_state, n_state)): Temporary matrix to store cholesky factorization.
     """
+    var_meas[:]=0.
     _quad_form(var_meas, wgt_meas, var_state_pred, twgt_meas)
     _mvn_sim(tx_state, mu_state_pred, var_state_pred, z_state, tchol_state)
     fun(tx_state, t, theta, x_meas)
     return
 
-
+@register_jitable
 def _copynm(dest, source, name):
     """
     Copy an ndarray without memory allocation.
 
     Preserves flags and type of dest.
     """
-    if not isinstance(source, np.ndarray):
-        raise TypingError("%s must be a Numpy array." % name)
+    #if not isinstance(source, np.ndarray):
+    #    raise TypingError("Value must be a Numpy array.")
     if not source.shape == dest.shape:
-        raise TypingError("%s has incorrect shape." % name)
+        raise TypingError("Value has incorrect shape.")
     dest[:] = source
     return
 
-
-class KalmanODE:
+class _KalmanODE:
     def __init__(self, n_state, n_meas, tmin, tmax, n_eval,
-                 ode_fun, z_state=None, **init):
+                 ode_fun, mu_state, wgt_state, var_state, z_state):
         self.n_state = n_state
         self.n_meas = n_meas
         self.tmin = tmin
@@ -80,14 +83,14 @@ class KalmanODE:
         self._wgt_state = _fempty((n_state, n_state))
         self._var_state = _fempty((n_state, n_state))
         self._z_state = _fempty((n_state, 2*self.n_steps))
-        for key in init.keys():
-            self.__setattr__(key, init[key])
+        #for key in init.keys():
+        #    self.__setattr__(key, init[key])
 
-        #self.mu_state = mu_state
-        #self.wgt_state = wgt_state
-        #self.var_state = var_state
-        if not z_state is None:
-            self.z_state = z_state
+        self._mu_state[:] = mu_state
+        self._wgt_state[:] = wgt_state
+        self._var_state[:] = var_state
+        if z_state is not None:
+            self._z_state[:] = z_state
         # Note: how can this be Numba'ed?
         self.ode_fun = ode_fun
         # internal memory
@@ -104,7 +107,7 @@ class KalmanODE:
         self.mu_meas = np.zeros((n_meas,))  # doesn't get updated
         self.var_meas = _fempty((n_meas, n_meas))
         self.ktv = KalmanTV(n_meas, n_state)
-        self.time = np.linspace(self.tmin, self.tmax, self.n_steps)
+        #self.time = np.linspace(self.tmin, self.tmax, self.n_steps)
         # temporaries
         self.tx_state = _fempty((n_state,))
         self.twgt_meas = _fempty((n_meas, n_state))
@@ -149,9 +152,10 @@ class KalmanODE:
     def solve(self, x0, W, theta, sim_sol=False, out=None):
         if out is None:
             out = _fempty((self.n_state, self.n_steps))
-        else:
-            if not out.shape == (self.n_state, self.n_steps):
-                raise ValueError("out supplied has incorrect dimensions.")
+        #else:
+        #    if not out.shape == (self.n_state, self.n_steps):
+        #        raise ValueError("out supplied has incorrect dimensions."
+        
         if sim_sol:
             x_state_smooth = out
             x_state_smooth[:, 0] = x0
@@ -163,12 +167,11 @@ class KalmanODE:
         # initialize
         self.mu_state_filt[:, 0] = x0
         self.mu_state_pred[:, 0] = x0
+        self.var_state_filt[:, :, 0] = 0
         wgt_meas = W  # just renaming for convenience.
         # loop
         for t in range(self.n_eval):
             # kalman filter
-            # reset var_meas
-            self.var_meas = np.zeros((self.n_meas, self.n_meas)).T
             self.ktv.predict(self.mu_state_pred[:, t+1],
                              self.var_state_pred[:, :, t+1],
                              self.mu_state_filt[:, t],
@@ -211,7 +214,7 @@ class KalmanODE:
         else:
             mu_state_smooth[:, self.n_eval] = self.mu_state_filt[:, self.n_eval]
         # loop
-        for t in reversed(range(1, self.n_eval)):
+        for t in range(self.n_eval-1, 0, -1):
             if sim_sol:
                 self.ktv.smooth_sim(x_state_smooth[:, t],
                                     x_state_smooth[:, t+1],
@@ -232,4 +235,37 @@ class KalmanODE:
                                    self.var_state_pred[:, :, t+1],
                                    self.wgt_state)
 
-        return out.T
+        return out
+
+def KalmanODE(n_state, n_meas, tmin, tmax, n_eval,
+              ode_fun, mu_state, wgt_state, var_state, z_state):
+    "Create a jitted KalmanODE class."
+    spec = [
+        ('n_state', intc),
+        ('n_meas', intc),
+        ('tmin', float64),
+        ('tmax', float64),
+        ('n_eval', intc),
+        ('n_steps', intc),
+        ('_mu_state', float64[::1]),
+        ('_wgt_state', float64[::1, :]),
+        ('_var_state', float64[::1, :]),
+        ('_z_state', float64[::1, :]),
+        ('ode_fun', typeof(ode_fun)),
+        ('mu_state_pred', float64[::1, :]),
+        ('var_state_pred', float64[::1, :, :]),
+        ('mu_state_filt', float64[::1, :]),
+        ('var_state_filt', float64[::1, :, :]),
+        ('var_state_smooth', float64[::1, :]),
+        ('x_meas', float64[::1]),
+        ('mu_meas', float64[::1]),
+        ('var_meas', float64[::1, :]),
+        ('ktv', kalman_type),
+        ('tx_state', float64[::1]),
+        ('twgt_meas', float64[::1, :]),
+        ('tchol_state', float64[::1, :])
+    ]
+    jcl = jitclass(spec)
+    kalman_cl = jcl(_KalmanODE)
+    return kalman_cl(n_state, n_meas, tmin, tmax, n_eval,
+                     ode_fun, mu_state, wgt_state, var_state, z_state)
