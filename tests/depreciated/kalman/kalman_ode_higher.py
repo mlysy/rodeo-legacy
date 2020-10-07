@@ -6,7 +6,7 @@ Probabilistic ODE solver based on the Kalman filter and smoother.
 """
 import numpy as np
 
-from KalmanTV import KalmanTV
+from .KalmanTV import KalmanTV
 from probDE.utils import norm_sim
 import scipy as sp
 

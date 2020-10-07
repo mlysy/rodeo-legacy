@@ -1,8 +1,9 @@
 import numpy as np
 import os
 os.chdir(os.path.join(os.getcwd(), "depreciated\\kalman"))
+
 from probDE.utils.utils import rand_mat
-from kalman_ode_higher import kalman_ode_higher
+from depreciated.kalman.kalman_ode_higher import kalman_ode_higher
 
 class KalmanODE_py:
     def __init__(self, n_state, n_meas, tmin, tmax, n_eval, fun, **init):

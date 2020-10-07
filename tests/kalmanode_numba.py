@@ -5,7 +5,7 @@ from numba.experimental import jitclass
 from numba.extending import register_jitable
 from numba.core.errors import TypingError
 from numba import types, typeof
-from kalmantv.numba.kalmantv_numba import KalmanTV, _mvn_sim, _quad_form
+from kalmantv.numba.kalmantv import KalmanTV, _mvn_sim, _quad_form
 
 kalman_type = deferred_type()
 kalman_type.define(KalmanTV.class_type.instance_type)
