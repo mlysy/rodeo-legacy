@@ -1,3 +1,10 @@
+from KalmanODE_py import KalmanODE_py
+from kalmanode_numba import KalmanODE as KalmanODE_num
+from probDE.tests.ode_functions import lorenz_fun as lorenz
+from probDE.tests.KalmanODE import KalmanODE as KalmanODE_c
+from probDE.cython.KalmanODE import KalmanODE as KalmanODE_cy
+from probDE.utils.utils import rand_mat, indep_init, zero_pad
+from probDE.ibm import ibm_init
 import numpy as np
 from scipy.integrate import odeint
 import numba
@@ -7,24 +14,21 @@ import warnings
 from numba.core.errors import NumbaPerformanceWarning
 warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
-from probDE.ibm import ibm_init
-from probDE.utils.utils import rand_mat, indep_init, zero_pad
-from probDE.cython.KalmanODE import KalmanODE as KalmanODE_cy
-from probDE.tests.KalmanODE import KalmanODE as KalmanODE_c
-from kalmanode_numba import KalmanODE as KalmanODE_num
-from KalmanODE_py import KalmanODE_py
 
 # ode function used by cython, C++, python
-def lorenz(X, t, theta, out):
-    rho, sigma, beta = theta
-    p = len(X)//3
-    x, y, z = X[p*0], X[p*1], X[p*2]
-    out[0] = -sigma*x + sigma*y
-    out[1] = rho*x - y -x*z
-    out[2] = -beta*z + x*y
-    return
+
+# def lorenz(X, t, theta, out):
+#     rho, sigma, beta = theta
+#     p = len(X)//3
+#     x, y, z = X[p*0], X[p*1], X[p*2]
+#     out[0] = -sigma*x + sigma*y
+#     out[1] = rho*x - y - x*z
+#     out[2] = -beta*z + x*y
+#     return
 
 # ode function used by numba, odeint
+
+
 @njit
 def lorenz2(X, t, theta, out=None):
     if out is None:
@@ -32,18 +36,20 @@ def lorenz2(X, t, theta, out=None):
     rho, sigma, beta = theta
     p = len(X)//3
     x, y, z = X[p*0], X[p*1], X[p*2]
-    out[:] = -sigma*x + sigma*y, rho*x - y -x*z, -beta*z + x*y
+    out[:] = -sigma*x + sigma*y, rho*x - y - x*z, -beta*z + x*y
     return out
+
 
 # problem setup and intialization
 n_obs = 3
-n_deriv = [2, 2, 2] 
+n_deriv = [2, 2, 2]
 n_deriv_prior = [3, 3, 3]
 p = sum(n_deriv_prior)
 
 # LHS Matrix of ODE
 W_mat = np.zeros((len(n_deriv), sum(n_deriv)))
-for i in range(len(n_deriv)): W_mat[i, sum(n_deriv[:i])+1] = 1
+for i in range(len(n_deriv)):
+    W_mat[i, sum(n_deriv[:i])+1] = 1
 
 # it is assumed that the solution is sought on the interval [tmin, tmax].
 n_eval = 3000
@@ -71,19 +77,21 @@ z_states = rand_mat(2*(n_eval+1), p)
 # Timings
 n_loops = 100
 # C++
-kode_c = KalmanODE_c(p, n_obs, tmin, tmax, n_eval, lorenz, **kinit) 
+kode_c = KalmanODE_c(p, n_obs, tmin, tmax, n_eval, lorenz, **kinit)
 kode_c.z_states = z_states
 time_c = timing(kode_c, x0_state, W, theta, n_loops)
 
 # cython
-kode_cy = KalmanODE_cy(p, n_obs, tmin, tmax, n_eval, lorenz, **kinit) # Initialize the class
+kode_cy = KalmanODE_cy(p, n_obs, tmin, tmax, n_eval,
+                       lorenz, **kinit)  # Initialize the class
 kode_cy.z_states = z_states
 time_cy = timing(kode_cy, x0_state, W, theta, n_loops)
 
 # numba
-kode_num = KalmanODE_num(p, n_obs, tmin, tmax, n_eval, lorenz2, kinit['mu_state'], 
+kode_num = KalmanODE_num(p, n_obs, tmin, tmax, n_eval, lorenz2, kinit['mu_state'],
                          kinit['wgt_state'], kinit['var_state'], z_states)
-_ = kode_num.solve(x0_state, W, np.asarray(theta), True) # Need to run once to compile KalmanTV
+# Need to run once to compile KalmanTV
+_ = kode_num.solve(x0_state, W, np.asarray(theta), True)
 time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops, True)
 
 # python

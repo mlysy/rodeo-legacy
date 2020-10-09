@@ -1,7 +1,7 @@
-from setuptools import setup, find_packages, Extension
 import numpy as np
-import scipy as sp
-# from setuptools import setup, find_packages
+# import scipy as sp
+import platform
+from setuptools import setup, find_packages, Extension
 from os import path
 
 this_directory = path.abspath(path.dirname(__file__))
@@ -32,6 +32,20 @@ if USE_CYTHON:
 #                              "cython/eigen-3.3.7"],
 #                          language='c++')]
 
+# compiler options
+if platform.system() != "Windows":
+    extra_compile_args = ["-O3", "-ffast-math",
+                          "-mtune=native", "-march=native", "-fopenmp"]
+    # if platform.system() == "Darwin":
+    #     # default compiler on macOS doesn't support openmp
+    #     os.environ["CC"] = "gcc"
+else:
+    extra_compile_args = ["-O2", "/openmp"]
+
+# remove numpy depreciation warnings as documented here:
+disable_numpy_warnings = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+
+
 # c/cpp modules
 ext_c = '.pyx' if USE_CYTHON else '.c'
 ext_cpp = '.pyx' if USE_CYTHON else 'cpp'
@@ -39,7 +53,8 @@ ext_modules = [Extension("probDE.cython.KalmanODE",
                          ["probDE/kalmanode/KalmanODE"+ext_cpp],
                          include_dirs=[
                              np.get_include()],
-                         extra_compile_args=['-O2', '/openmp'],
+                         extra_compile_args=extra_compile_args,
+                         define_macros=disable_numpy_warnings,
                          language='c++')]
 
 setup(
@@ -56,7 +71,7 @@ setup(
     cmdclass=cmdclass,
     ext_modules=ext_modules,
 
-    install_requires=['numpy', 'scipy', 'matplotlib', 'kalmantv'],
+    install_requires=['numpy', 'scipy', 'kalmantv'],
     setup_requires=['setuptools>=38'],
 
     # install_requires=['numpy', 'scipy', 'matplotlib']
