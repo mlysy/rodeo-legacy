@@ -59,7 +59,6 @@ theta = np.array([28, 10, 8/3])
 
 # The rest of the parameters can be tuned according to ODE
 # For this problem, we will use
-tau = np.array([0.1, 1, 10])
 sigma = np.array([.5, .5, .5])
 
 # Initial value, x0, for the IVP
@@ -91,8 +90,8 @@ time_cy = timing(kode_cy, x0_state, W, theta, n_loops)
 kode_num = KalmanODE_num(p, n_obs, tmin, tmax, n_eval, lorenz2, kinit['mu_state'],
                          kinit['wgt_state'], kinit['var_state'], z_states)
 # Need to run once to compile KalmanTV
-_ = kode_num.solve(x0_state, W, np.asarray(theta), True)
-time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops, True)
+_ = kode_num.solve(x0_state, W, np.asarray(theta))
+time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops)
 
 # python
 kode_py = KalmanODE_py(p, n_obs, tmin, tmax, n_eval, lorenz, **kinit)

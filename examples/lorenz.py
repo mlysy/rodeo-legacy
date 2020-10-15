@@ -44,7 +44,7 @@ def lorenz_example():
     n_eval = 5000
     tmin = 0
     tmax = 20
-    theta = (28, 10, 8/3)
+    theta = np.array([28, 10, 8/3])
 
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use

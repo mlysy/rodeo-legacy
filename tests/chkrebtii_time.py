@@ -89,8 +89,8 @@ time_cy = timing(kode_cy, x0_state, W, theta, n_loops)
 kode_num = KalmanODE_num(p, n_obs, tmin, tmax, n_eval, ode_fun2, kinit['mu_state'],
                          kinit['wgt_state'], kinit['var_state'], z_states)
 # Need to run once to compile KalmanTV
-_ = kode_num.solve(x0_state, W, theta, True)
-time_num = timing(kode_num, x0_state, W, theta, n_loops, True)
+_ = kode_num.solve(x0_state, W, theta)
+time_num = timing(kode_num, x0_state, W, theta, n_loops)
 
 # python
 kode_py = KalmanODE_py(p, n_obs, tmin, tmax, n_eval, ode_fun, **kinit)

@@ -1,7 +1,7 @@
 from KalmanODE_py import KalmanODE_py
 from kalmanode_numba import KalmanODE as KalmanODE_num
 from probDE.tests.KalmanODE import KalmanODE as KalmanODE_c
-from probDE.tests.ode_functions import fitz_fun as ode_fun
+from probDE.tests.ode_functions import fitz_fun as fitz
 from probDE.cython.KalmanODE import KalmanODE as KalmanODE_cy
 from probDE.utils.utils import rand_mat, indep_init, zero_pad
 from probDE.ibm import ibm_init
@@ -63,7 +63,7 @@ X0 = np.array([-1, 1, 1, 1/3])
 w_mat = np.array([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
 W = zero_pad(w_mat, n_deriv, n_deriv_prior)
 x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
-theta = (0.2, 0.2, 3)
+theta = np.array([0.2, 0.2, 3])
 
 # Get parameters needed to run the solver
 dt = (tmax-tmin)/n_eval
@@ -88,8 +88,8 @@ time_cy = timing(kode_cy, x0_state, W, theta, n_loops)
 kode_num = KalmanODE_num(p, n_obs, tmin, tmax, n_eval, fitz2, kinit['mu_state'],
                          kinit['wgt_state'], kinit['var_state'], z_states)
 # Need to run once to compile KalmanTV
-_ = kode_num.solve(x0_state, W, np.asarray(theta), True)
-time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops, True)
+_ = kode_num.solve(x0_state, W, np.asarray(theta))
+time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops)
 
 # python
 kode_py = KalmanODE_py(p, n_obs, tmin, tmax, n_eval, fitz, **kinit)

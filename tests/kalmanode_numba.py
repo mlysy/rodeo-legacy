@@ -102,9 +102,9 @@ class _KalmanODE:
         #self.x_state_smooth = _fempty((n_state, self.n_steps)) 
         #self.var_state_smooth = _fempty((n_state, n_state, self.n_steps))
         # don't return the variance, so just need one for updating
-        self.var_state_smooth = _fempty((n_state, n_state))
+        # self.var_state_smooth = _fempty((n_state, n_state))
         self.x_meas = _fempty((n_meas,))
-        self.mu_meas = np.zeros((n_meas,))  # doesn't get updated
+        self.mu_meas =  np.zeros((n_meas,)).T# doesn't get updated
         self.var_meas = _fempty((n_meas, n_meas))
         self.ktv = KalmanTV(n_meas, n_state)
         #self.time = np.linspace(self.tmin, self.tmax, self.n_steps)
@@ -149,18 +149,20 @@ class _KalmanODE:
         _copynm(self._z_state, value, "z_state")
         return
 
-    def solve(self, x0, W, theta, sim_sol=False, out=None):
-        if out is None:
-            out = _fempty((self.n_state, self.n_steps))
+    def solve(self, x0, W, theta, sim_sol=True):
+        #if out is None:
+        #    out = _fempty((self.n_state, self.n_steps))
         #else:
         #    if not out.shape == (self.n_state, self.n_steps):
         #        raise ValueError("out supplied has incorrect dimensions."
         
         if sim_sol:
-            x_state_smooth = out
+        #    x_state_smooth = out
+            x_state_smooth = _fempty((self.n_state, self.n_steps))
             x_state_smooth[:, 0] = x0
         else:
-            mu_state_smooth = out
+        #    mu_state_smooth = out
+            mu_state_smooth = _fempty((self.n_state, self.n_steps))
             mu_state_smooth[:, 0] = x0
 
         # forward pass
@@ -168,14 +170,14 @@ class _KalmanODE:
         self.mu_state_filt[:, 0] = x0
         self.mu_state_pred[:, 0] = x0
         self.var_state_filt[:, :, 0] = 0
-        wgt_meas = W  # just renaming for convenience.
+        wgt_meas = np.asfortranarray(W)  # just renaming for convenience.
         # loop
         for t in range(self.n_eval):
             # kalman filter
             self.ktv.predict(self.mu_state_pred[:, t+1],
-                             self.var_state_pred[:, :, t+1],
+                             np.asfortranarray(self.var_state_pred[:, :, t+1]),
                              self.mu_state_filt[:, t],
-                             self.var_state_filt[:, :, t],
+                             np.asfortranarray(self.var_state_filt[:, :, t]),
                              self.mu_state,
                              self.wgt_state,
                              self.var_state)
@@ -187,16 +189,16 @@ class _KalmanODE:
                                    theta=theta,
                                    wgt_meas=wgt_meas,
                                    mu_state_pred=self.mu_state_pred[:, t+1],
-                                   var_state_pred=self.var_state_pred[:, :, t+1],
+                                   var_state_pred=np.asfortranarray(self.var_state_pred[:, :, t+1]),
                                    z_state=self.z_state[:, t],
                                    tx_state=self.tx_state,
                                    twgt_meas=self.twgt_meas,
                                    tchol_state=self.tchol_state)
             # rest of kalman filter
             self.ktv.update(self.mu_state_filt[:, t+1],
-                            self.var_state_filt[:, :, t+1],
+                            np.asfortranarray(self.var_state_filt[:, :, t+1]),
                             self.mu_state_pred[:, t+1],
-                            self.var_state_pred[:, :, t+1],
+                            np.asfortranarray(self.var_state_pred[:, :, t+1]),
                             self.x_meas,
                             self.mu_meas,
                             wgt_meas,
@@ -204,11 +206,12 @@ class _KalmanODE:
 
         # backward pass
         # initialize
-        self.var_state_smooth[:] = self.var_state_filt[:, :, self.n_eval]
+        var_state_smooth = _fempty((self.n_state, self.n_state, self.n_steps))
+        var_state_smooth[:, :, self.n_eval] = self.var_state_filt[:, :, self.n_eval]
         if sim_sol:
             _mvn_sim(x_state_smooth[:, self.n_eval],
                      self.mu_state_filt[:, self.n_eval],
-                     self.var_state_smooth,
+                     np.asfortranarray(var_state_smooth[:, :, self.n_eval]),
                      self.z_state[:, self.n_eval],
                      self.tchol_state)
         else:
@@ -219,23 +222,26 @@ class _KalmanODE:
                 self.ktv.smooth_sim(x_state_smooth[:, t],
                                     x_state_smooth[:, t+1],
                                     self.mu_state_filt[:, t],
-                                    self.var_state_filt[:, :, t],
+                                    np.asfortranarray(self.var_state_filt[:, :, t]),
                                     self.mu_state_pred[:, t+1],
-                                    self.var_state_pred[:, :, t+1],
+                                    np.asfortranarray(self.var_state_pred[:, :, t+1]),
                                     self.wgt_state,
                                     self.z_state[:, t+self.n_steps])
             else:
                 self.ktv.smooth_mv(mu_state_smooth[:, t],
-                                   self.var_state_smooth,
+                                   var_state_smooth[:, :, t],
                                    mu_state_smooth[:, t+1],
-                                   self.var_state_smooth,
+                                   np.asfortranarray(var_state_smooth[:, :, t+1]),
                                    self.mu_state_filt[:, t],
-                                   self.var_state_filt[:, :, t],
+                                   np.asfortranarray(self.var_state_filt[:, :, t]),
                                    self.mu_state_pred[:, t+1],
-                                   self.var_state_pred[:, :, t+1],
+                                   np.asfortranarray(self.var_state_pred[:, :, t+1]),
                                    self.wgt_state)
 
-        return out
+        if sim_sol:
+            return np.ascontiguousarray(x_state_smooth.T), np.ascontiguousarray(var_state_smooth.T)
+        else:
+            return np.ascontiguousarray(mu_state_smooth.T), np.ascontiguousarray(var_state_smooth.T)
 
 def KalmanODE(n_state, n_meas, tmin, tmax, n_eval,
               ode_fun, mu_state, wgt_state, var_state, z_state):

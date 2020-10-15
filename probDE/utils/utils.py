@@ -60,7 +60,7 @@ def zero_pad(x, n_deriv, n_deriv_prior):
 
     """
     if len(x.shape)==1:
-        X = np.zeros(sum(n_deriv_prior))
+        X = np.zeros(sum(n_deriv_prior), order='F')
     else:
         X = np.zeros((len(n_deriv), sum(n_deriv_prior)), order='F')
     
@@ -91,7 +91,7 @@ def indep_init(init, n_deriv_prior):
     """
     n_var = len(init[0])
     p = sum(n_deriv_prior)
-    mu_state = np.zeros(p)
+    mu_state = np.zeros(p, order='F')
     wgt_state = np.zeros((p, p), order='F')
     var_state = np.zeros((p, p), order='F')
     
