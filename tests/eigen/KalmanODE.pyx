@@ -20,8 +20,7 @@ cpdef kalman_ode(fun,
                  double[::1, :] wgt_meas, 
                  double[::1, :] z_state_sim,
                  object theta,
-                 bint smooth_mv=False,
-                 bint smooth_sim=True):
+                 bint sim_sol = True):
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
 
@@ -97,15 +96,13 @@ cpdef kalman_ode(fun,
         ktvode.update(t)
        
     # backward pass
-    ktvode.smooth_update(smooth_mv, smooth_sim)
+    ktvode.smooth_update(sim_sol)
     del ktvode
-    if smooth_mv and smooth_sim:
-        return x_state_smooths, mu_state_smooths, var_state_smooths
-    elif smooth_mv:
-        return mu_state_smooths, var_state_smooths
-    elif smooth_sim:
+    if sim_sol:
         return x_state_smooths
-
+    else:
+        return mu_state_smooths, var_state_smooths
+    
 cpdef _copynm(dest, source, name):
     if not source.data.f_contiguous:
         raise TypeError('{} is not f contiguous.'.format(name))
@@ -203,7 +200,7 @@ cdef class KalmanODE:
     def z_states(self):
         self.__z_states = None
 
-    cpdef solve(self, double[::1] x0_state, double[::1, :] wgt_meas, object theta=None, bint mv=False, bint sim=True):
+    cpdef solve(self, double[::1] x0_state, double[::1, :] wgt_meas, object theta=None, bint sim_sol=True):
         r"""
         Returns an approximate solution to the higher order ODE
 
@@ -244,28 +241,14 @@ cdef class KalmanODE:
         if np.asarray(wgt_meas).shape!=(self.n_meas, self.n_state):
             raise TypeError('{} has incorrect shape.'.format('wgt_meas'))
 
-        if mv and sim:
-            kalman_sim, kalman_mu, kalman_var = \
-                kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
-                          self.__wgt_state, self.__mu_state, self.__var_state,
-                          wgt_meas, self.__z_states, theta, mv, sim)
-            kalman_sim = np.ascontiguousarray(kalman_sim.T)
-            kalman_mu = np.ascontiguousarray(kalman_mu.T)
-            kalman_var = np.ascontiguousarray(kalman_var.T)
-            return kalman_sim, kalman_mu, kalman_var
-        elif mv:
-            kalman_mu, kalman_var = \
-                kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
-                          self.__wgt_state, self.__mu_state, self.__var_state,
-                          wgt_meas, self.__z_states, theta, mv, sim)
-            kalman_mu = np.ascontiguousarray(kalman_mu.T)
-            kalman_var = np.ascontiguousarray(kalman_var.T)
-            return kalman_mu, kalman_var
-        elif sim:
-            kalman_sim = \
-                kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
-                          self.__wgt_state, self.__mu_state, self.__var_state,
-                          wgt_meas, self.__z_states, theta, mv, sim)
-            kalman_sim = np.ascontiguousarray(kalman_sim.T)
+        out = kalman_ode(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
+                         self.__wgt_state, self.__mu_state, self.__var_state,
+                         wgt_meas, self.__z_states, theta, sim_sol)
+        if sim_sol:
+            kalman_sim = np.ascontiguousarray(out.T)
             return kalman_sim
+        else:
+            kalman_mu = np.ascontiguousarray(out[0].T)
+            kalman_var = np.ascontiguousarray(out[1].T)
+            return kalman_mu, kalman_var
         

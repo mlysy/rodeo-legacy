@@ -76,8 +76,7 @@ namespace KalmanTVODE {
     /// Perform one step of both Kalman mean/variance and sampling smoothers.
     void smooth(const int cur_step);
     /// Perform the smoothing steps.
-    void smooth_update(const bool smooth_mv,
-                       const bool smooth_sim);
+    void smooth_update(const bool sim_sol);
     /// Perform one step of chkrebtii interrogation.
     void forecast(const int cur_step);
     /// Perform one step of Kersting interrogation.
@@ -267,8 +266,7 @@ namespace KalmanTVODE {
   /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
   /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
   /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
-  inline void KalmanTVODE::smooth_update(const bool smooths_mv,
-                                         const bool smooths_sim) {
+  inline void KalmanTVODE::smooth_update(const bool sim_sol) {
     MapMatrixXd _x_state_smooths_(x_state_smooths_, n_state_, n_steps_);
     MapMatrixXd _mu_state_smooths_(mu_state_smooths_, n_state_, n_steps_);
     MapMatrixXd _var_state_smooths_(var_state_smooths_, n_state_, n_state_*n_steps_);
@@ -281,13 +279,11 @@ namespace KalmanTVODE {
     _mu_state_smooths_.col(0) = mu_state_filts.col(0);
     _x_state_smooths_.col(0) = mu_state_filts.col(0);
     for(int t=n_steps_-2; t>0; t--) {
-      if(smooths_mv && smooths_sim) {
-        smooth(t);
-      } else if(smooths_mv) {
-        smooth_mv(t);
-      } else if(smooths_sim) {
+      if(sim_sol) {
         smooth_sim(t);
-      }
+      } else {
+        smooth_mv(t);
+      } 
     }
     return;
   }
