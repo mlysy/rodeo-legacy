@@ -19,7 +19,7 @@ cpdef kalman_ode(fun,
                  double[::1, :] var_state,
                  double[::1, :] wgt_meas, 
                  double[::1, :] z_state_sim,
-                 double[::1] theta,
+                 object theta,
                  bint smooth_mv=False,
                  bint smooth_sim=True):
     """
@@ -203,7 +203,7 @@ cdef class KalmanODE:
     def z_states(self):
         self.__z_states = None
 
-    cpdef solve(self, double[::1] x0_state, double[::1, :] wgt_meas, double[::1] theta=None, bint mv=False, bint sim=True):
+    cpdef solve(self, double[::1] x0_state, double[::1, :] wgt_meas, object theta=None, bint mv=False, bint sim=True):
         r"""
         Returns an approximate solution to the higher order ODE
 

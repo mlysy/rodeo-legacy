@@ -46,6 +46,11 @@ ext_modules = [Extension("probDE.tests.KalmanODE",
                          ["ode_functions"+ext_c],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
+                         language="c"),
+               Extension("probDE.tests.ode_functions_ctuple",
+                         ["ode_functions_ctuple"+ext_c],
+                         extra_compile_args=extra_compile_args,
+                         define_macros=disable_numpy_warnings,
                          language="c")]
 
 setup(

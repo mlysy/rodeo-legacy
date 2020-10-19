@@ -219,7 +219,7 @@ cdef class KalmanODE:
     cpdef kalman_ode(self, 
                      double[::1] x0_state,
                      double[::1, :] wgt_meas,
-                     double[::1] theta,
+                     object theta,
                      bint sim_sol):
         r"""
         Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
@@ -325,7 +325,7 @@ cdef class KalmanODE:
         del ktv
 
 
-    cpdef solve(self, double[::1] x0_state, double[::1, :] wgt_meas, double[::1] theta=None, bint sim_sol=True):
+    cpdef solve(self, double[::1] x0_state, double[::1, :] wgt_meas, object theta=None, bint sim_sol=True):
         r"""
         Returns an approximate solution to the higher order ODE
 
