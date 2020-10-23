@@ -1,18 +1,28 @@
+import warnings
+import numba
+import numpy as np
+import getopt
+import sys
+from numba.core.errors import NumbaPerformanceWarning
+from timer import *
+from numba import njit
+from scipy.integrate import odeint
+from math import sin
 from KalmanODE_py import KalmanODE_py
 from kalmanode_numba import KalmanODE as KalmanODE_num
-from probDE.tests.KalmanODE import KalmanODE as KalmanODE_c
-from probDE.cython.KalmanODE import KalmanODE as KalmanODE_cy
 from probDE.utils.utils import rand_mat, indep_init, zero_pad
 from probDE.ibm import ibm_init
-from probDE.tests.ode_functions import chkrebtii_fun as ode_fun
-import numpy as np
-from scipy.integrate import odeint
-import numba
-from numba import njit
-from math import sin
-from timer import *
-import warnings
-from numba.core.errors import NumbaPerformanceWarning
+from probDE.cython.KalmanODE import KalmanODE as KalmanODE_cy
+from probDE.tests.KalmanODE import KalmanODE as KalmanODE_c
+from probDE.tests.ode_functions import chkrebtii_fun as ode_fun_nd
+from probDE.tests.ode_functions_ctuple import chkrebtii_fun as ode_fun_ct
+
+# pick ode function
+use_ctuple = False
+opts, args = getopt.getopt(sys.argv[1:], "c")
+for o, a in opts:
+    use_ctuple = o == "-c"
+
 warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
 
@@ -71,6 +81,12 @@ ode_init = ibm_init(dt, n_deriv_prior, sigma)
 kinit = indep_init(ode_init, n_deriv_prior)
 z_states = rand_mat(2*(n_eval+1), p)
 theta = np.empty(0)
+
+# pick ode function with ndarray or ctuple inputs
+ode_fun = ode_fun_ct if use_ctuple else ode_fun_nd
+if use_ctuple:
+    theta = tuple(theta)
+
 
 # Timings
 n_loops = 1000
