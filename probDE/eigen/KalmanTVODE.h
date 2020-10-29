@@ -9,10 +9,10 @@
 #include <iostream>
 #include "KalmanTV.h"
 
-namespace KalmanTVODE {
+namespace kalmantvode {
   using namespace Eigen;
 
-  class KalmanTVODE : public KalmanTV::KalmanTV {
+  class KalmanTVODE : public kalmantv::KalmanTV {
   private:
     int n_meas_; ///< Number of measurement dimensions.
     int n_state_; ///< Number of state dimensions.

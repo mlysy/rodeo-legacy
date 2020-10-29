@@ -1,4 +1,4 @@
-cdef extern from "KalmanTVODE.h" namespace "KalmanTVODE":
+cdef extern from "KalmanTVODE.h" namespace "kalmantvode":
     cdef cppclass KalmanTVODE:
         KalmanTVODE(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*) except +
         void predict(const int cur_step)

@@ -1,6 +1,4 @@
 import numpy as np
-# import os
-# os.chdir(os.path.join(os.getcwd(), "depreciated\\kalman"))
 
 from probDE.utils.utils import rand_mat
 from depreciated.kalman.kalman_ode_higher import kalman_ode_higher
@@ -17,7 +15,7 @@ class KalmanODE_py:
         self.wgt_state = None
         self.mu_state = None
         self.var_state = None
-        self.z_states = None
+        self.z_state = None
         for key in init.keys():
             self.__setattr__(key, init[key])
 
@@ -26,9 +24,9 @@ class KalmanODE_py:
                 self.var_state is None):
             raise ValueError("wgt_state, mu_state, var_state is not set.")
 
-        if self.z_states is None:
-            self.z_states = rand_mat(2*(self.n_eval+1), self.n_state)
+        if self.z_state is None:
+            self.z_state = rand_mat(2*(self.n_eval+1), self.n_state)
 
         return kalman_ode_higher(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
                                  self.wgt_state, self.mu_state, self.var_state, wgt_meas,
-                                 self.z_states, theta, mv, sim)
+                                 self.z_state, theta, mv, sim)
