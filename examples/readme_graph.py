@@ -33,8 +33,8 @@ def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, s
     kinit = indep_init(ode_init, n_deriv_prior)
     kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fun, **kinit)
     for i in range(draws):
-        X[i]= kalmanode.solve(x0_state, W, mv=False, sim=True)
-        del kalmanode.z_states
+        X[i]= kalmanode.solve(x0_state, W)[0]
+        del kalmanode.z_state
     return X
 
 def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, sigma, init, draws):

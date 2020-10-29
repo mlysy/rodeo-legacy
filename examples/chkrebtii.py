@@ -45,7 +45,7 @@ def chkrebtii_example():
     # Initialize the Kalman class
     kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, ode_fun, **kinit)
     # Run the solver to get an approximation
-    kalman_sim = kalmanode.solve(x0_state, W)
+    kalman_sim = kalmanode.solve(x0_state, W)[0]
 
     # Produces the graph in Figure 1
     draws = 100
