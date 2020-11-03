@@ -5,8 +5,8 @@ from os import path
 from setuptools import setup, find_packages, Extension
 
 # eigen path
-eigen_path = "/Users/mlysy/Documents/proj/buqDE/kalmantv/eigen-3.3.7"
-# eigen_path = "eigen-3.3.7"
+#eigen_path = "/Users/mlysy/Documents/proj/buqDE/kalmantv/eigen-3.3.7"
+eigen_path = "eigen-3.3.7"
 # compiler options
 if platform.system() != "Windows":
     extra_compile_args = ["-O3", "-ffast-math",

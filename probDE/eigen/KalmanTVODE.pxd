@@ -7,6 +7,7 @@ cdef extern from "KalmanTVODE.h" namespace "kalmantvode":
         void smooth_mv(const int cur_step) 
         void smooth_sim(const int cur_step)
         void smooth(const int cur_step)
-        void smooth_update(const bint sim_sol)
+        void smooth_update(const bint smooths_mv,
+                           const bint smooths_sim)
         void forecast(const int cur_step)
         void forecast_sch(const int cur_step)

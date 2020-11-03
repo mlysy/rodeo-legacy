@@ -59,7 +59,7 @@ def lorenz_example():
     # Initialize the Kalman class
     kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, lorenz, **kinit)
     # Run the solver to get an approximation
-    kalman_sim = kalmanode.solve(v_init, W, theta)[0]
+    kalman_sim = kalmanode.solve_sim(v_init, W, theta)
 
     # Produce the graph in Figure 2
     draws = 1000

@@ -53,7 +53,7 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, 
     kinit = indep_init(ode_init, n_deriv_prior)
     kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fun, **kinit)
     for i in range(draws):
-        Xn[i] = kalmanode.solve(v_init, W, theta)[0]
+        Xn[i] = kalmanode.solve_sim(v_init, W, theta)
         del kalmanode.z_state
     
     _, axs = plt.subplots(n_var, 1, figsize=(20, 7))

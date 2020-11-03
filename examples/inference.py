@@ -87,7 +87,7 @@ class inference:
         theta = np.exp(phi)
         data_tseq = np.linspace(1, self.tmax, self.tmax-self.tmin)
         ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
-        X_t = self.kode.solve(x0, self.W, theta)[0]
+        X_t = self.kode.solve_sim(x0, self.W, theta)
         X_t = self.thinning(data_tseq, ode_tseq, X_t)[:, self.state_ind]
         lp = self.loglike(Y_t, X_t, gamma)
         lp += self.loglike(phi, phi_mean, phi_sd)

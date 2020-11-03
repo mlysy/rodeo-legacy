@@ -83,26 +83,18 @@ class _KalmanODE:
         self._wgt_state = _fempty((n_state, n_state))
         self._var_state = _fempty((n_state, n_state))
         self._z_state = _fempty((n_state, 2*self.n_steps))
-        #for key in init.keys():
-        #    self.__setattr__(key, init[key])
 
         self._mu_state[:] = mu_state
         self._wgt_state[:] = wgt_state
         self._var_state[:] = var_state
         if z_state is not None:
             self._z_state[:] = z_state
-        # Note: how can this be Numba'ed?
         self.ode_fun = ode_fun
         # internal memory
         self.mu_state_pred = _fempty((n_state, self.n_steps))
         self.var_state_pred = _fempty((n_state, n_state, self.n_steps))
         self.mu_state_filt = _fempty((n_state, self.n_steps))
         self.var_state_filt = _fempty((n_state, n_state, self.n_steps))
-        #self.mu_state_smooth = _fempty((n_state, self.n_steps))
-        #self.x_state_smooth = _fempty((n_state, self.n_steps)) 
-        #self.var_state_smooth = _fempty((n_state, n_state, self.n_steps))
-        # don't return the variance, so just need one for updating
-        # self.var_state_smooth = _fempty((n_state, n_state))
         self.x_meas = _fempty((n_meas,))
         self.mu_meas =  np.zeros((n_meas,)).T# doesn't get updated
         self.var_meas = _fempty((n_meas, n_meas))
@@ -149,22 +141,7 @@ class _KalmanODE:
         _copynm(self._z_state, value, "z_state")
         return
 
-    def solve(self, x0, W, theta, sim_sol=True):
-        #if out is None:
-        #    out = _fempty((self.n_state, self.n_steps))
-        #else:
-        #    if not out.shape == (self.n_state, self.n_steps):
-        #        raise ValueError("out supplied has incorrect dimensions."
-        
-        if sim_sol:
-        #    x_state_smooth = out
-            x_state_smooth = _fempty((self.n_state, self.n_steps))
-            x_state_smooth[:, 0] = x0
-        else:
-        #    mu_state_smooth = out
-            mu_state_smooth = _fempty((self.n_state, self.n_steps))
-            mu_state_smooth[:, 0] = x0
-
+    def _solve_filter(self, x0, W, theta):
         # forward pass
         # initialize
         self.mu_state_filt[:, 0] = x0
@@ -204,44 +181,96 @@ class _KalmanODE:
                             wgt_meas,
                             self.var_meas)
 
+    def solve(self, x0, W, theta):
+        x_state_smooth = _fempty((self.n_state, self.n_steps))
+        x_state_smooth[:, 0] = x0
+        mu_state_smooth = _fempty((self.n_state, self.n_steps))
+        mu_state_smooth[:, 0] = x0
+        
+        # forward pass
+        self._solve_filter(x0, W, theta)
+
         # backward pass
         # initialize
+        mu_state_smooth[:, self.n_eval] = self.mu_state_filt[:, self.n_eval]
         var_state_smooth = _fempty((self.n_state, self.n_state, self.n_steps))
         var_state_smooth[:, :, self.n_eval] = self.var_state_filt[:, :, self.n_eval]
-        if sim_sol:
-            _mvn_sim(x_state_smooth[:, self.n_eval],
-                     self.mu_state_filt[:, self.n_eval],
-                     var_state_smooth[..., self.n_eval],
-                     self.z_state[:, self.n_eval],
-                     self.tchol_state)
-        else:
-            mu_state_smooth[:, self.n_eval] = self.mu_state_filt[:, self.n_eval]
+        _mvn_sim(x_state_smooth[:, self.n_eval],
+                 self.mu_state_filt[:, self.n_eval],
+                 var_state_smooth[..., self.n_eval],
+                 self.z_state[:, self.n_eval],
+                 self.tchol_state)
+        
         # loop
         for t in range(self.n_eval-1, 0, -1):
-            if sim_sol:
-                self.ktv.smooth_sim(x_state_smooth[:, t],
-                                    x_state_smooth[:, t+1],
-                                    self.mu_state_filt[:, t],
-                                    self.var_state_filt[..., t],
-                                    self.mu_state_pred[:, t+1],
-                                    self.var_state_pred[..., t+1],
-                                    self.wgt_state,
-                                    self.z_state[:, t+self.n_steps])
-            else:
-                self.ktv.smooth_mv(mu_state_smooth[:, t],
-                                   var_state_smooth[:, :, t],
-                                   mu_state_smooth[:, t+1],
-                                   var_state_smooth[..., t+1],
-                                   self.mu_state_filt[:, t],
-                                   self.var_state_filt[..., t],
-                                   self.mu_state_pred[:, t+1],
-                                   self.var_state_pred[..., t+1],
-                                   self.wgt_state)
+            self.ktv.smooth(x_state_smooth[:, t],
+                            mu_state_smooth[:, t],
+                            var_state_smooth[:, :, t],
+                            x_state_smooth[:, t+1],
+                            mu_state_smooth[:, t+1],
+                            var_state_smooth[..., t+1],
+                            self.mu_state_filt[:, t],
+                            self.var_state_filt[..., t],
+                            self.mu_state_pred[:, t+1],
+                            self.var_state_pred[..., t+1],
+                            self.wgt_state,
+                            self.z_state[:, t+self.n_steps])
 
-        if sim_sol:
-            return x_state_smooth.T, None
-        else:
-            return mu_state_smooth.T, var_state_smooth.T
+        return x_state_smooth.T, mu_state_smooth.T, var_state_smooth.T
+    
+    def solve_sim(self, x0, W, theta):
+        x_state_smooth = _fempty((self.n_state, self.n_steps))
+        x_state_smooth[:, 0] = x0
+        # forward pass
+        self._solve_filter(x0, W, theta)
+
+        # backward pass
+        # initialize
+        _mvn_sim(x_state_smooth[:, self.n_eval],
+                 self.mu_state_filt[:, self.n_eval],
+                 self.var_state_filt[:, :, self.n_eval],
+                 self.z_state[:, self.n_eval],
+                 self.tchol_state)
+        
+
+        # loop       
+        for t in range(self.n_eval-1, 0, -1):
+            self.ktv.smooth_sim(x_state_smooth[:, t],
+                                x_state_smooth[:, t+1],
+                                self.mu_state_filt[:, t],
+                                self.var_state_filt[..., t],
+                                self.mu_state_pred[:, t+1],
+                                self.var_state_pred[..., t+1],
+                                self.wgt_state,
+                                self.z_state[:, t+self.n_steps])
+        
+        return x_state_smooth.T
+
+    def solve_mv(self, x0, W, theta):
+        mu_state_smooth = _fempty((self.n_state, self.n_steps))
+        mu_state_smooth[:, 0] = x0
+        # forward pass
+        self._solve_filter(x0, W, theta)
+
+        # backward pass
+        # initialize
+        mu_state_smooth[:, self.n_eval] = self.mu_state_filt[:, self.n_eval]
+        var_state_smooth = _fempty((self.n_state, self.n_state, self.n_steps))
+        var_state_smooth[:, :, self.n_eval] = self.var_state_filt[:, :, self.n_eval]
+
+        # loop       
+        for t in range(self.n_eval-1, 0, -1):
+            self.ktv.smooth_mv(mu_state_smooth[:, t],
+                               var_state_smooth[:, :, t],
+                               mu_state_smooth[:, t+1],
+                               var_state_smooth[..., t+1],
+                               self.mu_state_filt[:, t],
+                               self.var_state_filt[..., t],
+                               self.mu_state_pred[:, t+1],
+                               self.var_state_pred[..., t+1],
+                               self.wgt_state)
+        
+        return mu_state_smooth.T, var_state_smooth.T
 
 def KalmanODE(n_state, n_meas, tmin, tmax, n_eval,
               ode_fun, mu_state, wgt_state, var_state, z_state=None):

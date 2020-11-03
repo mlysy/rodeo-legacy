@@ -38,10 +38,10 @@ if USE_CYTHON:
 # compiler options
 if platform.system() != "Windows":
     extra_compile_args = ["-O3", "-ffast-math",
-                          "-mtune=native", "-march=native", "-fopenmp"]
-    # if platform.system() == "Darwin":
-    #     # default compiler on macOS doesn't support openmp
-    #     os.environ["CC"] = "gcc"
+                          "-mtune=native", "-march=native"]
+    if platform.system() != "Darwin":
+        # default compiler on macOS doesn't support openmp
+        extra_compile_args.append("-fopenmp")
 else:
     extra_compile_args = ["-O2","/openmp"]
 
