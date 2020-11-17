@@ -17,7 +17,7 @@ def root_gen(tau, p):
         (ndarray(p)): Vector size of p roots generated.
 
     """
-    return np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))
+    return np.append(1/tau, np.linspace(1 + 1/(10*(p-1)), 1.1, p-1))*10
 
 def car_initial_draw(roots, sigma, x0, p):
     """
@@ -72,7 +72,7 @@ def car_state(delta_t, roots, sigma):
     wgtState = np.matmul(Q * np.exp(-roots*delta_t[0]), Q_inv, order='F')
     return wgtState, varState
     
-def car_init(n_deriv_prior, tau, sigma, dt, x0=None):
+def car_init(dt, n_deriv_prior, tau, sigma, x0=None):
     """
     Calculates the initial parameters necessary for the Kalman solver.
     The specific model we are using for the Kalman solver is
@@ -106,6 +106,7 @@ def car_init(n_deriv_prior, tau, sigma, dt, x0=None):
     if x0 is not None:
         x0_state = np.zeros(sum(n_deriv_prior))
 
+    mu_state = np.zeros(sum(n_deriv_prior))
     wgt_state = [None]*n_var
     var_state = [None]*n_var
     for i in range(n_var):
@@ -115,7 +116,14 @@ def car_init(n_deriv_prior, tau, sigma, dt, x0=None):
                 car_initial_draw(roots, sigma[i], x0[i], n_deriv_prior[i])
         wgt_state[i], var_state[i] = car_state(delta_t, roots, sigma[i])
   
+    if n_var == 1:
+        wgt_state = wgt_state[0]
+        var_state = var_state[0]
+    
+    init = {"wgt_state":wgt_state,  "mu_state":mu_state,
+            "var_state":var_state}
+    
     if x0 is not None:
-        return [wgt_state, var_state], x0_state
+        return init, x0_state
     else:
-        return [wgt_state, var_state]
+        return init

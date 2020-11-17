@@ -23,21 +23,19 @@ def ode_euler(x,t):
     return np.array([x[1], sin(2*t) -x[0]])
 
 # Helper function to draw samples from Kalman solver
-def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, sigma, w_mat, init, draws):
+def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_mat, init, draws):
     dt = (tmax-tmin)/n_eval
-    p = sum(n_deriv_prior)
-    X = np.zeros((draws, n_eval+1, p))
+    X = np.zeros((draws, n_eval+1, sum(n_deriv_prior)))
     W = zero_pad(w_mat, n_deriv, n_deriv_prior)
     x0_state = zero_pad(init, n_deriv, n_deriv_prior)
-    ode_init = ibm_init(dt, n_deriv_prior, sigma)
-    kinit = indep_init(ode_init, n_deriv_prior)
-    kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fun, **kinit)
+    prior = ibm_init(dt, n_deriv_prior, sigma)
+    kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **prior)
     for i in range(draws):
         X[i]= kalmanode.solve_sim(x0_state, W)
         del kalmanode.z_state
     return X
 
-def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, sigma, init, draws):
+def readme_solve(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, sigma, init, draws):
     """
     Calculates kalman_ode, euler_ode, and exact_ode on the given grid for the README ode.
 
@@ -66,7 +64,7 @@ def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, 
 
     """
     tseq = np.linspace(tmin, tmax, n_eval+1)
-    Xt = readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_obs, n_eval, tmin, tmax, sigma, w_mat, init, draws)
+    Xt = readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_mat, init, draws)
     x_euler = euler_approx(ode_euler, tseq, init)
     x_exact = np.zeros((n_eval+1, 2))
     for i,t in enumerate(tseq):
@@ -76,7 +74,7 @@ def readme_solve(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, 
     return tseq, Xt, x_euler, x_exact
 
 # Function that produces the graph as shown in README
-def readme_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, w_mat, init, draws):
+def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
     """
     Produces the graph in README file.
 
@@ -106,8 +104,7 @@ def readme_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, w_mat, init, dr
     for i in range(dim_example):
         tseq[i], Xn[i], x_euler[i], x_exact[i] = readme_solve(fun=fun,
                                                               n_deriv=n_deriv,
-                                                              n_deriv_prior=n_deriv_prior,
-                                                              n_obs=n_obs, 
+                                                              n_deriv_prior=n_deriv_prior, 
                                                               tmin=tmin, 
                                                               tmax=tmax, 
                                                               n_eval=N[i],

@@ -70,20 +70,22 @@ def _copynm(dest, source, name):
     return
 
 class _KalmanODE:
-    def __init__(self, n_state, n_meas, tmin, tmax, n_eval,
+    def __init__(self, W, tmin, tmax, n_eval,
                  ode_fun, mu_state, wgt_state, var_state, z_state):
-        self.n_state = n_state
-        self.n_meas = n_meas
+        self.n_state = W.shape[1]
+        self.n_meas = W.shape[0]
         self.tmin = tmin
         self.tmax = tmax
         self.n_eval = n_eval
         self.n_steps = n_eval + 1
         # property variables
-        self._mu_state = _fempty((n_state,))
-        self._wgt_state = _fempty((n_state, n_state))
-        self._var_state = _fempty((n_state, n_state))
-        self._z_state = _fempty((n_state, 2*self.n_steps))
+        self._wgt_meas = _fempty((self.n_meas, self.n_state))
+        self._mu_state = _fempty((self.n_state,))
+        self._wgt_state = _fempty((self.n_state, self.n_state))
+        self._var_state = _fempty((self.n_state, self.n_state))
+        self._z_state = _fempty((self.n_state, 2*self.n_steps))
 
+        self._wgt_meas[:] = W
         self._mu_state[:] = mu_state
         self._wgt_state[:] = wgt_state
         self._var_state[:] = var_state
@@ -91,19 +93,28 @@ class _KalmanODE:
             self._z_state[:] = z_state
         self.ode_fun = ode_fun
         # internal memory
-        self.mu_state_pred = _fempty((n_state, self.n_steps))
-        self.var_state_pred = _fempty((n_state, n_state, self.n_steps))
-        self.mu_state_filt = _fempty((n_state, self.n_steps))
-        self.var_state_filt = _fempty((n_state, n_state, self.n_steps))
-        self.x_meas = _fempty((n_meas,))
-        self.mu_meas =  np.zeros((n_meas,)).T# doesn't get updated
-        self.var_meas = _fempty((n_meas, n_meas))
-        self.ktv = KalmanTV(n_meas, n_state)
+        self.mu_state_pred = _fempty((self.n_state, self.n_steps))
+        self.var_state_pred = _fempty((self.n_state, self.n_state, self.n_steps))
+        self.mu_state_filt = _fempty((self.n_state, self.n_steps))
+        self.var_state_filt = _fempty((self.n_state, self.n_state, self.n_steps))
+        self.x_meas = _fempty((self.n_meas,))
+        self.mu_meas =  np.zeros((self.n_meas,)).T# doesn't get updated
+        self.var_meas = _fempty((self.n_meas, self.n_meas))
+        self.ktv = KalmanTV(self.n_meas, self.n_state)
         #self.time = np.linspace(self.tmin, self.tmax, self.n_steps)
         # temporaries
-        self.tx_state = _fempty((n_state,))
-        self.twgt_meas = _fempty((n_meas, n_state))
-        self.tchol_state = _fempty((n_state, n_state))
+        self.tx_state = _fempty((self.n_state,))
+        self.twgt_meas = _fempty((self.n_meas, self.n_state))
+        self.tchol_state = _fempty((self.n_state, self.n_state))
+
+    @property
+    def wgt_meas(self):
+        return self._wgt_meas
+
+    @wgt_meas.setter
+    def wgt_meas(self, value):
+        _copynm(self._wgt_meas, value, "wgt_meas")
+        return
 
     @property
     def mu_state(self):
@@ -141,13 +152,13 @@ class _KalmanODE:
         _copynm(self._z_state, value, "z_state")
         return
 
-    def _solve_filter(self, x0, W, theta):
+    def _solve_filter(self, x0, theta):
         # forward pass
         # initialize
         self.mu_state_filt[:, 0] = x0
         self.mu_state_pred[:, 0] = x0
         self.var_state_filt[:, :, 0] = 0
-        wgt_meas = W  # just renaming for convenience.
+        
         # loop
         for t in range(self.n_eval):
             # kalman filter
@@ -164,7 +175,7 @@ class _KalmanODE:
                                    fun=self.ode_fun,
                                    t=self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval,
                                    theta=theta,
-                                   wgt_meas=wgt_meas,
+                                   wgt_meas=self.wgt_meas,
                                    mu_state_pred=self.mu_state_pred[:, t+1],
                                    var_state_pred=self.var_state_pred[..., t+1],
                                    z_state=self.z_state[:, t],
@@ -178,7 +189,7 @@ class _KalmanODE:
                             self.var_state_pred[..., t+1],
                             self.x_meas,
                             self.mu_meas,
-                            wgt_meas,
+                            self.wgt_meas,
                             self.var_meas)
 
     def solve(self, x0, W, theta):
@@ -188,7 +199,9 @@ class _KalmanODE:
         mu_state_smooth[:, 0] = x0
         
         # forward pass
-        self._solve_filter(x0, W, theta)
+        if W is not None:
+            self._wgt_meas[:] = W  
+        self._solve_filter(x0, theta)
 
         # backward pass
         # initialize
@@ -222,7 +235,9 @@ class _KalmanODE:
         x_state_smooth = _fempty((self.n_state, self.n_steps))
         x_state_smooth[:, 0] = x0
         # forward pass
-        self._solve_filter(x0, W, theta)
+        if W is not None:
+            self._wgt_meas[:] = W 
+        self._solve_filter(x0, theta)
 
         # backward pass
         # initialize
@@ -250,7 +265,9 @@ class _KalmanODE:
         mu_state_smooth = _fempty((self.n_state, self.n_steps))
         mu_state_smooth[:, 0] = x0
         # forward pass
-        self._solve_filter(x0, W, theta)
+        if W is not None:
+            self._wgt_meas[:] = W 
+        self._solve_filter(x0, theta)
 
         # backward pass
         # initialize
@@ -272,12 +289,13 @@ class _KalmanODE:
         
         return mu_state_smooth.T, var_state_smooth.T
 
-def KalmanODE(n_state, n_meas, tmin, tmax, n_eval,
-              ode_fun, mu_state, wgt_state, var_state, z_state=None):
+def KalmanODE(wgt_meas, tmin, tmax, n_eval, ode_fun, 
+              mu_state, wgt_state, var_state, z_state=None):
     "Create a jitted KalmanODE class."
     spec = [
-        ('n_state', intc),
+        ('_wgt_meas', float64[::1, :]),
         ('n_meas', intc),
+        ('n_state', intc),
         ('tmin', float64),
         ('tmax', float64),
         ('n_eval', intc),
@@ -302,5 +320,5 @@ def KalmanODE(n_state, n_meas, tmin, tmax, n_eval,
     ]
     jcl = jitclass(spec)
     kalman_cl = jcl(_KalmanODE)
-    return kalman_cl(n_state, n_meas, tmin, tmax, n_eval,
-                     ode_fun, mu_state, wgt_state, var_state, z_state)
+    return kalman_cl(wgt_meas, tmin, tmax, n_eval, ode_fun, 
+                     mu_state, wgt_state, var_state, z_state)

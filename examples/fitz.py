@@ -18,10 +18,8 @@ def fitz(X_t, t, theta, out=None):
 def fitz_example():
     "Perform parameter inference using the FitzHugh-Nagumo function."
     # These parameters define the order of the ODE and the CAR(p) process
-    n_deriv = [2, 2] # Total state
-    n_obs = 2 # Total measures
+    n_deriv = [1, 1] # Total state
     n_deriv_prior = [3, 3]
-    p = sum(n_deriv_prior)
     state_ind = [0, 3] # Index of 0th derivative of each state
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
@@ -71,7 +69,7 @@ def fitz_example():
         x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
         kinit = indep_init(ode_init, n_deriv_prior)
         n_eval = int((tmax-tmin)/hlst[i])
-        kode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fitz, **kinit)
+        kode = KalmanODE(W, tmin, tmax, n_eval, fitz, **kinit)
         inf.kode = kode
         inf.W = W
         phi_hat, phi_var = inf.phi_fit(Y_t, x0_state, hlst[i], theta_true, phi_sd, gamma, True)

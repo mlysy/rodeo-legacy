@@ -96,7 +96,6 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
                               mu=mu_state_preds[t+1],
                               V=var_state_preds[t+1])
         fun(x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval, theta, x_meas)
-
         mu_state_filts[t+1], var_state_filts[t+1] = (
             KFS.update(mu_state_pred=mu_state_preds[t+1],
                        var_state_pred=var_state_preds[t+1],

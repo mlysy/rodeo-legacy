@@ -22,10 +22,8 @@ def mseir(X_t, t, theta, out=None):
 def mseir_example():
     "Perform parameter inference using the MSEIR function."
     # These parameters define the order of the ODE and the CAR(p) process
-    n_obs = 5 # Total measures
-    n_deriv = [2]*5 # Total state
+    n_deriv = [1]*5 # Total state
     n_deriv_prior= [3]*5
-    p = sum(n_deriv_prior)
     state_ind = [0, 3, 6, 9, 12] # Index of 0th derivative of each state
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
@@ -44,8 +42,8 @@ def mseir_example():
     X0 = np.ravel([x0, v0], 'F')
 
     # W matrix: dimension is n_eq x sum(n_deriv)
-    W_mat = np.zeros((len(n_deriv), sum(n_deriv)))
-    for i in range(len(n_deriv)): W_mat[i, sum(n_deriv[:i])+1] = 1
+    W_mat = np.zeros((len(n_deriv), sum(n_deriv)+len(n_deriv)))
+    for i in range(len(n_deriv)): W_mat[i, sum(n_deriv[:i])+i+1] = 1
     W = zero_pad(W_mat, n_deriv, n_deriv_prior)
 
     # logprior parameters
@@ -76,7 +74,7 @@ def mseir_example():
         x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
         kinit = indep_init(ode_init, n_deriv_prior)
         n_eval = int((tmax-tmin)/hlst[i])
-        kode = KalmanODE(p, n_obs, tmin, tmax, n_eval, mseir, **kinit)
+        kode = KalmanODE(W, tmin, tmax, n_eval, mseir, **kinit)
         inf.kode = kode
         inf.W = W
         phi_hat, phi_var = inf.phi_fit(Y_t, x0_state, hlst[i], theta_true, phi_sd, gamma, True)

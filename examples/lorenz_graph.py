@@ -12,13 +12,7 @@ from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init, zero_pad
 
-def lorenz(state, t, theta=(28, 10, 8/3)):
-    r"Loren63 ODE function"
-    rho, sigma, beta = theta
-    x, y, z = state  # Unpack the state vector
-    return -sigma*x + sigma*y, rho*x - y -x*z, -beta*z + x*y
-
-def lorenz_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, tau, sigma, init, theta, draws):
+def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, sigma, init, theta, draws):
     r"""
     Produces the graph for the Lorenz63 example in tutorial.
 
@@ -49,11 +43,11 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, n_obs, tmin, tmax, n_eval, w_mat, 
     p = sum(n_deriv_prior)
     Xn = np.zeros((draws, n_eval+1, p))
     W = zero_pad(w_mat, n_deriv, n_deriv_prior)
-    ode_init, v_init = car_init(n_deriv_prior, tau, sigma, dt, init)
+    ode_init, v_init = car_init(dt, n_deriv_prior, tau, sigma, init)
     kinit = indep_init(ode_init, n_deriv_prior)
-    kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, fun, **kinit)
+    kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **kinit)
     for i in range(draws):
-        Xn[i] = kalmanode.solve_sim(v_init, W, theta)
+        Xn[i] = kalmanode.solve_sim(v_init, theta=theta)
         del kalmanode.z_state
     
     _, axs = plt.subplots(n_var, 1, figsize=(20, 7))

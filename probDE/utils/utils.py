@@ -64,6 +64,7 @@ def zero_pad(x, n_deriv, n_deriv_prior):
     else:
         X = np.zeros((len(n_deriv), sum(n_deriv_prior)), order='F')
     
+    n_deriv = [x+1 for x in n_deriv]
     for i in range(len(n_deriv)):
         indx = sum(n_deriv[:i])
         indX = sum(n_deriv_prior[:i])
@@ -89,13 +90,14 @@ def indep_init(init, n_deriv_prior):
         - **x0_state** (ndarray(p)): Initial state of the ODE function.
 
     """
-    n_var = len(init[0])
+    mu_state = init['mu_state']
+    wgt_state_i = init['wgt_state']
+    var_state_i = init['var_state']
+
+    n_var = len(var_state_i)
     p = sum(n_deriv_prior)
-    mu_state = np.zeros(p, order='F')
     wgt_state = np.zeros((p, p), order='F')
     var_state = np.zeros((p, p), order='F')
-    
-    wgt_state_i, var_state_i = init
     ind = 0
     for i in range(n_var):
         wgt_state[ind:ind+n_deriv_prior[i], ind:ind+n_deriv_prior[i]] = wgt_state_i[i]

@@ -50,9 +50,16 @@ def ibm_init(dt, n_deriv_prior, sigma):
 
     """
     n_var = len(n_deriv_prior)
+    mu_state = np.zeros(sum(n_deriv_prior))
     wgt_state = [None]*n_var
     var_state = [None]*n_var
     for i in range(n_var):
         wgt_state[i], var_state[i] = ibm_state(dt, n_deriv_prior[i], sigma[i])
     
-    return [wgt_state, var_state]
+    if n_var == 1:
+        wgt_state = wgt_state[0]
+        var_state = var_state[0]
+    
+    init = {"wgt_state":wgt_state,  "mu_state":mu_state,
+            "var_state":var_state}
+    return init
