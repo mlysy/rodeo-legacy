@@ -61,7 +61,7 @@ def _interrogate_probde(x_meas, var_meas,
                         wgt_meas, mu_state_pred, var_state_pred, 
                         tx_state, twgt_meas):
     """
-    Interrogate method of Chkrebtii et al (2016).
+    Interrogate method of probde.
 
     Args:
         x_meas (ndarray(n_meas)): Interrogation variable.
@@ -94,7 +94,7 @@ def _interrogate_schobert(x_meas,
                           mu_state_pred,
                           tx_state):
     """
-    Interrogate method of Chkrebtii et al (2016).
+    Interrogate method of Schobert et al (2019).
 
     Args:
         x_meas (ndarray(n_meas)): Interrogation variable.

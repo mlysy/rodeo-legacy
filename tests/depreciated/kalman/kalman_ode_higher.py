@@ -10,7 +10,61 @@ from .KalmanTV import KalmanTV
 from probDE.utils import norm_sim
 import scipy as sp
 
-def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, var_state, wgt_meas, z_state_sim, theta=None, smooth_mv=True, smooth_sim=False):
+def _interrogate_chkrebtii(x_meas, var_meas,
+                           fun, t, theta,
+                           wgt_meas, mu_state_pred, var_state_pred, z_state):
+    """
+    Interrogate method of Chkrebtii et al (2016).
+
+    Args:
+        x_meas (ndarray(n_meas)): Interrogation variable.
+        var_meas (ndarray(n_meas, n_meas)): Interrogation variance.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
+        mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
+            times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
+        var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given
+            observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
+        z_state (ndarray(n_state)): Random vector simulated from :math:`N(0, 1)`.
+
+    Returns:
+        (tuple):
+        - **x_meas** (ndarray(n_meas)): Interrogation variable.
+        - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
+    """
+    var_meas[:] = np.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
+    x_state = norm_sim(z=z_state,
+                       mu=mu_state_pred,
+                       V=var_state_pred)
+    fun(x_state, t, theta, x_meas)
+    return
+
+def _interrogate_probde(x_meas, var_meas,
+                        fun, t, theta,
+                        wgt_meas, mu_state_pred, var_state_pred):
+    """
+    Interrogate method of probde.
+
+    Args:
+        x_meas (ndarray(n_meas)): Interrogation variable.
+        var_meas (ndarray(n_meas, n_meas)): Interrogation variance.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
+        mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
+            times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
+        var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given
+            observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
+        
+    Returns:
+        (tuple):
+        - **x_meas** (ndarray(n_meas)): Interrogation variable.
+        - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
+    
+    """
+    var_meas[:] = np.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
+    x_state = mu_state_pred
+    fun(x_state, t, theta, x_meas)
+    return 
+
+def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, var_state, wgt_meas, z_state, theta=None, smooth_mv=True, smooth_sim=False):
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
 
@@ -58,7 +112,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
 
     # argumgents for kalman_filter and kalman_smooth
     mu_meas = np.zeros(n_dim_meas)
-    var_meass = np.zeros((n_timesteps, n_dim_meas, n_dim_meas))
+    var_meas = np.zeros((n_dim_meas, n_dim_meas))
     x_meas = np.zeros(n_dim_meas)
     mu_state_filts = np.zeros((n_timesteps, n_dim_state))
     var_state_filts = np.zeros((n_timesteps, n_dim_state, n_dim_state))
@@ -87,22 +141,29 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
                         var_state=var_state)
         )
 
-        var_meass[t+1] = np.linalg.multi_dot(
-            [wgt_meas, var_state_preds[t+1], wgt_meas.T])
-        #I_tt = np.random.normal(loc=0.0, scale=1.0, size=n_dim_state)
-        #R_tt = np.linalg.cholesky(var_state_preds[t+1])
-        #x_state_tt = mu_state_preds[t+1] + R_tt.dot(z_state_sim[:, t])
-        x_state_tt = norm_sim(z=z_state_sim[:, t],
-                              mu=mu_state_preds[t+1],
-                              V=var_state_preds[t+1])
-        fun(x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval, theta, x_meas)
+        #var_meas = np.linalg.multi_dot(
+        #    [wgt_meas, var_state_preds[t+1], wgt_meas.T])
+        #x_state_tt = norm_sim(z=z_state_sim[:, t],
+        #                      mu=mu_state_preds[t+1],
+        #                      V=var_state_preds[t+1])
+        #fun(x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval, theta, x_meas)
+        _interrogate_chkrebtii(x_meas=x_meas,
+                               var_meas=var_meas,
+                               fun=fun,
+                               t=tmin + (tmax-tmin)*(t+1)/n_eval,
+                               theta=theta,
+                               wgt_meas=wgt_meas,
+                               mu_state_pred=mu_state_preds[t+1],
+                               var_state_pred=var_state_preds[t+1],
+                               z_state=z_state[:, t])
+    
         mu_state_filts[t+1], var_state_filts[t+1] = (
             KFS.update(mu_state_pred=mu_state_preds[t+1],
                        var_state_pred=var_state_preds[t+1],
                        x_meas=x_meas,
                        mu_meas=mu_meas,
                        wgt_meas=wgt_meas,
-                       var_meas=var_meass[t+1])
+                       var_meas=var_meas)
         )
 
     # backward pass
@@ -110,7 +171,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     var_state_smooths[-1] = var_state_filts[-1]
     #x_states[-1] = np.random.multivariate_normal(
     #    mu_state_smooths[-1], var_state_smooths[-1], tol=1e-6)
-    x_state_smooths[-1] = norm_sim(z=z_state_sim[:, n_eval],
+    x_state_smooths[-1] = norm_sim(z=z_state[:, n_eval],
                             mu=mu_state_smooths[-1],
                             V=var_state_smooths[-1])
     for t in reversed(range(1, n_eval)):
@@ -124,7 +185,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
                            mu_state_pred=mu_state_preds[t+1],
                            var_state_pred=var_state_preds[t+1],
                            wgt_state=wgt_state,
-                           z_state=z_state_sim[:, (n_eval+1)+t])
+                           z_state=z_state[:, (n_eval+1)+t])
             )
         elif smooth_mv:
             mu_state_smooths[t], var_state_smooths[t] = (
@@ -144,7 +205,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
                                mu_state_pred=mu_state_preds[t+1],
                                var_state_pred=var_state_preds[t+1],
                                wgt_state=wgt_state,
-                               z_state=z_state_sim[:, (n_eval+1)+t])
+                               z_state=z_state[:, (n_eval+1)+t])
             )
 
     if smooth_sim and smooth_mv:

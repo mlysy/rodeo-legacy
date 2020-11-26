@@ -5,13 +5,14 @@ from depreciated.kalman.kalman_ode_higher import kalman_ode_higher
 
 
 class KalmanODE_py:
-    def __init__(self, n_state, n_meas, tmin, tmax, n_eval, fun, **init):
-        self.n_state = n_state
-        self.n_meas = n_meas
+    def __init__(self, W, tmin, tmax, n_eval, fun, **init):
+        self.n_state = W.shape[1]
+        self.n_meas = W.shape[0]
         self.tmin = tmin
         self.tmax = tmax
         self.n_eval = n_eval
         self.fun = fun
+        self.wgt_meas = W
         self.wgt_state = None
         self.mu_state = None
         self.var_state = None
