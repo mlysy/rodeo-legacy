@@ -113,7 +113,7 @@ def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
                                                               init=init,
                                                               draws=draws)
 
-    _, axs = plt.subplots(dim_deriv, dim_example, figsize=(20, 7))
+    fig, axs = plt.subplots(dim_deriv, dim_example, figsize=(20, 7))
     for prow in range(dim_deriv):
         for pcol in range(dim_example):
             # plot Kalman draws
@@ -134,5 +134,7 @@ def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
             #axs[prow, pcol].set_ylabel("$x^{(%s)}_t$" % (prow))
             if (prow == 0) & (pcol == 0):
                 axs[prow, pcol].legend(loc='upper left')
-   
+    
+    fig.tight_layout()
     plt.show()
+    return fig

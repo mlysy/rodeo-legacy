@@ -162,7 +162,8 @@ cdef class KalmanODE:
         for t in range(self.n_eval):
             # kalman filter:
             ktvode.predict(t)
-            ktvode.forecast(t)
+            #ktvode.forecast(t)
+            ktvode.forecast_probde(t)
             #ktvode.forecast_sch(t)
             self.fun(x_state, self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval, theta, x_meas)
             ktvode.update(t)

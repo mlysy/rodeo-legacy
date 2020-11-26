@@ -162,7 +162,7 @@ class inference:
         axs[0, 0].set_ylabel('Euler')
         axs[1, 0].set_ylabel('KalmanODE')
         patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
-        axs[0, -1].legend(handles=patches)
+        axs[0, -1].legend(handles=patches, framealpha=0.5)
         fig.tight_layout()
         plt.show()
-        return
+        return fig

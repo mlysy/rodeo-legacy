@@ -192,7 +192,7 @@ cdef class KalmanODE:
         self.x_state = np.empty(self.n_state, dtype=DTYPE, order='F')
         self.x_meas = np.empty(self.n_meas, dtype=DTYPE, order='F')
         self.mu_meas = np.zeros(self.n_meas, dtype=DTYPE, order='F')
-        self.var_meas = np.empty((self.n_meas, self.n_meas), dtype=DTYPE, order='F')
+        self.var_meas = np.zeros((self.n_meas, self.n_meas), dtype=DTYPE, order='F')
         self.llt_state = np.empty((self.n_state, self.n_state), dtype=DTYPE, order='F')
         self.twgt_meas = np.empty((self.n_meas, self.n_state), dtype=DTYPE, order='F')
 

@@ -9,3 +9,5 @@ docs/build
 /probDE/eigen/eigen-3.3.7/
 *.npy
 Untitled.ipynb
+/examples/Figures
+/examples/saves

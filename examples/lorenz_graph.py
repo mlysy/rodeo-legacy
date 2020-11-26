@@ -12,7 +12,7 @@ from probDE.car import car_init
 from probDE.cython.KalmanODE import KalmanODE
 from probDE.utils import indep_init, zero_pad
 
-def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, sigma, init, theta, draws):
+def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, sigma, init, theta, draws, load_calcs=False):
     r"""
     Produces the graph for the Lorenz63 example in tutorial.
 
@@ -41,16 +41,21 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
     n_var = len(ylabel)
     dt = (tmax-tmin)/n_eval
     p = sum(n_deriv_prior)
-    Xn = np.zeros((draws, n_eval+1, p))
-    W = zero_pad(w_mat, n_deriv, n_deriv_prior)
-    ode_init, v_init = car_init(dt, n_deriv_prior, tau, sigma, init)
-    kinit = indep_init(ode_init, n_deriv_prior)
-    kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **kinit)
-    for i in range(draws):
-        Xn[i] = kalmanode.solve_sim(v_init, theta=theta)
-        del kalmanode.z_state
+
+    if load_calcs:
+        Xn = np.load('saves/lorenz.npy')
+    else:
+        Xn = np.zeros((draws, n_eval+1, p))
+        W = zero_pad(w_mat, n_deriv, n_deriv_prior)
+        ode_init, v_init = car_init(dt, n_deriv_prior, tau, sigma, init)
+        kinit = indep_init(ode_init, n_deriv_prior)
+        kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **kinit)
+        for i in range(draws):
+            Xn[i] = kalmanode.solve_sim(v_init, theta=theta)
+            del kalmanode.z_state
+        np.save("saves/lorenz.npy", Xn)
     
-    _, axs = plt.subplots(n_var, 1, figsize=(20, 7))
+    fig, axs = plt.subplots(n_var, 1, figsize=(20, 7))
     for prow in range(n_var):
         for i in range(draws):
             if i == (draws - 1):
@@ -63,4 +68,7 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
                 
         axs[prow].plot(tseq, exact[:, prow], label='odeint')
         axs[prow].legend(loc='upper left')
+    fig.tight_layout()
+    fig.set_rasterized(True)
     plt.show()
+    return fig

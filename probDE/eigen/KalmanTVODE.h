@@ -80,8 +80,11 @@ namespace kalmantvode {
                        const bool smooths_sim);
     /// Perform one step of chkrebtii interrogation.
     void forecast(const int cur_step);
-    /// Perform one step of Kersting interrogation.
+    /// Perform one step of Schobert interrogation.
     void forecast_sch(const int cur_step);
+    /// Perform one step of probDE interrogation.
+    void forecast_probde(const int cur_step);
+
   };
 
   /// @param[in] n_meas Number of measurement variables.
@@ -303,7 +306,7 @@ namespace kalmantvode {
     MapMatrixXd _wgt_meas_(wgt_meas_, n_meas_, n_state_);
     MapMatrixXd _z_states_(z_states_, n_state_, 2*n_steps_);
     twgt_meas_.noalias() = _wgt_meas_ * var_state_preds.block(0, n_state_*(cur_step+1),
-                                                            n_state_, n_state_); // n_meas x n_state
+                                                              n_state_, n_state_); // n_meas x n_state
     var_meas.noalias() = twgt_meas_ * _wgt_meas_.adjoint();
     state_sim(_x_state_, mu_state_preds.col(cur_step+1),
               var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
@@ -318,6 +321,21 @@ namespace kalmantvode {
   /// @param[in] wgt_meas Current measure transition matrix `W_n`.
   inline void KalmanTVODE::forecast_sch(const int cur_step) {
     MapVectorXd _x_state_(x_state_, n_state_);
+    _x_state_.noalias() = mu_state_preds.col(cur_step+1);
+    return;
+  }
+  /// @param[out] x_state Simulated state.
+  /// @param[out] var_meas Variance of simulated measure.
+  /// @param[in] mu_state_preds Predicted state mean `mu_n+1|n`.
+  /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
+  /// @param[in] cur_step Current step, n.
+  /// @param[in] wgt_meas Current measure transition matrix `W_n`.
+  inline void KalmanTVODE::forecast_probde(const int cur_step) {
+    MapVectorXd _x_state_(x_state_, n_state_);
+    MapMatrixXd _wgt_meas_(wgt_meas_, n_meas_, n_state_);
+    twgt_meas_.noalias() = _wgt_meas_ * var_state_preds.block(0, n_state_*(cur_step+1),
+                                                              n_state_, n_state_); // n_meas x n_state
+    var_meas.noalias() = twgt_meas_ * _wgt_meas_.adjoint();
     _x_state_.noalias() = mu_state_preds.col(cur_step+1);
     return;
   }
