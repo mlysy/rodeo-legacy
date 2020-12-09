@@ -3,13 +3,15 @@ import numpy as np
 import platform
 from setuptools import setup, find_packages, Extension
 from os import path
+import kalmantv as ktv
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as fh:
     long_description = fh.read()
 
 # eigen path
-eigen_path = "probDE/eigen/eigen-3.3.7"
+#EIGEN_PATH = "probDE/eigen/eigen-3.3.7"
+#EIGEN_PATH = kalmantv.eigen_path
 
 # compile with cython if it's installed
 try:
@@ -63,7 +65,7 @@ ext_modules = [Extension("probDE.cython.KalmanODE",
                          ["probDE/eigen/KalmanODE"+ext_cpp],
                          include_dirs=[
                              np.get_include(),
-                             eigen_path],
+                             ktv.get_include()],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
                          language="c++")]
@@ -82,7 +84,7 @@ setup(
     cmdclass=cmdclass,
     ext_modules=ext_modules,
 
-    install_requires=['numpy', 'scipy', 'kalmantv', 'numba'],
+    install_requires=['numpy>=1.16.4', 'scipy>=1.2.1', 'kalmantv', 'numba==0.51.2', 'Cython==0.29.12'],
     setup_requires=['setuptools>=38'],
 
     # install_requires=['numpy', 'scipy', 'matplotlib']

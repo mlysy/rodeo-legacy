@@ -7,14 +7,16 @@ from numba.core.errors import NumbaPerformanceWarning
 from timer import *
 from numba import njit
 from scipy.integrate import odeint
+from math import sin
 from KalmanODE_py import KalmanODE_py
-from kalmanode_numba import KalmanODE as KalmanODE_num
 from probDE.utils.utils import rand_mat, indep_init, zero_pad
 from probDE.ibm import ibm_init
+from probDE.numba.KalmanODE import KalmanODE as KalmanODE_num
 from probDE.cython.KalmanODE import KalmanODE as KalmanODE_cy
-from probDE.tests.KalmanODE import KalmanODE as KalmanODE_c
-from probDE.tests.ode_functions import mseir_fun as ode_fun_nd
-from probDE.tests.ode_functions_ctuple import mseir_fun as ode_fun_ct
+from probDE.eigen.KalmanODE import KalmanODE as KalmanODE_c
+from probDE.tests.KalmanODE2 import KalmanODE as KalmanODE_c2
+from probDE.tests.ode_functions import chkrebtii_fun as ode_fun_nd
+from probDE.tests.ode_functions_ctuple import chkrebtii_fun as ode_fun_ct
 
 # pick ode function
 use_ctuple = False
@@ -59,10 +61,9 @@ def ode_fun2(X_t, t, theta, out=None):
 
 
 # problem setup and intialization
-n_deriv = [2]*5  # Total state
+n_deriv = [1]*5  # Total state
 n_deriv_prior = [3]*5
 p = sum(n_deriv_prior)
-n_obs = 5  # Total measures
 
 # it is assumed that the solution is sought on the interval [tmin, tmax].
 n_eval = 50
@@ -76,9 +77,9 @@ n_var = 5
 sigma = [.1]*n_var
 
 # Initial value, x0, for the IVP
-W_mat = np.zeros((len(n_deriv), sum(n_deriv)))
-for i in range(len(n_deriv)):
-    W_mat[i, sum(n_deriv[:i])+1] = 1
+W_mat = np.zeros((len(n_deriv), sum(n_deriv)+len(n_deriv)))
+for i in range(len(n_deriv)): 
+    W_mat[i, sum(n_deriv[:i])+i+1] = 1
 W = zero_pad(W_mat, n_deriv, n_deriv_prior)
 
 x0 = np.array([1000, 100, 50, 3, 3])
@@ -90,7 +91,7 @@ x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
 dt = (tmax-tmin)/n_eval
 ode_init = ibm_init(dt, n_deriv_prior, sigma)
 kinit = indep_init(ode_init, n_deriv_prior)
-z_states = rand_mat(2*(n_eval+1), p)
+z_state = rand_mat(2*(n_eval+1), p)
 
 # pick ode function with ndarray or ctuple inputs
 ode_fun = ode_fun_ct if use_ctuple else ode_fun_nd
@@ -100,26 +101,30 @@ if use_ctuple:
 # Timings
 n_loops = 1000
 # C++
-kode_c = KalmanODE_c(p, n_obs, tmin, tmax, n_eval, ode_fun, **kinit)
-kode_c.z_states = z_states
+kode_c = KalmanODE_c(W, tmin, tmax, n_eval, ode_fun, **kinit)
+kode_c.z_state = z_state
 time_c = timing(kode_c, x0_state, W, theta, n_loops)
 
+# C++
+kode_c2 = KalmanODE_c2(W, tmin, tmax, n_eval, ode_fun, **kinit)
+kode_c2.z_state = z_state
+time_c2 = timing(kode_c2, x0_state, W, theta, n_loops)
+
 # cython
-kode_cy = KalmanODE_cy(p, n_obs, tmin, tmax, n_eval,
+kode_cy = KalmanODE_cy(W, tmin, tmax, n_eval,
                        ode_fun, **kinit)  # Initialize the class
-kode_cy.z_states = z_states
+kode_cy.z_state = z_state
 time_cy = timing(kode_cy, x0_state, W, theta, n_loops)
 
 # numba
-kode_num = KalmanODE_num(p, n_obs, tmin, tmax, n_eval, ode_fun2, kinit['mu_state'],
-                         kinit['wgt_state'], kinit['var_state'], z_states)
+kode_num = KalmanODE_num(W, tmin, tmax, n_eval, ode_fun2, **kinit, z_state=z_state)
 # Need to run once to compile KalmanTV
-_ = kode_num.solve(x0_state, W, np.asarray(theta))
+_ = kode_num.solve_sim(x0_state, W, np.asarray(theta))
 time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops)
 
 # python
-kode_py = KalmanODE_py(p, n_obs, tmin, tmax, n_eval, ode_fun, **kinit)
-kode_py.z_states = z_states
+kode_py = KalmanODE_py(W, tmin, tmax, n_eval, ode_fun, **kinit)
+kode_py.z_state = z_state
 time_py = timing(kode_py, x0_state, W, theta, n_loops//10)
 
 # odeint
@@ -129,4 +134,5 @@ time_det = det_timing(ode_fun2, x0, tseq, n_loops*10, theta)
 print("Cython is {}x faster than Python".format(time_py/time_cy))
 print("Numba is {}x faster than Python".format(time_py/time_num))
 print("C++ is {}x faster than Python".format(time_py/time_c))
+print("C++2 is {}x faster than Python".format(time_py/time_c2))
 print("ode is {}x faster than Python".format(time_py/time_det))

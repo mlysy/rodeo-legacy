@@ -34,15 +34,7 @@ if USE_CYTHON:
 # c/cpp modules
 ext_c = ".pyx" if USE_CYTHON else ".c"
 ext_cpp = ".pyx" if USE_CYTHON else "cpp"
-ext_modules = [Extension("probDE.tests.KalmanODE",
-                         ["KalmanODE"+ext_cpp],
-                         include_dirs=[
-                             np.get_include(),
-                             eigen_path],
-                         extra_compile_args=extra_compile_args,
-                         define_macros=disable_numpy_warnings,
-                         language="c++"),
-               Extension("probDE.tests.ode_functions",
+ext_modules = [Extension("probDE.tests.ode_functions",
                          ["ode_functions"+ext_c],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
@@ -51,7 +43,15 @@ ext_modules = [Extension("probDE.tests.KalmanODE",
                          ["ode_functions_ctuple"+ext_c],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
-                         language="c")]
+                         language="c"),
+               Extension("probDE.tests.KalmanODE2",
+                         ["KalmanODE2"+ext_cpp],
+                         include_dirs=[
+                             np.get_include(),
+                             eigen_path],
+                         extra_compile_args=extra_compile_args,
+                         define_macros=disable_numpy_warnings,
+                         language="c++")]
 
 setup(
     name="probDE_test",
