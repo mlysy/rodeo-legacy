@@ -6,6 +6,7 @@ from numba.extending import register_jitable
 from numba.core.errors import TypingError
 from numba import types, typeof
 from kalmantv.numba.kalmantv import KalmanTV, _mvn_sim, _quad_form
+from probDE.utils import rand_mat
 
 kalman_type = deferred_type()
 kalman_type.define(KalmanTV.class_type.instance_type)
@@ -140,7 +141,7 @@ class _KalmanODE:
         self._mu_state = _fempty((self.n_state,))
         self._wgt_state = _fempty((self.n_state, self.n_state))
         self._var_state = _fempty((self.n_state, self.n_state))
-        self._z_state = _fempty((self.n_state, 2*self.n_steps))
+        self._z_state = np.zeros((2*self.n_steps, self.n_state)).T
 
         self._wgt_meas[:] = W
         self._mu_state[:] = mu_state
@@ -148,6 +149,7 @@ class _KalmanODE:
         self._var_state[:] = var_state
         if z_state is not None:
             self._z_state[:] = z_state
+
         self.ode_fun = ode_fun
         # internal memory
         self.mu_state_pred = _fempty((self.n_state, self.n_steps))
@@ -215,7 +217,7 @@ class _KalmanODE:
         self.mu_state_filt[:, 0] = x0
         self.mu_state_pred[:, 0] = x0
         self.var_state_filt[:, :, 0] = 0
-        
+
         # loop
         for t in range(self.n_eval):
             # kalman filter

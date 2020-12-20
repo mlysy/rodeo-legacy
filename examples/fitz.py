@@ -39,6 +39,7 @@ def fitz_example():
     # pad the inputs
     w_mat = np.array([[0., 1., 0., 0.], [0., 0., 0., 1.]])
     W = zero_pad(w_mat, n_deriv, n_deriv_prior)
+    x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
 
     # logprior parameters
     theta_true = np.array([0.2, 0.2, 3]) # True theta
@@ -66,7 +67,6 @@ def fitz_example():
     theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
         ode_init = ibm_init(hlst[i], n_deriv_prior, sigma)
-        x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
         kinit = indep_init(ode_init, n_deriv_prior)
         n_eval = int((tmax-tmin)/hlst[i])
         kode = KalmanODE(W, tmin, tmax, n_eval, fitz, **kinit)

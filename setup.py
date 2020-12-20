@@ -84,7 +84,7 @@ setup(
     cmdclass=cmdclass,
     ext_modules=ext_modules,
 
-    install_requires=['numpy>=1.16.4', 'scipy>=1.2.1', 'kalmantv', 'numba==0.51.2', 'Cython==0.29.12'],
+    install_requires=['numpy>=1.16.4', 'scipy>=1.2.1', 'kalmantv', 'numba>=0.51.2', 'Cython>=0.29.12'],
     setup_requires=['setuptools>=38'],
 
     # install_requires=['numpy', 'scipy', 'matplotlib']

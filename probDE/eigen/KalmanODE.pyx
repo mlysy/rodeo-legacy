@@ -57,7 +57,7 @@ cdef class KalmanODE:
         self._mu_state = np.empty(self.n_state, order='F')
         self._wgt_state = np.empty((self.n_state, self.n_state), order='F')
         self._var_state = np.empty((self.n_state, self.n_state), order='F')
-        self._z_state = np.empty((self.n_state, 2*self.n_steps), order='F')
+        self._z_state = np.zeros((self.n_state, 2*self.n_steps), order='F')
 
         # iniitalize kalman variables
         self._wgt_meas[:] = W
@@ -66,7 +66,8 @@ cdef class KalmanODE:
         self._var_state[:] = var_state
 
         if z_state is not None:
-            self._z_state = z_state
+            self.z_state[:] = z_state
+
     @property
     def wgt_meas(self):
         return self._wgt_meas
@@ -138,8 +139,8 @@ cdef class KalmanODE:
             theta (ndarray(n_theta)): Parameter in the ODE function.
         
         """
-        if self._z_state is None:
-            self._z_state = rand_mat(2*(self.n_eval+1), self.n_state)
+        if not np.any(self._z_state):
+            self.z_state[:] = rand_mat(2*(self.n_eval+1), self.n_state)
         
         if not np.asarray(x0).data.f_contiguous:
             raise TypeError('{} is not f contiguous.'.format('x0'))

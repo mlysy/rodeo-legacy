@@ -26,18 +26,15 @@ class KalmanTVODETest(unittest.TestCase):
         w_mat = np.array([[0.0, 0.0, 1.0]])
 
         # These parameters define the order of the ODE and the CAR(p) process
-        n_obs = 1
-        n_deriv = [3]
+        n_deriv = [2]
         n_deriv_prior = [4]
-        p = sum(n_deriv_prior)
 
         # it is assumed that the solution is sought on the interval [tmin, tmax].
         n_eval = 300
         tmin = 0
         tmax = 10
 
-        # The rest of the parameters can be tuned according to ODE
-        # For this problem, we will use
+        # IBM process scale factor
         sigma = [.5]
 
         # Initial value, x0, for the IVP
@@ -49,17 +46,16 @@ class KalmanTVODETest(unittest.TestCase):
         dt = (tmax-tmin)/n_eval
         # All necessary parameters are in kinit, namely, T, c, R, W
         kinit = ibm_init(dt, n_deriv_prior, sigma)
-        kinit = indep_init(kinit, n_deriv_prior)
 
         # Initialize the Kalman class
-        kalmanode = KalmanODE(p, n_obs, tmin, tmax, n_eval, chkrebtii_kalman, **kinit)
+        kalmanode = KalmanODE(W, tmin, tmax, n_eval, chkrebtii_kalman, **kinit)
         # Run the solver to get an approximation
-        kalman_sim = kalmanode.solve(x0_state, W, mv=False, sim=True)
+        kalman_sim = kalmanode.solve_sim(x0_state)
 
         # Get deterministic solution from odeint
         tseq = np.linspace(tmin, tmax, n_eval+1)
         detode = integrate.odeint(chkrebtii_odeint, [-1, 0], tseq)
-
+        print(sum_err(kalman_sim[1:, 1], detode[1:, 1]))
         self.assertLessEqual(sum_err(kalman_sim[:, 0], detode[:, 0]), 10.0)
         self.assertLessEqual(sum_err(kalman_sim[1:, 1], detode[1:, 1]), 10.0)
 

@@ -19,13 +19,6 @@ def chkrebtii_example():
     # LHS vector of ODE
     # 2.  Define the IVP
 
-    # ODE function
-    def ode_fun(x, t, theta=None, x_out=None):
-        if x_out is None:
-            x_out = np.empty(1)
-        x_out[0] = sin(2*t) - x[0]
-        return
-
     W = np.array([[0.0, 0.0, 1.0]])  # LHS vector of ODE
     x0 = np.array([-1., 0., 1.])  # initial value for the IVP
 
