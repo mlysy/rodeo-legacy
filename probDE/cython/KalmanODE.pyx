@@ -257,7 +257,7 @@ cdef class KalmanODE:
     
     @z_state.deleter
     def z_state(self):
-        self._z_state = None
+        self._z_state = np.zeros((self.n_state, 2*self.n_steps), order='F')
 
     cpdef _solve_filter(self, double[::1] x0, object theta=None):
         r"""
