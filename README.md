@@ -32,11 +32,11 @@ x_0^{(0)} = -1
 
 The results for N = 50, 100, and 200 grid points for both solvers is shown below.
 
-![chkrebtii](/docs/figures/chkrebtiifigure.pdf)
+![chkrebtii](https://docs.google.com/viewer?url=https://github.com/mlysy/probDE/blob/cythonize/docs/figures/chkrebtiifigure.pdf)
 
 **probDE** is also capable of performing parameter inference. An example of this is on the **FitzHugh-Nagumo** model in the tutorial. A comparison of the deterministic Euler solver to the probabilistic solver is shown below.
 
-![fitzhugh](/docs/figures/fitzfigure.pdf)
+![fitzhugh](https://docs.google.com/viewer?url=https://github.com/mlysy/probDE/blob/cythonize/docs/figures/fitzfigure.pdf)
 
 ## Unit Testing
 
