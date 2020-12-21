@@ -52,7 +52,7 @@ This will create the documentation in `docs/build`.
 
 ## Usage
 
-Please see the detailed example in the tutorial [here](https://nbviewer.jupyter.org/github/mlysy/probDE/blob/master/probDE/Examples/tutorial.ipynb).  Running the tutorial compares the deterministic Euler solver to the probabilistic solver for the ODE initial value problem
+Please see the detailed example in the tutorial [here](https://nbviewer.jupyter.org/github/mlysy/probDE/blob/cythonize/probDE/Examples/tutorial.ipynb).  Running the tutorial compares the deterministic Euler solver to the probabilistic solver for the ODE initial value problem
 
 ```
 x_t^{(2)} = sin(2t) - x_t^{(0)}
