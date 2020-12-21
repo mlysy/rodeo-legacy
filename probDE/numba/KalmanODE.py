@@ -128,8 +128,39 @@ def _copynm(dest, source, name):
     return
 
 class _KalmanODE:
+    r"""
+    Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
+
+    .. math:: W x_n = F(x_n, n, \theta)
+
+    on the time interval :math:`n \in [0, T]` with initial condition :math:`x_0 = x_0`. 
+    The specific model we are using to approximate the solution :math:`x_n` is
+
+    .. math::
+
+        x_n = Q(x_{n-1} -\lambda) + \lambda + R_n^{1/2} \epsilon_n
+
+        y_n = W x_n + \Sigma_n^{1/2} \eta_n
+
+    where :math:`\epsilon_n` and :math:`\eta_n` are independent :math:`N(0,1)` distributions and
+    :math:`y_n` denotes the model interrogation (observation) at time n.
+
+    Args:
+        W (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
+        tmin (int): First time point of the time interval to be evaluated.
+        tmax (int): Last time point of the time interval to be evaluated; :math:`T`.
+        n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated,
+            such that discretization timestep is :math:`dt = T/N`.
+        ode_fun (function): Higher order ODE function :math:`W x_n = F(x_n, n)` taking arguments :math:`x` and :math:`n`.
+        mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
+        wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by :math:`Q`.
+        var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
+        z_state (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
+
+    """
     def __init__(self, W, tmin, tmax, n_eval,
                  ode_fun, mu_state, wgt_state, var_state, z_state):
+                 
         self.n_state = W.shape[1]
         self.n_meas = W.shape[0]
         self.tmin = tmin
@@ -212,6 +243,10 @@ class _KalmanODE:
         return
 
     def _solve_filter(self, x0, theta):
+        r"""
+        Forward pass filter step in the KalmanODE solver.
+        
+        """
         # forward pass
         # initialize
         self.mu_state_filt[:, 0] = x0
@@ -262,6 +297,23 @@ class _KalmanODE:
                             self.var_meas)
 
     def solve(self, x0, W, theta):
+        r"""
+        Returns a sample solution, a posterior mean and variance of the solution process to ODE problem.
+
+        Args:
+            x0 (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`t = 0`; :math:`x_0`.
+            W (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
+            theta (ndarray(n_theta)): Parameter in the ODE function.
+        
+        Returns:
+            (tuple):
+            - **kalman_sim** (ndarray(n_steps, n_state)): Sample solution at time t given observations from times [0...T].
+            - **kalman_mu** (ndarray(n_steps, n_state)): Posterior mean of the solution process :math:`y_n` at times
+              [0...T].
+            - **kalman_var** (ndarray(n_steps, n_state, n_state)): Posterior variance of the solution process at
+              times [0...T].
+
+        """
         x_state_smooth = _fempty((self.n_state, self.n_steps))
         x_state_smooth[:, 0] = x0
         mu_state_smooth = _fempty((self.n_state, self.n_steps))
@@ -301,6 +353,10 @@ class _KalmanODE:
         return x_state_smooth.T, mu_state_smooth.T, var_state_smooth.T
     
     def solve_sim(self, x0, W, theta):
+        r"""
+        Only returns a sample solution from :func:`~KalmanODE.KalmanODE.solve`.
+
+        """
         x_state_smooth = _fempty((self.n_state, self.n_steps))
         x_state_smooth[:, 0] = x0
         # forward pass
@@ -331,6 +387,10 @@ class _KalmanODE:
         return x_state_smooth.T
 
     def solve_mv(self, x0, W, theta):
+        r"""
+        Only returns the mean and variance from :func:`~KalmanODE.KalmanODE.solve`.
+
+        """
         mu_state_smooth = _fempty((self.n_state, self.n_steps))
         mu_state_smooth[:, 0] = x0
         # forward pass

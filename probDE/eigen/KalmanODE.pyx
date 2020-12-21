@@ -18,32 +18,46 @@ cpdef _copynm(dest, source, name):
     return source
 
 cdef class KalmanODE:
-    """
-    Create an object with the method of a probabilistic ODE solver, :func:`kalman_ode`, based on the Kalman filter and smoother. 
+    r"""
+    Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
+
+    .. math:: W x_n = F(x_n, n, \theta)
+
+    on the time interval :math:`n \in [0, T]` with initial condition :math:`x_0 = x_0`. 
+    The specific model we are using to approximate the solution :math:`x_n` is
+
+    .. math::
+
+        x_n = Q(x_{n-1} -\lambda) + \lambda + R_n^{1/2} \epsilon_n
+
+        y_n = W x_n + \Sigma_n^{1/2} \eta_n
+
+    where :math:`\epsilon_n` and :math:`\eta_n` are independent :math:`N(0,1)` distributions and
+    :math:`y_n` denotes the model interrogation (observation) at time n.
 
     Args:
-        wgt_meas (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
-        tmin (double): First time point of the time interval to be evaluated; :math:`a`.
-        tmax (double): Last time point of the time interval to be evaluated; :math:`b`.
+        W (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
+        tmin (int): First time point of the time interval to be evaluated.
+        tmax (int): Last time point of the time interval to be evaluated; :math:`T`.
         n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated,
-            such that discretization timestep is :math:`dt = b/N`.
-        fun (function): Higher order ODE function :math:`W x_n = F(x_n, n)` taking arguments :math:`x` and :math:`n`.
-        wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`T`.
-        mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
-        var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        z_state (ndarray(n_state)): Random matrix for simulating from :math:`N(0, 1)`.
+            such that discretization timestep is :math:`dt = T/N`.
+        ode_fun (function): Higher order ODE function :math:`W x_n = F(x_n, n)` taking arguments :math:`x` and :math:`n`.
+        mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
+        wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by :math:`Q`.
+        var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
+        z_state (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
 
     """
     cdef int n_state, n_meas, n_eval, n_steps
     cdef double tmin, tmax
-    cdef object fun
+    cdef object ode_fun
     cdef double[::1, :] _wgt_meas
     cdef double[::1, :] _wgt_state
     cdef double[::1] _mu_state
     cdef double[::1, :] _var_state
     cdef double[::1, :] _z_state
         
-    def __cinit__(self, double[::1, :] W, double tmin, double tmax, int n_eval, object fun,
+    def __cinit__(self, double[::1, :] W, double tmin, double tmax, int n_eval, object ode_fun,
                   double[::1] mu_state, double[::1, :] wgt_state, double[::1, :] var_state, 
                   double[::1, :] z_state=None):
         self.n_state = W.shape[1]
@@ -52,7 +66,7 @@ cdef class KalmanODE:
         self.tmax = tmax
         self.n_eval = n_eval
         self.n_steps = n_eval + 1
-        self.fun = fun
+        self.ode_fun = ode_fun
         self._wgt_meas = np.empty((self.n_meas, self.n_state), order='F')
         self._mu_state = np.empty(self.n_state, order='F')
         self._wgt_state = np.empty((self.n_state, self.n_state), order='F')
@@ -132,11 +146,6 @@ cdef class KalmanODE:
                                      double[::1, :, :] var_state_smooth, double[::1] x0, object theta=None):
         r"""
         Forward pass filter step in the KalmanODE solver. 
-
-        Args:
-            x_state (ndarray(n_state)): State variable; :math:`x_n`.
-            x_meas (ndarray(n_var, n_state)): Measure variable; :math:`W`.
-            theta (ndarray(n_theta)): Parameter in the ODE function.
         
         """
         if not np.any(self._z_state):
@@ -166,31 +175,27 @@ cdef class KalmanODE:
             #ktvode.forecast(t)
             ktvode.forecast_probde(t)
             #ktvode.forecast_sch(t)
-            self.fun(x_state, self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval, theta, x_meas)
+            self.ode_fun(x_state, self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval, theta, x_meas)
             ktvode.update(t)
         
         return ktvode
 
     cpdef solve(self, double[::1] x0, double[::1, :] W=None, object theta=None):
         r"""
-        Returns an approximate solution to the higher order ODE
+        Returns a sample solution, a posterior mean and variance of the solution process to ODE problem.
 
-        .. math:: W x_n = F(x_n, t, \theta)
-
-        on the time interval :math:`t \in [a, b]` with initial condition :math:`x_0 = x_0`.
-        
         Args:
             x0 (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`t = 0`; :math:`x_0`.
-            W(ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
+            W (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
             theta (ndarray(n_theta)): Parameter in the ODE function.
         
         Returns:
             (tuple):
-            - **kalman_sim** (ndarray(n_steps, n_state)): Sample solution at time t given observations from times [a...b].
+            - **kalman_sim** (ndarray(n_steps, n_state)): Sample solution at time t given observations from times [0...T].
             - **kalman_mu** (ndarray(n_steps, n_state)): Posterior mean of the solution process :math:`y_n` at times
-              [a...b].
+              [0...bT.
             - **kalman_var** (ndarray(n_steps, n_state, n_state)): Posterior variance of the solution process at
-              times [a...b].
+              times [0...T].
 
         """
         cdef np.ndarray[DTYPE_t, ndim=2] mu_state_smooth = np.empty((self.n_state, self.n_steps),
@@ -212,7 +217,7 @@ cdef class KalmanODE:
     
     cpdef solve_sim(self, double[::1] x0, double[::1, :] W=None, object theta=None):
         r"""
-        Only returns simulate solutions from :func:`~KalmanODE.KalmanODE.solve`.
+        Only returns a sample solution from :func:`~KalmanODE.KalmanODE.solve`.
         """
 
         cdef np.ndarray[DTYPE_t, ndim=2] mu_state_smooth = np.empty((self.n_state, self.n_steps),
@@ -235,7 +240,7 @@ cdef class KalmanODE:
     
     cpdef solve_mv(self, double[::1] x0, double[::1, :] W=None, object theta=None):
         r"""
-        Only returns mean and variance from :func:`~KalmanODE.KalmanODE.solve`.
+        Only returns the mean and variance from :func:`~KalmanODE.KalmanODE.solve`.
         """
 
         cdef np.ndarray[DTYPE_t, ndim=2] mu_state_smooth = np.empty((self.n_state, self.n_steps),

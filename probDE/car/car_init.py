@@ -75,27 +75,18 @@ def car_state(delta_t, roots, sigma):
 def car_init(dt, n_deriv_prior, tau, sigma, x0=None):
     """
     Calculates the initial parameters necessary for the Kalman solver.
-    The specific model we are using for the Kalman solver is
-
-    .. math::
-
-        X_n = c + T X_{n-1} + R_n^{1/2} \epsilon_n
-
-        y_n = d + W X_n + H_n^{1/2} \eta_n
-
-    where :math:`\epsilon_n` and :math:`\eta_n` are independent :math:`N(0,1)` distributions and
-    :math:`X_n = (x_n, y_n)` at time n and :math:`y_n` denotes the observation at time n.
 
     Args:
+        dt (float): The step size between simulation points.
         n_deriv_prior (list(int)): Dimension of the prior.
         tau (list(float)): First root parameter.
         sigma (list(float)): Parameter in mOU volatility matrix.
-        dt (float): The step size between simulation points.
         x0 (ndarray(n_var, q+1)): The initial value, :math:`x0`, to the ODE problem.
         
     Returns:
-        (list):
+        (tuple):
         - **wgt_state** (ndarray(p, p)) Transition matrix defining the solution prior; :math:`T`.
+        - **mu_state** (ndarray(p)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
         - **var_state** (ndarray(p, p)) Variance matrix defining the solution prior; :math:`R`.
         - **x0_state** (ndarray(p)): Initial value of the state variable :math:`x_t` at time 
           :math:`t = 0`; :math:`x_0`.
@@ -127,3 +118,4 @@ def car_init(dt, n_deriv_prior, tau, sigma, x0=None):
         return init, x0_state
     else:
         return init
+        

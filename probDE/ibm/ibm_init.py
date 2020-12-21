@@ -32,7 +32,6 @@ def ibm_state(dt, q, sigma):
             Q[i, j] = sigma**2*num/denom
     return A, Q
 
-
 def ibm_init(dt, n_deriv_prior, sigma):
     """
     Calculates the initial parameters necessary for the Kalman solver with the q-times
@@ -44,8 +43,9 @@ def ibm_init(dt, n_deriv_prior, sigma):
         sigma (list(float)): Parameter in variance matrix.
         
     Returns:
-        (list):
+        (dict):
         - **wgt_state** (ndarray(p, p)) Transition matrix defining the solution prior; :math:`T`.
+        - **mu_state** (ndarray(p)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
         - **var_state** (ndarray(p, p)) Variance matrix defining the solution prior; :math:`R`.
 
     """

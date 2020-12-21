@@ -20,18 +20,55 @@ Still, as :math:`\delta` goes to zero we get the correct answer.
 
 .. math::
     \begin{equation*}
-    \boldsymbol{w'}\boldsymbol{x}_t = f(\boldsymbol{x}_t, t), \qquad \boldsymbol{x}_L = \boldsymbol{a},
+    \boldsymbol{W}\boldsymbol{x(t)} = f(\boldsymbol{x(t)}, t), \qquad t\in [0, T], \qquad \boldsymbol{x(0)} = \boldsymbol{v},
     \end{equation*}
 
-where :math:`\boldsymbol{x}_t = \big(x_t^{(0)}, x_t^{(1)}, ..., x_t^{(q)}\big)` consists of the first :math:`q` derivatives of the process :math:`x_t = x_t^{(0)}`, 
-and a solution is sought on the interval :math:`t \in [L, U]`.  
+where :math:`\boldsymbol{x}_t = \big(x(t)^{(0)}, x(t)^{(1)}, ..., x(t)^{(q)}\big)` consists of :math:`x(t)` and its first :math:`q` derivatives,
+:math:`\boldsymbol{W}` is a coefficient matrix, and :math:`f(\boldsymbol{x(t)}, t)` is typically a nonlinear function.
 
 **probDE** implements the probabilistic solver of `Chkrebtii et al (2016) <https://projecteuclid.org/euclid.ba/1473276259>`_. 
-This begins by putting a `Gaussian process <https://en.wikipedia.org/wiki/Gaussian_process>`_ prior on the ODE solution, and updating it sequentially as the solver steps through the grid.
+This begins by putting a `Gaussian process <https://en.wikipedia.org/wiki/Gaussian_process>`_ prior on the ODE solution, and 
+updating it sequentially as the solver steps through the grid. Various low-level backends are provided in the following modules:
+
+- `probDE.cython`: This module performs the underlying linear algebra using the BLAS/LAPACK routines provided by NumPy through a Cython interface.  
+  To maximize speed, no input checks are provided.  All inputs must be `float64` NumPy arrays in *Fortran* order. 
+
+- `probDE.eigen`: This module uses the C++ Eigen library for linear algebra.  The interface is also through Cython.  
+  Here again we have the same input requirements and lack of checks.  Eigen is known to be faster than most BLAS/LAPACK implementations, 
+  but it needs to be compiled properly to achieve maximum performance.  In particular this involves linking against an installed version of Eigen (not provided)
+  and setting the right compiler flags for SIMD and OpenMP support.  Some defaults are provided in `setup.py`, but tweaks may be required depending on the user's system. 
+
+- `probDE.numba`: This module once again uses BLAS/LAPACK but the interface is through Numba.  Here input checks are performed and the inputs can be 
+  in either C or Fortran order, and single or double precision (`float32` and `float64`).  However, C ordered arrays are first converted to Fortran order, 
+  so the latter is preferable for performance considerations.
+
+Installation
+============
+
+You can get the very latest code by getting it from GitHub and then performing
+the installation.
+
+.. code-block:: bash
+
+    git clone https://github.com/mlysy/probDE.git
+    cd probDE
+    pip install .
+
+Unit Testing
+============
+
+The unit tests are done against the deterministic ode solver **odeint** to ensure that the solutions are approximately equal.
+
+.. code-block:: bash
+
+    cd probDE
+    cd tests
+    python -m unittest discover -v
 
 Walkthrough
 ===========
-
+Univariate ODE
+--------------
 To illustrate, let's consider the following ODE example of order :math:`q = 2`:
 
 .. math::
@@ -47,30 +84,22 @@ where the solution :math:`x_t` is sought on the interval :math:`t \in [0, 10]`. 
     \end{equation*}
 
 To approximate the solution with the probabilistic solver, the Gaussian process prior we will use is a so-called 
-`Continuous Autoregressive Process <https://CRAN.R-project.org/package=cts/vignettes/kf.pdf>`_ of order :math:`p`, 
+[Continuous Autoregressive Process](https://CRAN.R-project.org/package=cts/vignettes/kf.pdf) of order :math:`p`. 
+A particularly simple :math:`\mathrm{CAR}(p)` proposed by [Schober](http://link.springer.com/10.1007/s11222-017-9798-7) is the 
+:math:`p-1` times integrated Brownian motion, 
 
 .. math::
+
     \begin{equation*}
-    \boldsymbol{X}_t \sim \mathrm{CAR}_p(\boldsymbol{\mu}, \boldsymbol{\rho}, \sigma).
+    \boldsymbol{x(t)} \sim \mathrm{IBM}(p).
     \end{equation*}
 
-Here :math:`\boldsymbol{X}_t = \big(x_t^{(0)}, ..., x_t^{(p-1)}\big)` consists of :math:`x_t` and its first :math:`p-1` derivatives. 
-The :math:`\mathrm{CAR}(p)` model specifies that each of these is continuous, but :math:`x_t^{(p)}` is not. 
-Therefore, we need to pick :math:`p > q`. It's usually a good idea to have :math:`p` a bit larger than :math:`q`, 
-especially when we think that the true solution :math:`x_t` is smooth. However, increasing :math:`p` also increases the computational burden, 
-and doesn't necessarily have to be large for the solver to work.  For this example, we will use :math:`p=4`. The tuning parameters of the :math:`\mathrm{CAR}(p)` prior are:
-
-- The mean vector :math:`\boldsymbol{\mu}`.  By default we will set this to 0.
-- The scale parameter :math:`\sigma`.
-- The "roots" of the process :math:`\boldsymbol{\rho} = (\rho_0, \ldots, \rho_{p-1})`. These can be any distinct set of negative numbers. 
-  We suggest parametrizing them as :math:`\rho_0 = -1/\tau` and :math:`\rho_k = -(1 + \tfrac{k}{10(p-1)})` for :math:`k > 0`, 
-  in which case :math:`\tau` becomes a decorrelation-time parameter.
-
-Finally, we need a way to initialize the remaining derivatives :math:`\boldsymbol{y}_t = \big(x_t^{(q+1)}, ..., x_t^{(p-1)}\big)` at time :math:`t = L`. 
-Since the :math:`\mathrm{CAR}(p)` process has a multivariate normal stationary distribtuion,
-we suggest initializing :math:`\boldsymbol{y}_L \sim p(\boldsymbol{y}_L \mid \boldsymbol{x}_L = \boldsymbol{a})`,
-i.e., as a random draw from this stationary distribution conditional on the value of :math:`\boldsymbol{x}_L = \boldsymbol{a}`.
-The Python code to implement all this is as follows.
+Here :math:`\boldsymbol{x(t)} = \big(x(t)^{(0)}, ..., x(t)^{(p-1)}\big)` consists of :math:`x(t)` and its first :math:`p-1` derivatives. 
+The :math:`\mathrm{IBM}(p)` model specifies that each of these is continuous, but :math:`x^{(p)}(t)` is not. 
+Therefore, we need to pick :math:`p > q`. It's usually a good idea to have :math:`p` a bit larger than :math:`q`, especially when 
+we think that the true solution :math:`x(t)` is smooth. However, increasing :math:`p` also increases the computational burden, 
+and doesn't necessarily have to be large for the solver to work.  For this example, we will use :math:`p=4`. 
+To initialize, we simply set :math:`\boldsymbol{x(0)} = (\boldsymbol{x}_0, 0)`. The Python code to implement all this is as follows.
 
 .. code-block:: python
 
@@ -78,75 +107,94 @@ The Python code to implement all this is as follows.
     import matplotlib.pyplot as plt
     from scipy.integrate import odeint
 
-    from probDE.car import car_init
+    from probDE.ibm import ibm_init
     from probDE.cython.KalmanODE import KalmanODE
-    from probDE.utils import indep_init
+    from probDE.utils import indep_init, zero_pad
 
 .. code-block:: python
 
     # RHS of ODE
     from math import sin, cos
-    def ode_fun(x_t, t, theta=None):
-        return sin(2*t) - x_t[0]
+    def ode_fun(x, t, theta=None, x_out=None):
+        if x_out is None:
+            x_out = np.zeros(1)
+        x_out[0] = sin(2*t) - x[0]
+        return
 
-    # LHS vector of ODE
-    w_vec = np.array([0.0, 0.0, 1.0])
+    W = np.array([[0.0, 0.0, 1.0]])  # LHS vector of ODE
+    x0 = np.array([-1., 0., 1.])  # initial value for the IVP
 
-    # These parameters define the order of the ODE and the CAR(p) process
-    n_meas = 1
-    n_state = 4
-
-    # it is assumed that the solution is sought on the interval [tmin, tmax].
-    n_eval = 200
+    # Time interval on which a solution is sought.
     tmin = 0
     tmax = 10
+        
+    # These parameters define the order of the ODE and the CAR(p) process
+    n_deriv = [2]
+    n_deriv_prior = [4]
 
-    # The rest of the parameters can be tuned according to ODE
-    # For this problem, we will use
-    tau = 50
-    sigma = .001
+    # zero padding
+    W_pad = zero_pad(W, n_deriv, n_deriv_prior)
+    x0_pad = zero_pad(x0, n_deriv, n_deriv_prior)
 
-    # Initial value, x0, for the IVP
-    x0 = np.array([-1., 0., 1.])
+    # IBM process scale factor
+    sigma = [.5]
 
-    # Get parameters needed to run the solver
-    dt = (tmax-tmin)/n_eval
-    # All necessary parameters are in kinit, namely, T, c, R, W
-    kinit, x0_state = indep_init([car_init(n_state, tau, sigma, dt, w_vec, x0)], n_state)
+    n_points = 80  # number of steps in which to discretize the time interval.
+    dt = (tmax-tmin)/n_points  # step size
 
-    # Initialize the Kalman class
-    kalmanode = KalmanODE(n_state, n_meas, tmin, tmax, n_eval, ode_fun, **kinit)
-    # Run the solver to get an approximation
-    kalman_sim = kalmanode.solve(x0_state, mv=False, sim=True)
+    # generate the Kalman parameters corresponding to the prior
+    prior = ibm_init(dt, n_deriv_prior, sigma)
+
+    # instantiate the ODE solver
+    kalmanode = KalmanODE(W_pad, tmin, tmax, n_points, ode_fun, **prior)
+
+    # probabilistic output: draw from posterior
+    kalman_sim = kalmanode.solve_sim(x0_pad)
 
 We drew 100 samples from the solver to compare them to the exact solution and the Euler approximation to the problem. 
 
-For :math:`x^{(0)}_t`:
+.. image:: figures/chkrebtiifigure.png
 
-.. image:: figures/chkrebtii_x0.png
+Statistical inference
+---------------------
 
-For :math:`x^{(1)}_t`:
+**probDE** is also capable of performing parameter inference. To demonstrate we will use the famous **FitzHugh-Nagumo** 
+model which consists of a two-state nonlinear ODE where one state describes the evolution of the neuronal membrane voltage, 
+and the other describes the activation and deactivation of neuronal channels. Precisely, the ODE can be stated as,
 
-.. image:: figures/chkrebtii_x1.png
+.. math::
+    \begin{equation}
+    \begin{aligned}
+        \frac{dV}{dt} &= c(V - \frac{V^3}{3} + R), \\
+        \frac{dR}{dt} &= -\frac{(V - a - bR)}{c}, \\
+        \boldsymbol{x}_0 &= (V(0), R(0)) = (-1,1).
+    \end{aligned}
+    \end{equation}
 
-Installation
-============
+Suppose, we use :math:`\theta = (a,b,c) = (.2,.2,3)` as the true parameters with initial values :math:`V(0) = -1`, and 
+:math:`R(0) = 1`. Here we set :math:`\boldsymbol{x}(0) = (V(0)^{(0)}, ..., V(0)^{(p-1)}, R(0)^{(0)}, ..., R(0)^{(p-1)})` for our solver.
+We attempt to infer :math:`\theta` from the observations of both states at times :math:`t=1,2,\ldots,40`. 
+The priors are log-normal with the true value as the mean and unit variance. The observations are generated using the equation,
 
-You can get the very latest code by getting it from GitHub and then performing
-the installation.
+.. math::
+    \begin{equation}
+    \begin{aligned}
+        Y_t = X_t + \gamma \epsilon_t, \quad \epsilon_t \stackrel{iid}{\sim} \mathcal N(0, 1)
+    \end{aligned}
+    \end{equation}
+ 
+where :math:`X_t` are computed from `odeint` and :math:`\gamma=0.2` is the noise standard deviation. We have written an useful module, 
+`inference`, to perform inference on the parameters and plot the distribution of sampled parameters. 
+A comparison of the deterministic Euler solver to the probabilistic solver is shown below.
 
-.. code-block:: bash
+.. image:: figures/fitzfigure.png
 
-    git clone https://github.com/mlysy/probDE.git
-    cd probDE
-    pip install .
 
 Functions Documentation
 =======================
 .. toctree::
    :maxdepth: 1
 
-   ./car
    ./KalmanODE
    ./utils
-   
+   ./car
