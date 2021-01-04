@@ -1,11 +1,11 @@
 # cython: boundscheck=False, wraparound=False, nonecheck=False, initializedcheck=False
-cimport cython
+from probDE.utils import rand_mat
+from kalmantv.cython.blas cimport mat_triple_mult, vec_copy, mat_copy
+from kalmantv.cython.kalmantv cimport KalmanTV, state_sim
 import numpy as np
+cimport cython
 cimport numpy as np
 
-from kalmantv.cython.kalmantv cimport KalmanTV, state_sim
-from kalmantv.cython.blas cimport mat_triple_mult, vec_copy, mat_copy
-from probDE.utils import rand_mat
 
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
@@ -20,7 +20,7 @@ cpdef forecast(double[::1] x_state,
                const double[::1] z_state):
     r"""
     Forecast the observed state from the current state.
-    
+
     Args:
         x_state (ndarray(n_state)): Simulated state.
         var_meas (ndarray(n_meas, n_meas)): Variance of simulated measure.
@@ -32,16 +32,16 @@ cpdef forecast(double[::1] x_state,
         var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given 
             observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
         z_state (ndarray(n_state)): Random vector simulated from :math:`N(0, 1)`.
-    
+
     Returns:
         (tuple):
         - **x_state** (ndarray(n_state)): Simulated state.
         - **var_meas** (ndarray(n_meas, n_meas)): Variance of simulated measure.
-    
+
     """
-    cdef char* wgt_trans = 'N'
-    cdef char* wgt_trans2 = 'T'
-    cdef char* var_trans = 'N'
+    cdef char * wgt_trans = 'N'
+    cdef char * wgt_trans2 = 'T'
+    cdef char * var_trans = 'N'
     cdef int var_alpha = 1, var_beta = 0
     mat_triple_mult(var_meas, twgt_meas, wgt_trans, var_trans, wgt_trans2,
                     var_alpha, var_beta, wgt_meas, var_state_pred, wgt_meas)
@@ -52,19 +52,19 @@ cpdef forecast_sch(double[::1] x_state,
                    const double[::1] mu_state_pred):
     r"""
     Forecast the observed state from the current state via the Schobert method.
-    
+
     Args:
         x_state (ndarray(n_state)): Simulated state.
         mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from 
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
-    
+
     Returns:
         (tuple):
         - **x_state** (ndarray(n_state)): Simulated state.
-    
+
     """
     vec_copy(x_state, mu_state_pred)
-    return 
+    return
 
 cpdef forecast_probde(double[::1] x_state,
                       double[::1, :] var_meas,
@@ -74,7 +74,7 @@ cpdef forecast_probde(double[::1] x_state,
                       const double[::1, :] var_state_pred):
     r"""
     Forecast the observed state from the current state via the probDE method.
-    
+
     Args:
         x_state (ndarray(n_state)): Simulated state.
         var_meas (ndarray(n_meas, n_meas)): Variance of simulated measure.
@@ -84,17 +84,17 @@ cpdef forecast_probde(double[::1] x_state,
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
         var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given 
             observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
-    
+
     Returns:
         (tuple):
         - **x_state** (ndarray(n_state)): Simulated state.
         - **var_meas** (ndarray(n_meas, n_meas)): Variance of simulated measure.
         - **twgt_meas** (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
-    
+
     """
-    cdef char* wgt_trans = 'N'
-    cdef char* wgt_trans2 = 'T'
-    cdef char* var_trans = 'N'
+    cdef char * wgt_trans = 'N'
+    cdef char * wgt_trans2 = 'T'
+    cdef char * var_trans = 'N'
     cdef int var_alpha = 1, var_beta = 0
     mat_triple_mult(var_meas, twgt_meas, wgt_trans, var_trans, wgt_trans2,
                     var_alpha, var_beta, wgt_meas, var_state_pred, wgt_meas)
@@ -104,7 +104,7 @@ cpdef forecast_probde(double[::1] x_state,
 cpdef _copynm(dest, source, name):
     if not source.data.f_contiguous:
         raise TypeError('{} is not f contiguous.'.format(name))
-    if not source.shape==dest.shape:
+    if not source.shape == dest.shape:
         raise TypeError('{} has incorrect shape.'.format(name))
     dest[:] = source
     return source
@@ -152,23 +152,23 @@ cdef class KalmanODE:
 
     # malloc variables
     cdef double[::1, :] mu_state_pred
-    cdef double[::1, :, :] var_state_pred 
+    cdef double[::1, :, :] var_state_pred
     cdef double[::1, :] mu_state_filt
-    cdef double[::1, :, :] var_state_filt 
+    cdef double[::1, :, :] var_state_filt
     cdef double[::1, :] mu_state_smooth
     cdef double[::1, :, :] var_state_smooth
     cdef double[::1, :] x_state_smooth
-    cdef double[::1] x_state 
-    cdef double[::1] x_meas 
+    cdef double[::1] x_state
+    cdef double[::1] x_meas
     cdef double[::1] mu_meas
     cdef double[::1, :] var_meas
 
     # temp variables
-    cdef double[::1, :] llt_state 
-    cdef double[::1, :] twgt_meas 
-        
+    cdef double[::1, :] llt_state
+    cdef double[::1, :] twgt_meas
+
     def __cinit__(self, double[::1, :] W, double tmin, double tmax, int n_eval, object ode_fun,
-                  double[::1] mu_state, double[::1, :] wgt_state, double[::1, :] var_state, 
+                  double[::1] mu_state, double[::1, :] wgt_state, double[::1, :] var_state,
                   double[::1, :] z_state=None):
         self.n_state = W.shape[1]
         self.n_meas = W.shape[0]
@@ -176,8 +176,8 @@ cdef class KalmanODE:
         self.tmax = tmax
         self.n_eval = n_eval
         self.n_steps = n_eval + 1
-        self.fun = ode_fun
-        self._wgt_meas  = np.empty((self.n_meas, self.n_state), order='F')
+        self.ode_fun = ode_fun
+        self._wgt_meas = np.empty((self.n_meas, self.n_state), order='F')
         self._mu_state = np.empty(self.n_state, order='F')
         self._wgt_state = np.empty((self.n_state, self.n_state), order='F')
         self._var_state = np.empty((self.n_state, self.n_state), order='F')
@@ -188,28 +188,35 @@ cdef class KalmanODE:
         self._mu_state[:] = mu_state
         self._wgt_state[:] = wgt_state
         self._var_state[:] = var_state
-        
+
         if z_state is not None:
             self.z_state[:] = z_state
 
         # malloc variables
-        self.mu_state_pred = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        self.var_state_pred = np.empty((self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        self.mu_state_filt = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        self.var_state_filt = np.empty((self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        self.mu_state_pred = np.empty(
+            (self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        self.var_state_pred = np.empty(
+            (self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        self.mu_state_filt = np.empty(
+            (self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        self.var_state_filt = np.empty(
+            (self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
         #self.mu_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
         #self.var_state_smooth = np.empty((self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
         #self.x_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
         self.x_state = np.empty(self.n_state, dtype=DTYPE, order='F')
         self.x_meas = np.empty(self.n_meas, dtype=DTYPE, order='F')
         self.mu_meas = np.zeros(self.n_meas, dtype=DTYPE, order='F')
-        self.var_meas = np.zeros((self.n_meas, self.n_meas), dtype=DTYPE, order='F')
-        self.llt_state = np.empty((self.n_state, self.n_state), dtype=DTYPE, order='F')
-        self.twgt_meas = np.empty((self.n_meas, self.n_state), dtype=DTYPE, order='F')
+        self.var_meas = np.zeros(
+            (self.n_meas, self.n_meas), dtype=DTYPE, order='F')
+        self.llt_state = np.empty(
+            (self.n_state, self.n_state), dtype=DTYPE, order='F')
+        self.twgt_meas = np.empty(
+            (self.n_meas, self.n_state), dtype=DTYPE, order='F')
 
         # initialize class
         self.ktv = KalmanTV(self.n_meas, self.n_state)
-    
+
     @property
     def wgt_meas(self):
         return self._wgt_meas
@@ -217,7 +224,7 @@ cdef class KalmanODE:
     @wgt_meas.setter
     def wgt_meas(self, wgt_meas):
         _copynm(self._wgt_meas, wgt_meas, 'wgt_meas')
-    
+
     @wgt_meas.deleter
     def wgt_meas(self):
         self._wgt_meas = None
@@ -229,7 +236,7 @@ cdef class KalmanODE:
     @mu_state.setter
     def mu_state(self, mu_state):
         _copynm(self._mu_state, mu_state, 'mu_state')
-    
+
     @mu_state.deleter
     def mu_state(self):
         self._mu_state = None
@@ -241,7 +248,7 @@ cdef class KalmanODE:
     @var_state.setter
     def var_state(self, var_state):
         _copynm(self._var_state, var_state, 'var_state')
-    
+
     @var_state.deleter
     def var_state(self):
         self._var_state = None
@@ -253,7 +260,7 @@ cdef class KalmanODE:
     @wgt_state.setter
     def wgt_state(self, wgt_state):
         _copynm(self._wgt_state, wgt_state, 'wgt_state')
-    
+
     @wgt_state.deleter
     def wgt_state(self):
         self._wgt_state = None
@@ -265,7 +272,7 @@ cdef class KalmanODE:
     @z_state.setter
     def z_state(self, z_state):
         _copynm(self._z_state, z_state, 'z_state')
-    
+
     @z_state.deleter
     def z_state(self):
         self._z_state = np.zeros((self.n_state, 2*self.n_steps), order='F')
@@ -277,17 +284,17 @@ cdef class KalmanODE:
         """
         if not np.any(self._z_state):
             self.z_state[:] = rand_mat(2*(self.n_eval+1), self.n_state)
-        
+
         if not np.asarray(x0).data.f_contiguous:
             raise TypeError('{} is not f contiguous.'.format('x0'))
-        if len(x0)!=self.n_state:
+        if len(x0) != self.n_state:
             raise TypeError('{} has incorrect shape.'.format('x0'))
-        
+
         vec_copy(self.mu_state_filt[:, 0], x0)
         vec_copy(self.mu_state_pred[:, 0], self.mu_state_filt[:, 0])
         self.var_state_filt[:, :, 0] = 0
 
-        #forward pass
+        # forward pass
         cdef int t
         for t in range(self.n_eval):
             # kalman filter:
@@ -299,21 +306,22 @@ cdef class KalmanODE:
                              self._wgt_state,
                              self._var_state)
             forecast(self.x_state,
-                    self.var_meas,
-                    self.twgt_meas,
-                    self.llt_state,
-                    self._wgt_meas,
-                    self.mu_state_pred[:, t+1],
-                    self.var_state_pred[:, :, t+1],
-                    self._z_state[:, t])
-            #forecast_probde(self.x_state,
+                     self.var_meas,
+                     self.twgt_meas,
+                     self.llt_state,
+                     self._wgt_meas,
+                     self.mu_state_pred[:, t+1],
+                     self.var_state_pred[:, :, t+1],
+                     self._z_state[:, t])
+            # forecast_probde(self.x_state,
             #             self.var_meas,
             #             self.twgt_meas,
             #             self._wgt_meas,
             #             self.mu_state_pred[:, t+1],
             #             self.var_state_pred[:, :, t+1])
-            
-            self.ode_fun(self.x_state, self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval, theta, self.x_meas)
+
+            self.ode_fun(self.x_state, self.tmin + (self.tmax -
+                                                    self.tmin)*(t+1)/self.n_eval, theta, self.x_meas)
             self.ktv.update(self.mu_state_filt[:, t+1],
                             self.var_state_filt[:, :, t+1],
                             self.mu_state_pred[:, t+1],
@@ -332,7 +340,7 @@ cdef class KalmanODE:
             x0 (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`t = 0`; :math:`x_0`.
             W (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
             theta (ndarray(n_theta)): Parameter in the ODE function.
-        
+
         Returns:
             (tuple):
             - **kalman_sim** (ndarray(n_steps, n_state)): Sample solution at time t given observations from times [0...T].
@@ -345,18 +353,23 @@ cdef class KalmanODE:
         cdef double[::1, :] mu_state_smooth
         cdef double[::1, :, :] var_state_smooth
         cdef double[::1, :] x_state_smooth
-        mu_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        var_state_smooth = np.empty((self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        x_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        
+        mu_state_smooth = np.empty(
+            (self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        var_state_smooth = np.empty(
+            (self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        x_state_smooth = np.empty(
+            (self.n_state, self.n_steps), dtype=DTYPE, order='F')
+
         if W is not None:
             self._wgt_meas[:] = W
-        
+
         self._solve_filter(x0, theta)
         vec_copy(mu_state_smooth[:, 0], self.mu_state_filt[:, 0])
         vec_copy(x_state_smooth[:, 0], x0)
-        vec_copy(mu_state_smooth[:, self.n_eval], self.mu_state_filt[:, self.n_eval])
-        mat_copy(var_state_smooth[:, :, self.n_eval], self.var_state_filt[:, :, self.n_eval])
+        vec_copy(mu_state_smooth[:, self.n_eval],
+                 self.mu_state_filt[:, self.n_eval])
+        mat_copy(var_state_smooth[:, :, self.n_eval],
+                 self.var_state_filt[:, :, self.n_eval])
         state_sim(x_state_smooth[:, self.n_eval],
                   self.llt_state,
                   mu_state_smooth[:, self.n_eval],
@@ -377,7 +390,7 @@ cdef class KalmanODE:
                             self.var_state_pred[:, :, t+1],
                             self._wgt_state,
                             self._z_state[:, t+self.n_steps])
-            
+
         return np.asarray(x_state_smooth.T), np.asarray(mu_state_smooth.T), np.asarray(var_state_smooth.T)
 
     cpdef solve_sim(self, double[::1] x0, double[::1, :] W=None, object theta=None):
@@ -386,7 +399,8 @@ cdef class KalmanODE:
 
         """
         cdef double[::1, :] x_state_smooth
-        x_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        x_state_smooth = np.empty(
+            (self.n_state, self.n_steps), dtype=DTYPE, order='F')
 
         if W is not None:
             self._wgt_meas[:] = W
@@ -409,9 +423,9 @@ cdef class KalmanODE:
                                 self.var_state_pred[:, :, t+1],
                                 self._wgt_state,
                                 self._z_state[:, t+self.n_steps])
-        
+
         return np.asarray(x_state_smooth.T)
-    
+
     cpdef solve_mv(self, double[::1] x0, double[::1, :] W=None, object theta=None):
         r"""
         Only returns the mean and variance from :func:`~KalmanODE.KalmanODE.solve`.
@@ -419,16 +433,20 @@ cdef class KalmanODE:
         """
         cdef double[::1, :] mu_state_smooth
         cdef double[::1, :, :] var_state_smooth
-        mu_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        var_state_smooth = np.empty((self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        
+        mu_state_smooth = np.empty(
+            (self.n_state, self.n_steps), dtype=DTYPE, order='F')
+        var_state_smooth = np.empty(
+            (self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
+
         if W is not None:
             self._wgt_meas[:] = W
 
         self._solve_filter(x0, theta)
         vec_copy(mu_state_smooth[:, 0], self.mu_state_filt[:, 0])
-        vec_copy(mu_state_smooth[:, self.n_eval], self.mu_state_filt[:, self.n_eval])
-        mat_copy(var_state_smooth[:, :, self.n_eval], self.var_state_filt[:, :, self.n_eval])
+        vec_copy(mu_state_smooth[:, self.n_eval],
+                 self.mu_state_filt[:, self.n_eval])
+        mat_copy(var_state_smooth[:, :, self.n_eval],
+                 self.var_state_filt[:, :, self.n_eval])
         # backward pass
         cdef int t
         for t in range(self.n_eval-1, 0, -1):
@@ -441,5 +459,5 @@ cdef class KalmanODE:
                                self.mu_state_pred[:, t+1],
                                self.var_state_pred[:, :, t+1],
                                self._wgt_state)
-        
+
         return np.asarray(mu_state_smooth.T), np.asarray(var_state_smooth.T)
