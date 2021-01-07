@@ -3,6 +3,7 @@ import numpy as np
 import platform
 from setuptools import setup, find_packages, Extension
 from os import path
+import kalmantv as ktv
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as fh:
@@ -50,12 +51,20 @@ disable_numpy_warnings = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 ext_c = '.pyx' if USE_CYTHON else '.c'
 ext_cpp = '.pyx' if USE_CYTHON else 'cpp'
 ext_modules = [Extension("probDE.cython.KalmanODE",
-                         ["probDE/kalmanode/KalmanODE"+ext_cpp],
+                         ["probDE/cython/KalmanODE"+ext_cpp],
                          include_dirs=[
                              np.get_include()],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
-                         language='c++')]
+                         language='c'),
+               Extension("probDE.eigen.KalmanODE",	
+                         ["probDE/eigen/KalmanODE"+ext_cpp],	
+                         include_dirs=[	
+                             np.get_include(),	
+                             ktv.get_include()],	
+                         extra_compile_args=extra_compile_args,	
+                         define_macros=disable_numpy_warnings,	
+                         language="c++")]
 
 setup(
     name='probDE',
@@ -71,7 +80,7 @@ setup(
     cmdclass=cmdclass,
     ext_modules=ext_modules,
 
-    install_requires=['numpy', 'scipy', 'kalmantv'],
+    install_requires=['numpy', 'scipy', 'kalmantv', 'Cython'],
     setup_requires=['setuptools>=38'],
 
     # install_requires=['numpy', 'scipy', 'matplotlib']
