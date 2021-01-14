@@ -3,16 +3,16 @@ KalmanODE Class
 
 Cython
 ------
-.. automodule:: probDE.cython.KalmanODE
+.. automodule:: rodeo.cython.KalmanODE
     :members:
 
 Eigen
 -----
-.. automodule:: probDE.eigen.KalmanODE
+.. automodule:: rodeo.eigen.KalmanODE
     :members:
 
 Numba
 -----
-.. autoclass:: probDE.numba.KalmanODE._KalmanODE
+.. autoclass:: rodeo.numba.KalmanODE._KalmanODE
     :members:
     :private-members:

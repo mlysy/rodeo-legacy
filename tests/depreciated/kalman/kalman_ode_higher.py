@@ -147,15 +147,24 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
         #                      mu=mu_state_preds[t+1],
         #                      V=var_state_preds[t+1])
         #fun(x_state_tt, tmin + (tmax-tmin)*(t+1)/n_eval, theta, x_meas)
-        _interrogate_chkrebtii(x_meas=x_meas,
-                               var_meas=var_meas,
-                               fun=fun,
-                               t=tmin + (tmax-tmin)*(t+1)/n_eval,
-                               theta=theta,
-                               wgt_meas=wgt_meas,
-                               mu_state_pred=mu_state_preds[t+1],
-                               var_state_pred=var_state_preds[t+1],
-                               z_state=z_state[:, t])
+        _interrogate_probde(x_meas=x_meas,
+                            var_meas=var_meas,
+                            fun=fun,
+                            t=tmin + (tmax-tmin)*(t+1)/n_eval,
+                            theta=theta,
+                            wgt_meas=wgt_meas,
+                            mu_state_pred=mu_state_preds[t+1],
+                            var_state_pred=var_state_preds[t+1])
+
+        # _interrogate_chkrebtii(x_meas=x_meas,
+        #                        var_meas=var_meas,
+        #                        fun=fun,
+        #                        t=tmin + (tmax-tmin)*(t+1)/n_eval,
+        #                        theta=theta,
+        #                        wgt_meas=wgt_meas,
+        #                        mu_state_pred=mu_state_preds[t+1],
+        #                        var_state_pred=var_state_preds[t+1],
+        #                        z_state=z_state[:, t])
     
         mu_state_filts[t+1], var_state_filts[t+1] = (
             KFS.update(mu_state_pred=mu_state_preds[t+1],
@@ -171,10 +180,10 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     var_state_smooths[-1] = var_state_filts[-1]
     #x_states[-1] = np.random.multivariate_normal(
     #    mu_state_smooths[-1], var_state_smooths[-1], tol=1e-6)
-    x_state_smooths[-1] = norm_sim(z=z_state[:, n_eval],
-                            mu=mu_state_smooths[-1],
-                            V=var_state_smooths[-1])
-    for t in reversed(range(1, n_eval)):
+    x_state_smooths[-1] = norm_sim(z=z_state[:, n_eval-1],
+                                   mu=mu_state_smooths[-1],
+                                   V=var_state_smooths[-1])
+    for t in range(n_eval-1, 0, -1):
         if smooth_mv and smooth_sim:
             mu_state_smooths[t], var_state_smooths[t], x_state_smooths[t] = (
                 KFS.smooth(x_state_next=x_state_smooths[t+1],
@@ -185,7 +194,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
                            mu_state_pred=mu_state_preds[t+1],
                            var_state_pred=var_state_preds[t+1],
                            wgt_state=wgt_state,
-                           z_state=z_state[:, (n_eval+1)+t])
+                           z_state=z_state[:, t-1])
             )
         elif smooth_mv:
             mu_state_smooths[t], var_state_smooths[t] = (
@@ -205,7 +214,7 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
                                mu_state_pred=mu_state_preds[t+1],
                                var_state_pred=var_state_preds[t+1],
                                wgt_state=wgt_state,
-                               z_state=z_state[:, (n_eval+1)+t])
+                               z_state=z_state[:, t-1])
             )
 
     if smooth_sim and smooth_mv:

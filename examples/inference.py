@@ -61,7 +61,7 @@ class inference:
         X_t = odeint(fun, x0, tseq, args=(theta_true,))[1:,]
         e_t = np.random.default_rng().normal(loc=0.0, scale=1, size=X_t.shape)
         Y_t = X_t + gamma*e_t
-        return Y_t
+        return Y_t, X_t
 
     def thinning(self, data_tseq, ode_tseq, X):
         r"Thin a highly discretized ODE solution to match the observed data."
@@ -140,27 +140,34 @@ class inference:
         theta = np.exp(phi)
         return theta
     
-    def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes):
+    def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes, rows=1):
         r"""Plot the distribution of :math:`\theta` using the Kalman solver 
             and the Euler approximation."""
         n_size, _, n_theta = theta_euler.shape
+        n_theta = n_theta//rows
         nrow = 2
-        fig, axs = plt.subplots(nrow, n_theta, sharex='col', figsize=(20, 5))
+        fig, axs = plt.subplots(rows*nrow, n_theta, figsize=(20, 5*rows))
         patches = [None]*(n_size+1)
-        for col in range(n_theta):
-            axs[0, col].set_title('$\\theta_{}$'.format(col))
-            for row in range(nrow):
-                axs[row, col].axvline(x=theta_true[col], linewidth=1, color='r', linestyle='dashed')
-                axs[row, col].locator_params(axis='x', nbins=3)
-                axs[row, col].set_yticks([])
-            for i in range(n_size):
-                if col==0:
-                    patches[i] = mpatches.Patch(color='C{}'.format(i), label='h={}'.format(step_sizes[i]))
-                sns.kdeplot(theta_euler[i, :, col], ax=axs[0, col])
-                sns.kdeplot(theta_kalman[i, :, col], ax=axs[1, col])
+        for r in range(rows):
+            for col in range(n_theta):
+                axs[nrow*r, col].set_title('$\\theta_{}$'.format(r*n_theta+col))
+                for row in range(nrow):
+                    axs[nrow*r+row, col].axvline(x=theta_true[r*n_theta+col], linewidth=1, color='r', linestyle='dashed')
+                    axs[nrow*r+row, col].locator_params(axis='x', nbins=3)
+                    axs[nrow*r+row, col].set_yticks([])
+                    if row==1:
+                        axs[nrow*r+row, col].get_shared_x_axes().join(axs[nrow*r+row, col], axs[nrow*r, col])
+                for i in range(n_size):
+                    if col==0:
+                        patches[i] = mpatches.Patch(color='C{}'.format(i), label='h={}'.format(step_sizes[i]))
+                    sns.kdeplot(theta_euler[i, :, r*n_theta+col], ax=axs[nrow*r, col])
+                    sns.kdeplot(theta_kalman[i, :, r*n_theta+col], ax=axs[nrow*r+1, col])
 
-        axs[0, 0].set_ylabel('Euler')
-        axs[1, 0].set_ylabel('KalmanODE')
+        for r in range(nrow*rows):
+            if r%2==0:
+                axs[r, 0].set_ylabel('Euler')
+            else:
+                axs[r, 0].set_ylabel('KalmanODE')
         patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
         axs[0, -1].legend(handles=patches, framealpha=0.5)
         fig.tight_layout()

@@ -1,4 +1,4 @@
 Utility Functions
 =================
-.. automodule:: probDE.utils.utils
+.. automodule:: rodeo.utils.utils
     :members:  

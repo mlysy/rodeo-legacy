@@ -1,24 +1,11 @@
 import unittest
 import numpy as np
-from math import sin
 from scipy import integrate
 
-from probDE.ibm import ibm_init
-from probDE.cython.KalmanODE import KalmanODE
-from probDE.utils.utils import rand_mat, indep_init, zero_pad
-
-def sum_err(X1, X2):
-    """Sum of relative error between two numpy arrays."""
-    return np.sum(np.abs((X1.ravel() - X2.ravel())/X1.ravel()))
-
-def chkrebtii_kalman(x_t, t, theta=None, x_out=None):
-    """Chkrebtii function in kalman format."""
-    x_out[0] = sin(2*t) - x_t[0]
-    return
-
-def chkrebtii_odeint(x_t, t):
-    """Chkrebtii function in odeint format."""
-    return [x_t[1], sin(2*t) - x_t[0]]
+from rodeo.ibm import ibm_init
+from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.utils.utils import rand_mat, indep_init, zero_pad
+from utils import *
 
 class KalmanTVODETest(unittest.TestCase):
     def test_chkrebtii(self):
@@ -55,9 +42,8 @@ class KalmanTVODETest(unittest.TestCase):
         # Get deterministic solution from odeint
         tseq = np.linspace(tmin, tmax, n_eval+1)
         detode = integrate.odeint(chkrebtii_odeint, [-1, 0], tseq)
-        print(sum_err(kalman_sim[1:, 1], detode[1:, 1]))
-        self.assertLessEqual(sum_err(kalman_sim[:, 0], detode[:, 0]), 10.0)
-        self.assertLessEqual(sum_err(kalman_sim[1:, 1], detode[1:, 1]), 10.0)
+        self.assertLessEqual(rel_err(kalman_sim[:, 0], detode[:, 0]), 10.0)
+        self.assertLessEqual(rel_err(kalman_sim[1:, 1], detode[1:, 1]), 10.0)
 
 if __name__ == '__main__':
     unittest.main()

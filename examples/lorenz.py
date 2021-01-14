@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from probDE.car import car_init
-from probDE.cython.KalmanODE import KalmanODE
-from probDE.utils import indep_init, zero_pad
+from rodeo.car import car_init
+from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.utils import indep_init, zero_pad
 from lorenz_graph import lorenz_graph
 
 # RHS of ODE

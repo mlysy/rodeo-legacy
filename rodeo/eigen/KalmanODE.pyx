@@ -3,7 +3,7 @@ cimport cython
 import numpy as np
 cimport numpy as np
 
-from probDE.utils import rand_mat
+from rodeo.utils import rand_mat
 from KalmanTVODE cimport KalmanTVODE
 
 DTYPE = np.double
@@ -45,7 +45,7 @@ cdef class KalmanODE:
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by :math:`Q`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
-        z_state (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
+        z_state (ndarray(n_state, n_eval)): Random N(0,1) matrix for forecasting and smoothing.
 
     """
     cdef int n_state, n_meas, n_eval, n_steps
@@ -71,7 +71,7 @@ cdef class KalmanODE:
         self._mu_state = np.empty(self.n_state, order='F')
         self._wgt_state = np.empty((self.n_state, self.n_state), order='F')
         self._var_state = np.empty((self.n_state, self.n_state), order='F')
-        self._z_state = np.zeros((self.n_state, 2*self.n_steps), order='F')
+        self._z_state = np.zeros((self.n_state, self.n_eval), order='F')
 
         # iniitalize kalman variables
         self._wgt_meas[:] = W
@@ -140,7 +140,7 @@ cdef class KalmanODE:
     
     @z_state.deleter
     def z_state(self):
-        self._z_state = np.zeros((self.n_state, 2*self.n_steps), order='F')
+        self._z_state = np.zeros((self.n_state, self.n_eval), order='F')
 
     cdef KalmanTVODE * _solve_filter(self, double[::1, :] x_state_smooth, double[::1, :] mu_state_smooth,
                                      double[::1, :, :] var_state_smooth, double[::1] x0, object theta=None):
@@ -149,7 +149,7 @@ cdef class KalmanODE:
         
         """
         if not np.any(self._z_state):
-            self.z_state[:] = rand_mat(2*(self.n_eval+1), self.n_state)
+            self.z_state[:] = rand_mat(self.n_eval, self.n_state)
         
         if not np.asarray(x0).data.f_contiguous:
             raise TypeError('{} is not f contiguous.'.format('x0'))

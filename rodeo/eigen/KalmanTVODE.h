@@ -82,7 +82,7 @@ namespace kalmantvode {
     void forecast(const int cur_step);
     /// Perform one step of Schobert interrogation.
     void forecast_sch(const int cur_step);
-    /// Perform one step of probDE interrogation.
+    /// Perform one step of rodeo interrogation.
     void forecast_probde(const int cur_step);
 
   };
@@ -97,7 +97,7 @@ namespace kalmantvode {
   /// @param[in] var_state Variance matrix defining the solution prior.
   /// @param[in] x_meas Interrogated measure vector from `x_state`.
   /// @param[in] wgt_meas Transition matrix defining the measure prior.
-  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  /// @param[in] z_states n_steps-1 of random draws from `N(0,1)` for simulating the smoothed state.
   /// @param[in] x_state_smooths Sample solution at time t given observations from each time step.
   /// @param[in] mu_state_smooths Posterior mean of the solution process at each time step.
   /// @param[in] var_state_smooths Posterior variance of the solution process at each time step.
@@ -233,11 +233,11 @@ namespace kalmantvode {
   /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
-  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  /// @param[in] z_states n_steps-1 of random draws from `N(0,1)` for simulating the smoothed state.
   inline void KalmanTVODE::smooth_sim(const int cur_step) {
     MapMatrixXd _x_state_smooths_(x_state_smooths_, n_state_, n_steps_);
     MapMatrixXd _wgt_state_(wgt_state_, n_state_, n_state_);
-    MapMatrixXd _z_states_(z_states_, n_state_, 2*n_steps_);
+    MapMatrixXd _z_states_(z_states_, n_state_, n_steps_-1);
     KalmanTV::smooth_sim(_x_state_smooths_.col(cur_step),
                          _x_state_smooths_.col(cur_step+1),
                          mu_state_filts.col(cur_step),
@@ -245,7 +245,7 @@ namespace kalmantvode {
                          mu_state_preds.col(cur_step+1),
                          var_state_preds.block(0, n_state_*(cur_step+1), n_state_, n_state_),
                          _wgt_state_,
-                         _z_states_.col(n_steps_ + cur_step));
+                         _z_states_.col(cur_step-1));
     return;
   }
   /// @param[out] x_state_smooths Smoothed state `X_n`.
@@ -260,7 +260,7 @@ namespace kalmantvode {
   /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_state Current state transition matrix `T_n`.
-  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  /// @param[in] z_states n_steps-1 of random draws from `N(0,1)` for simulating the smoothed state.
   inline void KalmanTVODE::smooth(const int cur_step) {
     smooth_mv(cur_step);
     smooth_sim(cur_step);
@@ -269,18 +269,18 @@ namespace kalmantvode {
   /// @param[out] x_state_smooths Smoothed state `X_n`.
   /// @param[out] mu_state_smooths Smoothed state mean `mu_n|N`.
   /// @param[out] var_state_smooths Smoothed state variance `Sigma_n|N`.
-  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  /// @param[in] z_states n_steps-1 of random draws from `N(0,1)` for simulating the smoothed state.
   inline void KalmanTVODE::smooth_update(const bool smooths_mv,
                                          const bool smooths_sim) {
     MapMatrixXd _x_state_smooths_(x_state_smooths_, n_state_, n_steps_);
     MapMatrixXd _mu_state_smooths_(mu_state_smooths_, n_state_, n_steps_);
     MapMatrixXd _var_state_smooths_(var_state_smooths_, n_state_, n_state_*n_steps_);
-    MapMatrixXd _z_states_(z_states_, n_state_, 2*n_steps_);
+    MapMatrixXd _z_states_(z_states_, n_state_, n_steps_-1);
     _mu_state_smooths_.col(n_steps_-1).noalias() = mu_state_filts.col(n_steps_-1);
     _var_state_smooths_.block(0, n_state_*(n_steps_-1), n_state_, n_state_).noalias() = \
       var_state_filts.block(0, n_state_*(n_steps_-1), n_state_, n_state_);
     state_sim(_x_state_smooths_.col(n_steps_-1), _mu_state_smooths_.col(n_steps_-1), 
-              _var_state_smooths_.block(0, n_state_*(n_steps_-1), n_state_, n_state_), _z_states_.col(n_steps_-1));
+              _var_state_smooths_.block(0, n_state_*(n_steps_-1), n_state_, n_state_), _z_states_.col(n_steps_-2));
     _mu_state_smooths_.col(0) = mu_state_filts.col(0);
     _x_state_smooths_.col(0) = mu_state_filts.col(0);
     for(int t=n_steps_-2; t>0; t--) {
@@ -300,11 +300,11 @@ namespace kalmantvode {
   /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_meas Current measure transition matrix `W_n`.
-  /// @param[in] z_states 2*n_steps of random draws from `N(0,1)` for simulating the smoothed state.
+  /// @param[in] z_states 2*(n_steps-1) of random draws from `N(0,1)` for simulating the smoothed state.
   inline void KalmanTVODE::forecast(const int cur_step) {
     MapVectorXd _x_state_(x_state_, n_state_);
     MapMatrixXd _wgt_meas_(wgt_meas_, n_meas_, n_state_);
-    MapMatrixXd _z_states_(z_states_, n_state_, 2*n_steps_);
+    MapMatrixXd _z_states_(z_states_, n_state_, 2*(n_steps_-1));
     twgt_meas_.noalias() = _wgt_meas_ * var_state_preds.block(0, n_state_*(cur_step+1),
                                                               n_state_, n_state_); // n_meas x n_state
     var_meas.noalias() = twgt_meas_ * _wgt_meas_.adjoint();

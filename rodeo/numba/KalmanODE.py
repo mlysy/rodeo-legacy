@@ -6,7 +6,7 @@ from numba.extending import register_jitable
 from numba.core.errors import TypingError
 from numba import types, typeof
 from kalmantv.numba.kalmantv import KalmanTV, _mvn_sim, _quad_form
-from probDE.utils import rand_mat
+from rodeo.utils import rand_mat
 
 kalman_type = deferred_type()
 kalman_type.define(KalmanTV.class_type.instance_type)
@@ -62,7 +62,7 @@ def _interrogate_probde(x_meas, var_meas,
                         wgt_meas, mu_state_pred, var_state_pred, 
                         tx_state, twgt_meas):
     """
-    Interrogate method of probde.
+    Interrogate method of rodeo.
 
     Args:
         x_meas (ndarray(n_meas)): Interrogation variable.
@@ -155,7 +155,7 @@ class _KalmanODE:
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by :math:`Q`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
-        z_state (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
+        z_state (ndarray(n_state, n_eval)): Random N(0,1) matrix for forecasting and smoothing.
 
     """
     def __init__(self, W, tmin, tmax, n_eval,
@@ -172,7 +172,7 @@ class _KalmanODE:
         self._mu_state = _fempty((self.n_state,))
         self._wgt_state = _fempty((self.n_state, self.n_state))
         self._var_state = _fempty((self.n_state, self.n_state))
-        self._z_state = np.zeros((2*self.n_steps, self.n_state)).T
+        self._z_state = np.zeros((self.n_eval, self.n_state)).T
 
         self._wgt_meas[:] = W
         self._mu_state[:] = mu_state
@@ -331,8 +331,8 @@ class _KalmanODE:
         var_state_smooth[:, :, self.n_eval] = self.var_state_filt[:, :, self.n_eval]
         _mvn_sim(x_state_smooth[:, self.n_eval],
                  self.mu_state_filt[:, self.n_eval],
-                 var_state_smooth[..., self.n_eval],
-                 self.z_state[:, self.n_eval],
+                 self.var_state_filt[..., self.n_eval],
+                 self.z_state[:, self.n_eval-1],
                  self.tchol_state)
         
         # loop
@@ -348,7 +348,7 @@ class _KalmanODE:
                             self.mu_state_pred[:, t+1],
                             self.var_state_pred[..., t+1],
                             self.wgt_state,
-                            self.z_state[:, t+self.n_steps])
+                            self.z_state[:, t-1])
 
         return x_state_smooth.T, mu_state_smooth.T, var_state_smooth.T
     
@@ -368,8 +368,8 @@ class _KalmanODE:
         # initialize
         _mvn_sim(x_state_smooth[:, self.n_eval],
                  self.mu_state_filt[:, self.n_eval],
-                 self.var_state_filt[:, :, self.n_eval],
-                 self.z_state[:, self.n_eval],
+                 self.var_state_filt[..., self.n_eval],
+                 self.z_state[:, self.n_eval-1],
                  self.tchol_state)
         
 
@@ -382,7 +382,7 @@ class _KalmanODE:
                                 self.mu_state_pred[:, t+1],
                                 self.var_state_pred[..., t+1],
                                 self.wgt_state,
-                                self.z_state[:, t+self.n_steps])
+                                self.z_state[:, t-1])
         
         return x_state_smooth.T
 

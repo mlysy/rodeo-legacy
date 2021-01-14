@@ -34,17 +34,17 @@ if USE_CYTHON:
 # c/cpp modules
 ext_c = ".pyx" if USE_CYTHON else ".c"
 ext_cpp = ".pyx" if USE_CYTHON else "cpp"
-ext_modules = [Extension("probDE.tests.ode_functions",
+ext_modules = [Extension("rodeo.tests.ode_functions",
                          ["ode_functions"+ext_c],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
                          language="c"),
-               Extension("probDE.tests.ode_functions_ctuple",
+               Extension("rodeo.tests.ode_functions_ctuple",
                          ["ode_functions_ctuple"+ext_c],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
                          language="c"),
-               Extension("probDE.tests.KalmanODE2",
+               Extension("rodeo.tests.KalmanODE2",
                          ["KalmanODE2"+ext_cpp],
                          include_dirs=[
                              np.get_include(),
@@ -54,12 +54,12 @@ ext_modules = [Extension("probDE.tests.ode_functions",
                          language="c++")]
 
 setup(
-    name="probDE_test",
+    name="rodeo_test",
     version="0.0.2",
     author="Mohan Wu, Martin Lysy",
     author_email="mlysy@uwaterloo.ca",
     description="Eigen backed KalmanODE for testing",
-    url="https://github.com/mlysy/probDE",
+    url="https://github.com/mlysy/rodeo",
     packages=[],
 
     # cython
@@ -67,8 +67,5 @@ setup(
     ext_modules=ext_modules,
 
     install_requires=["numpy", "scipy"],
-    setup_requires=["setuptools>=38"],
-
-    # install_requires=["numpy", "scipy", "matplotlib"]
-    # packages=["probDE", "probDE/Bayesian", "probDE/Kalman", "probDE/Kalman/Old", "probDE/Kalman/pykalman", "probDE/utils", "probDE/Tests"]
+    setup_requires=["setuptools>=38"]
 )

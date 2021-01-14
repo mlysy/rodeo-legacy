@@ -1,9 +1,9 @@
 import numpy as np
 
-from probDE.car.car_cov import car_cov
-from probDE.car.car_mou import car_mou
-from probDE.car.car_var import car_var
-from probDE.utils.utils import mvncond
+from rodeo.car.car_cov import car_cov
+from rodeo.car.car_mou import car_mou
+from rodeo.car.car_var import car_var
+from rodeo.utils.utils import mvncond
 
 def root_gen(tau, p):
     """

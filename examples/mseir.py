@@ -1,8 +1,8 @@
 import numpy as np
 from inference import inference
-from probDE.ibm import ibm_init
-from probDE.cython.KalmanODE import KalmanODE
-from probDE.utils import indep_init, zero_pad
+from rodeo.ibm import ibm_init
+from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.utils import indep_init, zero_pad
 
 def mseir(X_t, t, theta, out=None):
     "MSEIR ODE function"

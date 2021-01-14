@@ -5,13 +5,13 @@ from depreciated.kalman.kalman_ode_higher import kalman_ode_higher
 
 
 class KalmanODE_py:
-    def __init__(self, W, tmin, tmax, n_eval, fun, **init):
+    def __init__(self, W, tmin, tmax, n_eval, ode_fun, **init):
         self.n_state = W.shape[1]
         self.n_meas = W.shape[0]
         self.tmin = tmin
         self.tmax = tmax
         self.n_eval = n_eval
-        self.fun = fun
+        self.ode_fun = ode_fun
         self.wgt_meas = W
         self.wgt_state = None
         self.mu_state = None
@@ -26,9 +26,9 @@ class KalmanODE_py:
             raise ValueError("wgt_state, mu_state, var_state is not set.")
 
         if self.z_state is None:
-            self.z_state = rand_mat(2*(self.n_eval+1), self.n_state)
+            self.z_state = rand_mat(self.n_eval, self.n_state)
 
-        return kalman_ode_higher(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
+        return kalman_ode_higher(self.ode_fun, x0_state, self.tmin, self.tmax, self.n_eval,
                                  self.wgt_state, self.mu_state, self.var_state, wgt_meas,
                                  self.z_state, theta, mv, sim)
 
@@ -38,9 +38,9 @@ class KalmanODE_py:
             raise ValueError("wgt_state, mu_state, var_state is not set.")
 
         if self.z_state is None:
-            self.z_state = rand_mat(2*(self.n_eval+1), self.n_state)
+            self.z_state = rand_mat(self.n_eval, self.n_state)
 
-        return kalman_ode_higher(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
+        return kalman_ode_higher(self.ode_fun, x0_state, self.tmin, self.tmax, self.n_eval,
                                  self.wgt_state, self.mu_state, self.var_state, wgt_meas,
                                  self.z_state, theta, mv, sim)
 
@@ -50,8 +50,8 @@ class KalmanODE_py:
             raise ValueError("wgt_state, mu_state, var_state is not set.")
 
         if self.z_state is None:
-            self.z_state = rand_mat(2*(self.n_eval+1), self.n_state)
+            self.z_state = rand_mat(self.n_eval, self.n_state)
 
-        return kalman_ode_higher(self.fun, x0_state, self.tmin, self.tmax, self.n_eval,
+        return kalman_ode_higher(self.ode_fun, x0_state, self.tmin, self.tmax, self.n_eval,
                                  self.wgt_state, self.mu_state, self.var_state, wgt_meas,
                                  self.z_state, theta, mv, sim)

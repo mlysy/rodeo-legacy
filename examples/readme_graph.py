@@ -5,9 +5,9 @@ import numpy as np
 from math import sin, cos
 import matplotlib.pyplot as plt
 
-from probDE.ibm import ibm_init
-from probDE.cython.KalmanODE import KalmanODE
-from probDE.utils import indep_init, zero_pad
+from rodeo.ibm import ibm_init
+from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.utils import indep_init, zero_pad
 from euler_approx import euler_approx
 
 # Example ODE Exact Solution for x_t^{(0)}

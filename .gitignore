@@ -2,12 +2,12 @@
 __pycache__
 docs/build
 /dist
-/probDE.egg-info
+/rodeo.egg-info
 .idea
 *.html
 /tests/eigen/eigen-3.3.7/
-/probDE/eigen/eigen-3.3.7/
+/rodeo/eigen/eigen-3.3.7/
 *.npy
 Untitled.ipynb
-/examples/Figures
+/examples/figures
 /examples/saves

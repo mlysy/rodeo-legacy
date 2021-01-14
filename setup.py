@@ -50,15 +50,15 @@ disable_numpy_warnings = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 # c/cpp modules
 ext_c = '.pyx' if USE_CYTHON else '.c'
 ext_cpp = '.pyx' if USE_CYTHON else 'cpp'
-ext_modules = [Extension("probDE.cython.KalmanODE",
-                         ["probDE/cython/KalmanODE"+ext_cpp],
+ext_modules = [Extension("rodeo.cython.KalmanODE",
+                         ["rodeo/cython/KalmanODE"+ext_cpp],
                          include_dirs=[
                              np.get_include()],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
                          language='c'),
-               Extension("probDE.eigen.KalmanODE",	
-                         ["probDE/eigen/KalmanODE"+ext_cpp],	
+               Extension("rodeo.eigen.KalmanODE",	
+                         ["rodeo/eigen/KalmanODE"+ext_cpp],	
                          include_dirs=[	
                              np.get_include(),	
                              ktv.get_include()],	
@@ -67,22 +67,23 @@ ext_modules = [Extension("probDE.cython.KalmanODE",
                          language="c++")]
 
 setup(
-    name='probDE',
+    name='rodeo',
     version='0.0.1',
     author='Mohan Wu, Martin Lysy',
     author_email='mlysy@uwaterloo.ca',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/mlysy/probDE",
+    url="https://github.com/mlysy/rodeo",
     packages=find_packages(exclude=["tests", "examples"]),
 
     # cython
     cmdclass=cmdclass,
     ext_modules=ext_modules,
 
-    install_requires=['numpy', 'scipy', 'kalmantv', 'Cython'],
-    setup_requires=['setuptools>=38'],
-
-    # install_requires=['numpy', 'scipy', 'matplotlib']
-    # packages=['probDE', 'probDE/Bayesian', 'probDE/Kalman', 'probDE/Kalman/Old', 'probDE/Kalman/pykalman', 'probDE/utils', 'probDE/Tests']
+    install_requires=['numpy', 'scipy', 'kalmantv', 'Cython', 'numba'],
+    extras_require={
+        'docs': ['sphinx'],
+        'examples': ['jupyter', 'matplotlib', 'numdifftools', 'seaborn']
+    },
+    setup_requires=['setuptools>=38']
 )

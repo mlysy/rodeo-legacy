@@ -8,15 +8,17 @@ from timer import *
 from numba import njit
 from scipy.integrate import odeint
 from math import sin
+import sys
+sys.path.append("..")
 from KalmanODE_py import KalmanODE_py
-from probDE.utils.utils import rand_mat, indep_init, zero_pad
-from probDE.ibm import ibm_init
-from probDE.numba.KalmanODE import KalmanODE as KalmanODE_num
-from probDE.cython.KalmanODE import KalmanODE as KalmanODE_cy
-from probDE.eigen.KalmanODE import KalmanODE as KalmanODE_c
-from probDE.tests.KalmanODE2 import KalmanODE as KalmanODE_c2
-from probDE.tests.ode_functions import chkrebtii_fun as ode_fun_nd
-from probDE.tests.ode_functions_ctuple import chkrebtii_fun as ode_fun_ct
+from rodeo.utils.utils import rand_mat, indep_init, zero_pad
+from rodeo.ibm import ibm_init
+from rodeo.numba.KalmanODE import KalmanODE as KalmanODE_num
+from rodeo.cython.KalmanODE import KalmanODE as KalmanODE_cy
+from rodeo.eigen.KalmanODE import KalmanODE as KalmanODE_c
+from rodeo.tests.KalmanODE2 import KalmanODE as KalmanODE_c2
+from rodeo.tests.ode_functions import chkrebtii_fun as ode_fun_nd
+from rodeo.tests.ode_functions_ctuple import chkrebtii_fun as ode_fun_ct
 
 # pick ode function
 use_ctuple = False
@@ -77,7 +79,7 @@ dt = (tmax-tmin)/n_eval
 W = zero_pad(w_mat, n_deriv, n_deriv_prior)
 x0_state = zero_pad(x0, n_deriv, n_deriv_prior)
 kinit = ibm_init(dt, n_deriv_prior, sigma)
-z_state = rand_mat(2*(n_eval+1), sum(n_deriv_prior))
+z_state = rand_mat(n_eval, sum(n_deriv_prior))
 theta = np.empty(0)
 
 # pick ode function with ndarray or ctuple inputs

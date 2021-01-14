@@ -3,19 +3,19 @@ Continuous Autoregressive Process
 
 car
 ---
-.. automodule:: probDE.car.car_cov
+.. automodule:: rodeo.car.car_cov
     :members:
 
-.. automodule:: probDE.car.car_init
+.. automodule:: rodeo.car.car_init
     :members:  
 
-.. automodule:: probDE.car.car_mou
+.. automodule:: rodeo.car.car_mou
     :members:  
 
-.. automodule:: probDE.car.car_var
+.. automodule:: rodeo.car.car_var
     :members:  
 
 ibm
 ---
-.. automodule:: probDE.ibm.ibm_init
+.. automodule:: rodeo.ibm.ibm_init
     :members:

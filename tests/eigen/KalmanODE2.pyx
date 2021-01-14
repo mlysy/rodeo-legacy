@@ -5,7 +5,7 @@ cimport numpy as np
 
 from kalmantv.eigen.KalmanTV cimport KalmanTV
 from kalmantv.cython.blas cimport mat_triple_mult, vec_copy, mat_copy
-from probDE.utils import rand_mat
+from rodeo.utils import rand_mat
 
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
@@ -36,7 +36,7 @@ cpdef forecast_probde(double[::1] x_state,
                       const double[::1] mu_state_pred,
                       const double[::1, :] var_state_pred):
     r"""
-    Forecast the observed state from the current state via the probDE method.
+    Forecast the observed state from the current state via the rodeo method.
     
     Args:
         x_state (ndarray(n_state)): Simulated state.
@@ -89,7 +89,7 @@ cdef class KalmanODE:
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
         mu_meas (ndarray(n_meas)): Transition_offsets defining the measure prior; denoted by :math:`d`.
         var_meas (ndarray(n_meas, n_meas)): Variance matrix defining the measure prior; denoted by :math:`H`.
-        z_state (ndarray(n_state, 2*n_steps)): Random N(0,1) matrix for forecasting and smoothing.
+        z_state (ndarray(n_state, n_eval)): Random N(0,1) matrix for forecasting and smoothing.
 
     """
     cdef int n_state, n_meas, n_eval, n_steps
@@ -133,7 +133,7 @@ cdef class KalmanODE:
         self._mu_state = np.empty(self.n_state, order='F')
         self._wgt_state = np.empty((self.n_state, self.n_state), order='F')
         self._var_state = np.empty((self.n_state, self.n_state), order='F')
-        self._z_state = np.empty((self.n_state, 2*self.n_steps), order='F')
+        self._z_state = np.empty((self.n_state, self.n_eval), order='F')
 
         # iniitalize kalman variables
         self._wgt_meas[:] = W
@@ -272,7 +272,7 @@ cdef class KalmanODE:
         
         """
         if self._z_state is None:
-            self._z_state = rand_mat(2*(self.n_eval+1), self.n_state)
+            self._z_state = rand_mat(self.n_eval, self.n_state)
         
         if not np.asarray(x0).data.f_contiguous:
             raise TypeError('{} is not f contiguous.'.format('x0'))
@@ -294,20 +294,20 @@ cdef class KalmanODE:
                              & self._mu_state[0],
                              & self._wgt_state[0, 0],
                              & self._var_state[0, 0])
-            self.forecast(self.x_state,
-                          self.var_meas,
-                          self.twgt_meas,
-                          self.llt_state,
-                          self._wgt_meas,
-                          self.mu_state_pred[:, t+1],
-                          self.var_state_pred[:, :, t+1],
-                          self._z_state[:, t])
-            #forecast_probde(self.x_state,
-            #             self.var_meas,
-            #             self.twgt_meas,
-            #             self._wgt_meas,
-            #             self.mu_state_pred[:, t+1],
-            #             self.var_state_pred[:, :, t+1])
+            #self.forecast(self.x_state,
+            #              self.var_meas,
+            #              self.twgt_meas,
+            #              self.llt_state,
+            #              self._wgt_meas,
+            #              self.mu_state_pred[:, t+1],
+            #              self.var_state_pred[:, :, t+1],
+            #              self._z_state[:, t])
+            forecast_probde(self.x_state,
+                            self.var_meas,
+                            self.twgt_meas,
+                            self._wgt_meas,
+                            self.mu_state_pred[:, t+1],
+                            self.var_state_pred[:, :, t+1])
             
             self.fun(self.x_state, self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval, theta, self.x_meas)
             self.ktv.update(& self.mu_state_filt[:, t+1][0],
@@ -377,7 +377,7 @@ cdef class KalmanODE:
         self.ktv.state_sim(& x_state_smooth[:, self.n_eval][0],
                            & mu_state_smooth[:, self.n_eval][0],
                            & var_state_smooth[:, :, self.n_eval][0, 0],
-                           & self._z_state[:, self.n_eval][0])
+                           & self._z_state[:, self.n_eval-1][0])
         # backward pass
         cdef int t
         for t in range(self.n_eval-1, 0, -1):
@@ -392,7 +392,7 @@ cdef class KalmanODE:
                             & self.mu_state_pred[:, t+1][0],
                             & self.var_state_pred[:, :, t+1][0,0],
                             & self._wgt_state[0,0],
-                            & self._z_state[:, t+self.n_steps][0])
+                            & self._z_state[:, t-1][0])
             
         return np.asarray(x_state_smooth.T), np.asarray(mu_state_smooth.T), np.asarray(var_state_smooth.T)
 
@@ -414,7 +414,7 @@ cdef class KalmanODE:
         self.ktv.state_sim(& x_state_smooth[:, self.n_eval][0],
                            & self.mu_state_filt[:, self.n_eval][0],
                            & self.var_state_filt[:, :, self.n_eval][0, 0],
-                           & self._z_state[:, self.n_eval][0])
+                           & self._z_state[:, self.n_eval-1][0])
         # backward pass
         cdef int t
         for t in range(self.n_eval-1, 0, -1):
@@ -425,7 +425,7 @@ cdef class KalmanODE:
                                 & self.mu_state_pred[:, t+1][0],
                                 & self.var_state_pred[:, :, t+1][0,0],
                                 & self._wgt_state[0,0],
-                                & self._z_state[:, t+self.n_steps][0])
+                                & self._z_state[:, t-1][0])
         
         return np.asarray(x_state_smooth.T)
     

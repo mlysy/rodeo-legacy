@@ -1,6 +1,6 @@
 import numpy as np
 
-from probDE.car.car_mou import car_mou
+from rodeo.car.car_mou import car_mou
 
 def car_cov(tseq, roots, sigma=1., corr=False, v_infinity=False):
     """

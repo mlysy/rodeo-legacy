@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'probDE'
+project = 'rodeo'
 copyright = '2019-, Mohan Wu, Martin Lysy'
 author = 'Mohan Wu, Martin Lysy'
 
@@ -135,7 +135,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'probDE.tex', 'probDE Documentation',
+    (master_doc, 'rodeo.tex', 'rodeo Documentation',
      'Mohan Wu, Martin Lysy', 'manual'),
 ]
 
