@@ -167,7 +167,7 @@ class inference:
             if r%2==0:
                 axs[r, 0].set_ylabel('Euler')
             else:
-                axs[r, 0].set_ylabel('KalmanODE')
+                axs[r, 0].set_ylabel('rodeo')
         patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
         axs[0, -1].legend(handles=patches, framealpha=0.5)
         fig.tight_layout()

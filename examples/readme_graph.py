@@ -120,7 +120,7 @@ def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
             for i in range(draws):
                 if i == (draws - 1):
                     axs[prow, pcol].plot(tseq[pcol], Xn[pcol][i,:,prow], 
-                                        color="lightgray", alpha=.3, label="Kalman")
+                                        color="lightgray", alpha=.3, label="rodeo")
                 else:
                     axs[prow, pcol].plot(tseq[pcol], Xn[pcol][i,:,prow], 
                                         color="lightgray", alpha=.3)

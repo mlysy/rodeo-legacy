@@ -60,7 +60,7 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
         for i in range(draws):
             if i == (draws - 1):
                 axs[prow].plot(tseq, Xn[i, :, sum(n_deriv_prior[:prow])],
-                        color="gray", alpha=1, label="Kalman")
+                        color="gray", alpha=1, label="rodeo")
                 axs[prow].set_ylabel(ylabel[prow])
             else:
                 axs[prow].plot(tseq, Xn[i, :, sum(n_deriv_prior[:prow])],
