@@ -11,7 +11,7 @@
 **rodeo** implements the probabilistic solver of [Chkrebtii et al (2016)](https://projecteuclid.org/euclid.ba/1473276259). This begins by putting a [Gaussian process](https://en.wikipedia.org/wiki/Gaussian_process) prior on the ODE solution, and updating it sequentially as the solver steps through the grid. The user-facing interface is written in Python to allow for a wide appeal. The back-end is a time-varying Kalman filter implemented in C++ and Fortran using state-of-the-art linear algrebra routines found [here](https://github.com/mlysy/kalmantv). **rodeo** is 10-40x faster than a pure Python implementation, achieving comparable speeds to the widely-used deterministic solver **odein** in the **Scipy** library. Various low-level backends are provided in the following modules:
 
 - `rodeo.cython`: This module performs the underlying linear algebra using the BLAS/LAPACK routines provided by NumPy through a Cython interface. 
-To maximize speed, no input checks are provided.  All inputs must be `float64` NumPy arrays in *Fortran* order. 
+  To maximize speed, no input checks are provided.  All inputs must be `float64` NumPy arrays in *Fortran* order. 
 
 - `rodeo.eigen`: This module uses the C++ Eigen library for linear algebra.  The interface is also through Cython.  
   Here again we have the same input requirements and lack of checks.  Eigen is known to be faster than most BLAS/LAPACK implementations, 
