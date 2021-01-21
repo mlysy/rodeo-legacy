@@ -64,6 +64,14 @@ ext_modules = [Extension("rodeo.cython.KalmanODE",
                              ktv.get_include()],	
                          extra_compile_args=extra_compile_args,	
                          define_macros=disable_numpy_warnings,	
+                         language="c++"),
+               Extension("rodeo.eigen.KalmanODE2",
+                         ["rodeo/eigen/KalmanODE2"+ext_cpp],
+                         include_dirs=[
+                             np.get_include(),
+                             ktv.get_include()],
+                         extra_compile_args=extra_compile_args,
+                         define_macros=disable_numpy_warnings,
                          language="c++")]
 
 setup(
