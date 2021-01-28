@@ -79,6 +79,6 @@ V(t)^{(1)} = cV(t)^{(0)} - (V(t)^{(0)})^3/3 + R(t)^({0})
 R(t)^{(1)} = -(V(t)^{(0)} - a + bR(t)^{(0)})/c
 V^{(0)} = -1, R^{(0)} = 1
 ```
-where the parameter of interest is `(a,b,c)`. A comparison of the deterministic Euler solver to the probabilistic solver is shown below.
+where the parameter of interest is `theta = (a,b,c)`. A comparison of the deterministic Euler solver to the probabilistic solver is shown below.
 
 ![fitzhugh](/docs/figures/fitzfigure.png)
