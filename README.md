@@ -73,7 +73,7 @@ The results for N = 50, 100, and 200 grid points for both solvers is shown below
 
 ![chkrebtii](/docs/figures/chkrebtiifigure.png)
 
-**rodeo** is also capable of performing parameter inference using the mode-quadrature approximation method. For example the variate **FitzHugh-Nagumo** model can be stated as
+**rodeo** is also capable of performing parameter inference using the mode-quadrature approximation method. For example the two variate **FitzHugh-Nagumo** model can be stated as
 ```
 V(t)^{(1)} = cV(t)^{(0)} - (V(t)^{(0)})^3/3 + R(t)^({0})
 R(t)^{(1)} = -(V(t)^{(0)} - a + bR(t)^{(0)})/c
