@@ -90,7 +90,7 @@ setup(
 
     install_requires=['numpy', 'scipy', 'kalmantv', 'Cython', 'numba'],
     extras_require={
-        'docs': ['sphinx'],
+        'docs': ['sphinx', 'sphinx_rtd_theme', 'recommonmark'],
         'examples': ['jupyter', 'matplotlib', 'numdifftools', 'seaborn']
     },
     setup_requires=['setuptools>=38']

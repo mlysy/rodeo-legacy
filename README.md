@@ -64,15 +64,21 @@ This will create the documentation in `docs/build`.
 Please see the detailed example in the tutorial [here](https://nbviewer.jupyter.org/github/mlysy/rodeo/blob/cythonize/examples/tutorial.ipynb).  Running the tutorial compares the deterministic Euler solver to the probabilistic solver for the ODE initial value problem
 
 ```
-x_t^{(2)} = sin(2t) - x_t^{(0)}
-x_0^{(1)} = 0
-x_0^{(0)} = -1
+x(t)^{(2)} = sin(2t) - x_t^{(0)}
+x(0)^{(1)} = 0
+x(0)^{(0)} = -1
 ```
 
 The results for N = 50, 100, and 200 grid points for both solvers is shown below.
 
 ![chkrebtii](/docs/figures/chkrebtiifigure.png)
 
-**rodeo** is also capable of performing parameter inference. An example of this is on the **FitzHugh-Nagumo** model in the tutorial. A comparison of the deterministic Euler solver to the probabilistic solver is shown below.
+**rodeo** is also capable of performing parameter inference using the mode-quadrature approximation method. For example the variate **FitzHugh-Nagumo** model can be stated as
+```
+V(t)^{(1)} = cV(t)^{(0)} - (V(t)^{(0)})^3/3 + R(t)^({0})
+R(t)^{(1)} = -(V(t)^{(0)} - a + bR(t)^{(0)})/c
+V^{(0)} = -1, R^{(0)} = 1
+```
+where the parameter of interest is `(a,b,c)`. A comparison of the deterministic Euler solver to the probabilistic solver is shown below.
 
 ![fitzhugh](/docs/figures/fitzfigure.png)
