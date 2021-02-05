@@ -55,7 +55,7 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
             del kalmanode.z_state
         np.save("saves/lorenz.npy", Xn)
     
-    fig, axs = plt.subplots(n_var, 1, figsize=(20, 7))
+    fig, axs = plt.subplots(n_var, 1, figsize=(20, 10))
     for prow in range(n_var):
         for i in range(draws):
             if i == (draws - 1):
@@ -67,7 +67,8 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
                         color="gray", alpha=1)
                 
         axs[prow].plot(tseq, exact[:, prow], label='odeint')
-        axs[prow].legend(loc='upper left')
+        if prow==0:
+            axs[prow].legend(loc='upper left')
     fig.tight_layout()
     fig.set_rasterized(True)
     plt.show()

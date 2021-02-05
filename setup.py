@@ -3,7 +3,7 @@ import numpy as np
 import platform
 from setuptools import setup, find_packages, Extension
 from os import path
-import kalmantv as ktv
+import eigenpip as epip
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as fh:
@@ -61,7 +61,7 @@ ext_modules = [Extension("rodeo.cython.KalmanODE",
                          ["rodeo/eigen/KalmanODE"+ext_cpp],	
                          include_dirs=[	
                              np.get_include(),	
-                             ktv.get_include()],	
+                             epip.get_include()],	
                          extra_compile_args=extra_compile_args,	
                          define_macros=disable_numpy_warnings,	
                          language="c++"),
@@ -69,14 +69,14 @@ ext_modules = [Extension("rodeo.cython.KalmanODE",
                          ["rodeo/eigen/KalmanODE2"+ext_cpp],
                          include_dirs=[
                              np.get_include(),
-                             ktv.get_include()],
+                             epip.get_include()],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
                          language="c++")]
 
 setup(
     name='rodeo',
-    version='0.0.1',
+    version='0.1',
     author='Mohan Wu, Martin Lysy',
     author_email='mlysy@uwaterloo.ca',
     long_description=long_description,
@@ -88,7 +88,12 @@ setup(
     cmdclass=cmdclass,
     ext_modules=ext_modules,
 
-    install_requires=['numpy', 'scipy', 'kalmantv', 'Cython', 'numba'],
+    install_requires=[
+        'numpy', 'scipy', 
+        'kalmantv', 'Cython', 
+        'numba',
+        'eigenpip @ https://github.com/mohanwu/eigenpip/archive/main.zip'
+    ],
     extras_require={
         'docs': ['sphinx', 'sphinx_rtd_theme', 'recommonmark'],
         'examples': ['jupyter', 'matplotlib', 'numdifftools', 'seaborn']

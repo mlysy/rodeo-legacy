@@ -113,7 +113,7 @@ def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
                                                               init=init,
                                                               draws=draws)
 
-    fig, axs = plt.subplots(dim_deriv, dim_example, figsize=(20, 7))
+    fig, axs = plt.subplots(dim_deriv, dim_example, figsize=(20, 10))
     for prow in range(dim_deriv):
         for pcol in range(dim_example):
             # plot Kalman draws

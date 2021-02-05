@@ -140,28 +140,28 @@ class inference:
         theta = np.exp(phi)
         return theta
     
-    def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes, rows=1):
+    def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes, clip=[None]*10, rows=1):
         r"""Plot the distribution of :math:`\theta` using the Kalman solver 
             and the Euler approximation."""
         n_size, _, n_theta = theta_euler.shape
         n_theta = n_theta//rows
         nrow = 2
-        fig, axs = plt.subplots(rows*nrow, n_theta, figsize=(20, 5*rows))
+        fig, axs = plt.subplots(rows*nrow, n_theta, figsize=(20, 10*rows))
         patches = [None]*(n_size+1)
         for r in range(rows):
             for col in range(n_theta):
                 axs[nrow*r, col].set_title('$\\theta_{}$'.format(r*n_theta+col))
                 for row in range(nrow):
                     axs[nrow*r+row, col].axvline(x=theta_true[r*n_theta+col], linewidth=1, color='r', linestyle='dashed')
-                    axs[nrow*r+row, col].locator_params(axis='x', nbins=3)
+                    axs[nrow*r+row, col].locator_params(axis='x', tight=True, nbins=3)
                     axs[nrow*r+row, col].set_yticks([])
                     if row==1:
                         axs[nrow*r+row, col].get_shared_x_axes().join(axs[nrow*r+row, col], axs[nrow*r, col])
                 for i in range(n_size):
                     if col==0:
                         patches[i] = mpatches.Patch(color='C{}'.format(i), label='h={}'.format(step_sizes[i]))
-                    sns.kdeplot(theta_euler[i, :, r*n_theta+col], ax=axs[nrow*r, col])
-                    sns.kdeplot(theta_kalman[i, :, r*n_theta+col], ax=axs[nrow*r+1, col])
+                    sns.kdeplot(theta_euler[i, :, r*n_theta+col], ax=axs[nrow*r, col], clip=clip[col])
+                    sns.kdeplot(theta_kalman[i, :, r*n_theta+col], ax=axs[nrow*r+1, col], clip=clip[col])
 
         for r in range(nrow*rows):
             if r%2==0:
