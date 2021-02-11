@@ -57,10 +57,10 @@ def _interrogate_chkrebtii(x_meas, var_meas,
     return
 
 @register_jitable
-def _interrogate_probde(x_meas, var_meas,
-                        fun, t, theta,
-                        wgt_meas, mu_state_pred, var_state_pred, 
-                        tx_state, twgt_meas):
+def _interrogate_rodeo(x_meas, var_meas,
+                       fun, t, theta,
+                       wgt_meas, mu_state_pred, var_state_pred, 
+                       tx_state, twgt_meas):
     """
     Interrogate method of rodeo.
 
@@ -276,16 +276,16 @@ class _KalmanODE:
             #                        tx_state=self.tx_state,
             #                        twgt_meas=self.twgt_meas,
             #                        tchol_state=self.tchol_state)
-            _interrogate_probde(x_meas=self.x_meas,
-                                var_meas=self.var_meas,
-                                fun=self.ode_fun,
-                                t=self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval,
-                                theta=theta,
-                                wgt_meas=self.wgt_meas,
-                                mu_state_pred=self.mu_state_pred[:, t+1],
-                                var_state_pred=self.var_state_pred[..., t+1],
-                                tx_state=self.tx_state,
-                                twgt_meas=self.twgt_meas)
+            _interrogate_rodeo(x_meas=self.x_meas,
+                               var_meas=self.var_meas,
+                               fun=self.ode_fun,
+                               t=self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval,
+                               theta=theta,
+                               wgt_meas=self.wgt_meas,
+                               mu_state_pred=self.mu_state_pred[:, t+1],
+                               var_state_pred=self.var_state_pred[..., t+1],
+                               tx_state=self.tx_state,
+                               twgt_meas=self.twgt_meas)
             # rest of kalman filter
             self.ktv.update(self.mu_state_filt[:, t+1],
                             self.var_state_filt[..., t+1],

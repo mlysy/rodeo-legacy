@@ -11,4 +11,4 @@ cdef extern from "KalmanTVODE.h" namespace "kalmantvode":
                            const bint smooths_sim)
         void forecast(const int cur_step)
         void forecast_sch(const int cur_step)
-        void forecast_probde(const int cur_step)
+        void forecast_rodeo(const int cur_step)

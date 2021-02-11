@@ -173,7 +173,7 @@ cdef class KalmanODE:
             # kalman filter:
             ktvode.predict(t)
             #ktvode.forecast(t)
-            ktvode.forecast_probde(t)
+            ktvode.forecast_rodeo(t)
             #ktvode.forecast_sch(t)
             self.ode_fun(x_state, self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval, theta, x_meas)
             ktvode.update(t)

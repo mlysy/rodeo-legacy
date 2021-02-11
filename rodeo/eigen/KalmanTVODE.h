@@ -83,7 +83,7 @@ namespace kalmantvode {
     /// Perform one step of Schobert interrogation.
     void forecast_sch(const int cur_step);
     /// Perform one step of rodeo interrogation.
-    void forecast_probde(const int cur_step);
+    void forecast_rodeo(const int cur_step);
 
   };
 
@@ -330,7 +330,7 @@ namespace kalmantvode {
   /// @param[in] var_state_preds Predicted state variance `Sigma_n+1|n`.
   /// @param[in] cur_step Current step, n.
   /// @param[in] wgt_meas Current measure transition matrix `W_n`.
-  inline void KalmanTVODE::forecast_probde(const int cur_step) {
+  inline void KalmanTVODE::forecast_rodeo(const int cur_step) {
     MapVectorXd _x_state_(x_state_, n_state_);
     MapMatrixXd _wgt_meas_(wgt_meas_, n_meas_, n_state_);
     twgt_meas_.noalias() = _wgt_meas_ * var_state_preds.block(0, n_state_*(cur_step+1),

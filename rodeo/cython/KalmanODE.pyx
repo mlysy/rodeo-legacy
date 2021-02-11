@@ -66,12 +66,12 @@ cpdef forecast_sch(double[::1] x_state,
     vec_copy(x_state, mu_state_pred)
     return
 
-cpdef forecast_probde(double[::1] x_state,
-                      double[::1, :] var_meas,
-                      double[::1, :] twgt_meas,
-                      const double[::1, :] wgt_meas,
-                      const double[::1] mu_state_pred,
-                      const double[::1, :] var_state_pred):
+cpdef forecast_rodeo(double[::1] x_state,
+                     double[::1, :] var_meas,
+                     double[::1, :] twgt_meas,
+                     const double[::1, :] wgt_meas,
+                     const double[::1] mu_state_pred,
+                     const double[::1, :] var_state_pred):
     r"""
     Forecast the observed state from the current state via the rodeo method.
 
@@ -313,13 +313,14 @@ cdef class KalmanODE:
             #          self.mu_state_pred[:, t+1],
             #          self.var_state_pred[:, :, t+1],
             #          self._z_state[:, t])
-            forecast_probde(self.x_state,
-                            self.var_meas,
-                            self.twgt_meas,
-                            self._wgt_meas,
-                            self.mu_state_pred[:, t+1],
-                            self.var_state_pred[:, :, t+1])
-
+            forecast_rodeo(self.x_state,
+                           self.var_meas,
+                           self.twgt_meas,
+                           self._wgt_meas,
+                           self.mu_state_pred[:, t+1],
+                           self.var_state_pred[:, :, t+1])
+            #forecast_sch(self.x_state,
+            #             self.mu_state_pred[:, t+1])
             self.ode_fun(self.x_state, self.tmin + (self.tmax -
                                                     self.tmin)*(t+1)/self.n_eval, theta, self.x_meas)
             self.ktv.update(self.mu_state_filt[:, t+1],

@@ -28,7 +28,7 @@ def lorenz_example():
     x0 = [-12, -5, 38]
     v0 = [70, 125, -124/3]
     X0 = np.column_stack([x0, v0])
-
+    
     # prior process definition
     n_deriv = [1, 1, 1] # number of derivatives in IVP
     n_deriv_prior = [3, 3, 3] # number of derivatives in IBM prior
@@ -51,7 +51,7 @@ def lorenz_example():
 
     n_points = 5000 # number of steps in which to discretize the time interval.
     dt = (tmax-tmin)/n_points # step size
-    
+
     # generate the Kalman parameters corresponding to the prior
     ode_init, x0_pad = car_init(dt, n_deriv_prior, tau, sigma, X0)
     kinit = indep_init(ode_init, n_deriv_prior)
@@ -62,7 +62,7 @@ def lorenz_example():
     kalman_sim = kalmanode.solve_sim(x0_pad, theta=theta)
 
     # Produce the graph in Figure 2
-    draws = 10
+    draws = 1000
     lorenz_graph(lorenz, n_deriv, n_deriv_prior, tmin, tmax, n_points, W_mat, tau, sigma, X0, theta, draws)
     return
 

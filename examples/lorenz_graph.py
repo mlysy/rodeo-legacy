@@ -9,6 +9,7 @@ from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
 from rodeo.car import car_init
+from rodeo.ibm import ibm_init
 from rodeo.cython.KalmanODE import KalmanODE
 from rodeo.utils import indep_init, zero_pad
 
@@ -51,7 +52,7 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
         kinit = indep_init(ode_init, n_deriv_prior)
         kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **kinit)
         for i in range(draws):
-            Xn[i] = kalmanode.solve_sim(v_init, theta=theta)
+            Xn[i] = kalmanode.solve_mv(v_init, theta=theta)[0]
             del kalmanode.z_state
         np.save("saves/lorenz.npy", Xn)
     
