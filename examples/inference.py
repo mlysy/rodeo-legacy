@@ -87,7 +87,7 @@ class inference:
         theta = np.exp(phi)
         data_tseq = np.linspace(1, self.tmax, self.tmax-self.tmin)
         ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
-        X_t = self.kode.solve_sim(x0, self.W, theta)
+        X_t = self.kode.solve_mv(x0, self.W, theta)[0]
         X_t = self.thinning(data_tseq, ode_tseq, X_t)[:, self.state_ind]
         lp = self.loglike(Y_t, X_t, gamma)
         lp += self.loglike(phi, phi_mean, phi_sd)
@@ -123,7 +123,7 @@ class inference:
             obj_fun = self.kalman_nlpost
         else:
             obj_fun = self.euler_nlpost
-        opt_res = sp.optimize.minimize(obj_fun, phi_mean+.1,
+        opt_res = sp.optimize.minimize(obj_fun, phi_mean + .1,
                                     args=(Y_t, x0, step_size, phi_mean, phi_sd, gamma),
                                     method='Nelder-Mead')
         phi_hat = opt_res.x
@@ -171,7 +171,7 @@ class inference:
             else:
                 axs[r, 0].set_ylabel('rodeo')
         patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
-        axs[0, -1].legend(handles=patches, framealpha=0.5)
+        axs[-1, -1].legend(handles=patches, framealpha=0.5)
         fig.tight_layout()
         plt.show()
         return fig

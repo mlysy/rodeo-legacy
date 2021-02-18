@@ -72,16 +72,17 @@ def car_state(delta_t, roots, sigma):
     wgtState = np.matmul(Q * np.exp(-roots*delta_t[0]), Q_inv, order='F')
     return wgtState, varState
     
-def car_init(dt, n_deriv_prior, tau, sigma, x0=None):
+def car_init(dt, n_deriv, n_deriv_prior, tau, sigma, x0=None):
     """
     Calculates the initial parameters necessary for the Kalman solver.
 
     Args:
         dt (float): The step size between simulation points.
+        n_deriv (list(int)): Number of derivatives for each variable in ODE IVP.
         n_deriv_prior (list(int)): Dimension of the prior.
         tau (list(float)): First root parameter.
         sigma (list(float)): Parameter in mOU volatility matrix.
-        x0 (ndarray(n_var, q+1)): The initial value, :math:`x0`, to the ODE problem.
+        x0 (q+1): The initial value, :math:`x0`, to the ODE problem.
         
     Returns:
         (tuple):
@@ -104,7 +105,7 @@ def car_init(dt, n_deriv_prior, tau, sigma, x0=None):
         roots = root_gen(tau[i], n_deriv_prior[i])
         if x0 is not None:
             x0_state[sum(n_deriv_prior[:i]):sum(n_deriv_prior[:i+1])] = \
-                car_initial_draw(roots, sigma[i], x0[i], n_deriv_prior[i])
+                car_initial_draw(roots, sigma[i], x0[sum(n_deriv[:i])+i:sum(n_deriv[:i+1])+i+1], n_deriv_prior[i])
         wgt_state[i], var_state[i] = car_state(delta_t, roots, sigma[i])
   
     if n_var == 1:

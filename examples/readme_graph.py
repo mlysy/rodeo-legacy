@@ -35,6 +35,15 @@ def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w
         del kalmanode.z_state
     return X
 
+def readme_kalman_mv(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_mat, init):
+    dt = (tmax-tmin)/n_eval
+    W = zero_pad(w_mat, n_deriv, n_deriv_prior)
+    x0_state = zero_pad(init, n_deriv, n_deriv_prior)
+    prior = ibm_init(dt, n_deriv_prior, sigma)
+    kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **prior)
+    X = kalmanode.solve_mv(x0_state, W)[0]
+    return X
+
 def readme_solve(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, sigma, init, draws):
     """
     Calculates kalman_ode, euler_ode, and exact_ode on the given grid for the README ode.
@@ -65,13 +74,14 @@ def readme_solve(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, sigma, 
     """
     tseq = np.linspace(tmin, tmax, n_eval+1)
     Xt = readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_mat, init, draws)
+    Xm = readme_kalman_mv(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_mat, init)
     x_euler = euler_approx(ode_euler, tseq, init)
     x_exact = np.zeros((n_eval+1, 2))
     for i,t in enumerate(tseq):
         x_exact[i, 0] = ode_exact_x(t)
         x_exact[i, 1] = ode_exact_x1(t)
 
-    return tseq, Xt, x_euler, x_exact
+    return tseq, Xt, x_euler, x_exact, Xm
 
 # Function that produces the graph as shown in README
 def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
@@ -98,20 +108,21 @@ def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
     dim_example = len(N)
     tseq = [None] * dim_example
     Xn = [None] * dim_example
+    Xmean = [None] * dim_example
     x_euler = [None] * dim_example
     x_exact = [None] * dim_example
 
     for i in range(dim_example):
-        tseq[i], Xn[i], x_euler[i], x_exact[i] = readme_solve(fun=fun,
-                                                              n_deriv=n_deriv,
-                                                              n_deriv_prior=n_deriv_prior, 
-                                                              tmin=tmin, 
-                                                              tmax=tmax, 
-                                                              n_eval=N[i],
-                                                              w_mat=w_mat,
-                                                              sigma=Sigma[i], 
-                                                              init=init,
-                                                              draws=draws)
+        tseq[i], Xn[i], x_euler[i], x_exact[i], Xmean[i] = readme_solve(fun=fun,
+                                                                        n_deriv=n_deriv,
+                                                                        n_deriv_prior=n_deriv_prior, 
+                                                                        tmin=tmin, 
+                                                                        tmax=tmax, 
+                                                                        n_eval=N[i],
+                                                                        w_mat=w_mat,
+                                                                        sigma=Sigma[i], 
+                                                                        init=init,
+                                                                        draws=draws)
 
     fig, axs = plt.subplots(dim_deriv, dim_example, figsize=(20, 10))
     for prow in range(dim_deriv):
@@ -120,7 +131,7 @@ def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
             for i in range(draws):
                 if i == (draws - 1):
                     axs[prow, pcol].plot(tseq[pcol], Xn[pcol][i,:,prow], 
-                                        color="lightgray", alpha=.3, label="rodeo")
+                                        color="lightgray", alpha=.3, label="rodeo draws")
                 else:
                     axs[prow, pcol].plot(tseq[pcol], Xn[pcol][i,:,prow], 
                                         color="lightgray", alpha=.3)
@@ -129,11 +140,13 @@ def readme_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, w_mat, init, draws):
                                 label="Euler")
             axs[prow, pcol].plot(tseq[pcol], x_exact[pcol][:,prow], 
                                 label="Exact")
+            # plot Kalman mean
+            axs[prow, pcol].plot(tseq[pcol], Xmean[pcol][:,prow],
+                                 label="rodeo mean")
             # set legend and title
             axs[prow, pcol].set_title("$x^{(%s)}_t$;   $N=%s$" % (prow, N[pcol]))
             #axs[prow, pcol].set_ylabel("$x^{(%s)}_t$" % (prow))
-            if (prow == 0) & (pcol == 0):
-                axs[prow, pcol].legend(loc='upper left')
+    axs[0, -1].legend(loc='upper left', bbox_to_anchor=[1, 1])
     
     fig.tight_layout()
     plt.show()

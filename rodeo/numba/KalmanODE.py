@@ -22,95 +22,80 @@ def _fempty(shape):
 
 
 @register_jitable
-def _interrogate_chkrebtii(x_meas, var_meas,
-                           fun, t, theta,
-                           wgt_meas, mu_state_pred, var_state_pred, z_state,
-                           tx_state, twgt_meas, tchol_state):
+def _interrogate_chkrebtii(x_state, var_meas, twgt_meas, tchol_state,
+                           wgt_meas, mu_state_pred, var_state_pred, z_state):
     """
     Interrogate method of Chkrebtii et al (2016).
 
     Args:
-        x_meas (ndarray(n_meas)): Interrogation variable.
+        x_state (ndarray(n_state)): Temporary state variable.
         var_meas (ndarray(n_meas, n_meas)): Interrogation variance.
+        twgt_meas (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
+        tchol_state (ndarray(n_state, n_state)): Temporary matrix to store cholesky factorization.
         wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
         mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
         var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given
             observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
         z_state (ndarray(n_state)): Random vector simulated from :math:`N(0, 1)`.
-        tx_state (ndarray(n_state)): Temporary state variable.
-        twgt_meas (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
-        tchol_state (ndarray(n_state, n_state)): Temporary matrix to store cholesky factorization.
+        
 
     Returns:
         (tuple):
-        - **x_meas** (ndarray(n_meas)): Interrogation variable.
+        - **x_state** (ndarray(n_state)): Temporary state variable.
         - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
-        - **tx_state** (ndarray(n_state)): Temporary state variable.
         - **twgt_meas** (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
         - **tchol_state** (ndarray(n_state, n_state)): Temporary matrix to store cholesky factorization.
     """
     var_meas[:]=0.
     _quad_form(var_meas, wgt_meas, var_state_pred, twgt_meas)
-    _mvn_sim(tx_state, mu_state_pred, var_state_pred, z_state, tchol_state)
-    fun(tx_state, t, theta, x_meas)
+    _mvn_sim(x_state, mu_state_pred, var_state_pred, z_state, tchol_state)
     return
 
 @register_jitable
-def _interrogate_rodeo(x_meas, var_meas,
-                       fun, t, theta,
-                       wgt_meas, mu_state_pred, var_state_pred, 
-                       tx_state, twgt_meas):
+def _interrogate_rodeo(x_state, var_meas, twgt_meas,
+                       wgt_meas, mu_state_pred, var_state_pred):
     """
     Interrogate method of rodeo.
 
     Args:
-        x_meas (ndarray(n_meas)): Interrogation variable.
+        x_state (ndarray(n_state)): Temporary state variable.
         var_meas (ndarray(n_meas, n_meas)): Interrogation variance.
+        twgt_meas (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
         wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
         mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
         var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given
             observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
-        tx_state (ndarray(n_state)): Temporary state variable.
-        twgt_meas (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
         
     Returns:
         (tuple):
-        - **x_meas** (ndarray(n_meas)): Interrogation variable.
+        - **x_state** (ndarray(n_state)): Temporary state variable.
         - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
-        - **tx_state** (ndarray(n_state)): Temporary state variable.
         - **twgt_meas** (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
     
     """
     var_meas[:]=0.
     _quad_form(var_meas, wgt_meas, var_state_pred, twgt_meas)
-    tx_state[:] = mu_state_pred
-    fun(tx_state, t, theta, x_meas)
+    x_state[:] = mu_state_pred
     return
 
 @register_jitable
-def _interrogate_schobert(x_meas,
-                          fun, t, theta,
-                          mu_state_pred,
-                          tx_state):
+def _interrogate_schober(x_state,
+                         mu_state_pred):
     """
-    Interrogate method of Schobert et al (2019).
+    Interrogate method of Schober et al (2019).
 
     Args:
-        x_meas (ndarray(n_meas)): Interrogation variable.
+        x_state (ndarray(n_state)): Temporary state variable.
         mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
-        tx_state (ndarray(n_state)): Temporary state variable.
         
     Returns:
-        (tuple):
-        - **x_meas** (ndarray(n_meas)): Interrogation variable.
-        - **tx_state** (ndarray(n_state)): Temporary state variable.
+        (ndarray(n_state)): Temporary state variable.
     
     """
-    tx_state[:] = mu_state_pred
-    fun(tx_state, t, theta, x_meas)
+    x_state[:] = mu_state_pred
     return
 
 @register_jitable
@@ -155,7 +140,7 @@ class _KalmanODE:
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by :math:`Q`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
-        z_state (ndarray(n_state, n_eval)): Random N(0,1) matrix for forecasting and smoothing.
+        z_state (ndarray(n_state, 2*n_eval)): Random N(0,1) matrix for forecasting and smoothing.
 
     """
     def __init__(self, W, tmin, tmax, n_eval,
@@ -172,7 +157,7 @@ class _KalmanODE:
         self._mu_state = _fempty((self.n_state,))
         self._wgt_state = _fempty((self.n_state, self.n_state))
         self._var_state = _fempty((self.n_state, self.n_state))
-        self._z_state = np.zeros((self.n_eval, self.n_state)).T
+        self._z_state = np.zeros((2*self.n_eval, self.n_state)).T
 
         self._wgt_meas[:] = W
         self._mu_state[:] = mu_state
@@ -187,13 +172,12 @@ class _KalmanODE:
         self.var_state_pred = _fempty((self.n_state, self.n_state, self.n_steps))
         self.mu_state_filt = _fempty((self.n_state, self.n_steps))
         self.var_state_filt = _fempty((self.n_state, self.n_state, self.n_steps))
+        self.x_state = _fempty((self.n_state,))
         self.x_meas = _fempty((self.n_meas,))
         self.mu_meas =  np.zeros((self.n_meas,)).T# doesn't get updated
         self.var_meas = np.zeros((self.n_meas, self.n_meas)).T
         self.ktv = KalmanTV(self.n_meas, self.n_state)
-        #self.time = np.linspace(self.tmin, self.tmax, self.n_steps)
         # temporaries
-        self.tx_state = _fempty((self.n_state,))
         self.twgt_meas = _fempty((self.n_meas, self.n_state))
         self.tchol_state = _fempty((self.n_state, self.n_state))
 
@@ -242,7 +226,7 @@ class _KalmanODE:
         _copynm(self._z_state, value, "z_state")
         return
 
-    def _solve_filter(self, x0, theta):
+    def _solve_filter(self, x0, theta=None, method="rodeo"):
         r"""
         Forward pass filter step in the KalmanODE solver.
         
@@ -264,28 +248,28 @@ class _KalmanODE:
                              self.wgt_state,
                              self.var_state)
             # model interrogation
-            # _interrogate_chkrebtii(x_meas=self.x_meas,
-            #                        var_meas=self.var_meas,
-            #                        fun=self.ode_fun,
-            #                        t=self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval,
-            #                        theta=theta,
-            #                        wgt_meas=self.wgt_meas,
-            #                        mu_state_pred=self.mu_state_pred[:, t+1],
-            #                        var_state_pred=self.var_state_pred[..., t+1],
-            #                        z_state=self.z_state[:, t],
-            #                        tx_state=self.tx_state,
-            #                        twgt_meas=self.twgt_meas,
-            #                        tchol_state=self.tchol_state)
-            _interrogate_rodeo(x_meas=self.x_meas,
-                               var_meas=self.var_meas,
-                               fun=self.ode_fun,
-                               t=self.tmin + (self.tmax-self.tmin)*(t+1)/self.n_eval,
-                               theta=theta,
-                               wgt_meas=self.wgt_meas,
-                               mu_state_pred=self.mu_state_pred[:, t+1],
-                               var_state_pred=self.var_state_pred[..., t+1],
-                               tx_state=self.tx_state,
-                               twgt_meas=self.twgt_meas)
+            if method=="chkrebtii":
+                _interrogate_chkrebtii(x_state=self.x_state,
+                                       var_meas=self.var_meas,
+                                       twgt_meas=self.twgt_meas,
+                                       tchol_state=self.tchol_state,
+                                       wgt_meas=self.wgt_meas,
+                                       mu_state_pred=self.mu_state_pred[:, t+1],
+                                       var_state_pred=self.var_state_pred[..., t+1],
+                                       z_state=self.z_state[:, self.n_eval+t])
+            elif method=="schober":
+                _interrogate_schober(x_state=self.x_state,
+                                     mu_state_pred=self.mu_state_pred[:, t+1])
+            else:
+                _interrogate_rodeo(x_state=self.x_state,
+                                   var_meas=self.var_meas,
+                                   twgt_meas=self.twgt_meas,
+                                   wgt_meas=self.wgt_meas,
+                                   mu_state_pred=self.mu_state_pred[:, t+1],
+                                   var_state_pred=self.var_state_pred[..., t+1])
+            
+            self.ode_fun(self.x_state, self.tmin + (self.tmax - self.tmin)*(t+1)/self.n_eval, 
+                         theta, self.x_meas)
             # rest of kalman filter
             self.ktv.update(self.mu_state_filt[:, t+1],
                             self.var_state_filt[..., t+1],
@@ -296,7 +280,7 @@ class _KalmanODE:
                             self.wgt_meas,
                             self.var_meas)
 
-    def solve(self, x0, W, theta):
+    def solve(self, x0, W=None, theta=None, method="rodeo"):
         r"""
         Returns a sample solution, a posterior mean and variance of the solution process to ODE problem.
 
@@ -304,6 +288,7 @@ class _KalmanODE:
             x0 (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`t = 0`; :math:`x_0`.
             W (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
             theta (ndarray(n_theta)): Parameter in the ODE function.
+            method (string): Interrogation method.
         
         Returns:
             (tuple):
@@ -322,7 +307,7 @@ class _KalmanODE:
         # forward pass
         if W is not None:
             self._wgt_meas[:] = W  
-        self._solve_filter(x0, theta)
+        self._solve_filter(x0, theta, method)
 
         # backward pass
         # initialize
@@ -352,7 +337,7 @@ class _KalmanODE:
 
         return x_state_smooth.T, mu_state_smooth.T, var_state_smooth.T
     
-    def solve_sim(self, x0, W, theta):
+    def solve_sim(self, x0, W=None, theta=None, method="rodeo"):
         r"""
         Only returns a sample solution from :func:`~KalmanODE.KalmanODE.solve`.
 
@@ -362,7 +347,7 @@ class _KalmanODE:
         # forward pass
         if W is not None:
             self._wgt_meas[:] = W 
-        self._solve_filter(x0, theta)
+        self._solve_filter(x0, theta, method)
 
         # backward pass
         # initialize
@@ -386,7 +371,7 @@ class _KalmanODE:
         
         return x_state_smooth.T
 
-    def solve_mv(self, x0, W, theta):
+    def solve_mv(self, x0, W=None, theta=None, method="rodeo"):
         r"""
         Only returns the mean and variance from :func:`~KalmanODE.KalmanODE.solve`.
 
@@ -396,7 +381,7 @@ class _KalmanODE:
         # forward pass
         if W is not None:
             self._wgt_meas[:] = W 
-        self._solve_filter(x0, theta)
+        self._solve_filter(x0, theta, method)
 
         # backward pass
         # initialize
@@ -443,7 +428,7 @@ def KalmanODE(wgt_meas, tmin, tmax, n_eval, ode_fun,
         ('mu_meas', float64[::1]),
         ('var_meas', float64[::1, :]),
         ('ktv', kalman_type),
-        ('tx_state', float64[::1]),
+        ('x_state', float64[::1]),
         ('twgt_meas', float64[::1, :]),
         ('tchol_state', float64[::1, :])
     ]

@@ -6,24 +6,23 @@ import numpy as np
 cimport cython
 cimport numpy as np
 
-
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
 
-cpdef forecast(double[::1] x_state,
-               double[::1, :] var_meas,
-               double[::1, :] twgt_meas,
-               double[::1, :] llt_state,
-               const double[::1, :] wgt_meas,
-               const double[::1] mu_state_pred,
-               const double[::1, :] var_state_pred,
-               const double[::1] z_state):
+cpdef interrogate_chkrebtii(double[::1] x_state,
+                            double[::1, :] var_meas,
+                            double[::1, :] twgt_meas,
+                            double[::1, :] llt_state,
+                            const double[::1, :] wgt_meas,
+                            const double[::1] mu_state_pred,
+                            const double[::1, :] var_state_pred,
+                            const double[::1] z_state):
     r"""
-    Forecast the observed state from the current state.
+    Interrogate method of Chkrebtii et al (2016).
 
     Args:
-        x_state (ndarray(n_state)): Simulated state.
-        var_meas (ndarray(n_meas, n_meas)): Variance of simulated measure.
+        x_state (ndarray(n_state)): Temporary state variable.
+        var_meas (ndarray(n_meas, n_meas)): Interrogation variance.
         twgt_meas (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
         llt_state (ndarray(n_state, n_state)): Temporary matrix to store cholesky factorization.
         wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
@@ -35,8 +34,10 @@ cpdef forecast(double[::1] x_state,
 
     Returns:
         (tuple):
-        - **x_state** (ndarray(n_state)): Simulated state.
-        - **var_meas** (ndarray(n_meas, n_meas)): Variance of simulated measure.
+        - **x_state** (ndarray(n_state)): Temporary state variable.
+        - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
+        - **twgt_meas** (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
+        - **llt_state** (ndarray(n_state, n_state)): Temporary matrix to store cholesky factorization.
 
     """
     cdef char * wgt_trans = 'N'
@@ -48,36 +49,35 @@ cpdef forecast(double[::1] x_state,
     state_sim(x_state, llt_state, mu_state_pred, var_state_pred, z_state)
     return
 
-cpdef forecast_sch(double[::1] x_state,
-                   const double[::1] mu_state_pred):
+cpdef interrogate_schober(double[::1] x_state,
+                          const double[::1] mu_state_pred):
     r"""
-    Forecast the observed state from the current state via the Schobert method.
+    Interrogate method of Schober et al (2019).
 
     Args:
-        x_state (ndarray(n_state)): Simulated state.
-        mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from 
+        x_state (ndarray(n_state)): Temporary state variable.
+        mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
-
+        
     Returns:
-        (tuple):
-        - **x_state** (ndarray(n_state)): Simulated state.
+        (ndarray(n_state)): Temporary state variable.
 
     """
     vec_copy(x_state, mu_state_pred)
     return
 
-cpdef forecast_rodeo(double[::1] x_state,
-                     double[::1, :] var_meas,
-                     double[::1, :] twgt_meas,
-                     const double[::1, :] wgt_meas,
-                     const double[::1] mu_state_pred,
-                     const double[::1, :] var_state_pred):
+cpdef interrogate_rodeo(double[::1] x_state,
+                        double[::1, :] var_meas,
+                        double[::1, :] twgt_meas,
+                        const double[::1, :] wgt_meas,
+                        const double[::1] mu_state_pred,
+                        const double[::1, :] var_state_pred):
     r"""
-    Forecast the observed state from the current state via the rodeo method.
+    Interrogate method of rodeo.
 
     Args:
-        x_state (ndarray(n_state)): Simulated state.
-        var_meas (ndarray(n_meas, n_meas)): Variance of simulated measure.
+        x_state (ndarray(n_state)): Temporary state variable.
+        var_meas (ndarray(n_meas, n_meas)): Interrogation variance.
         twgt_meas (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
         wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
         mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from 
@@ -87,8 +87,8 @@ cpdef forecast_rodeo(double[::1] x_state,
 
     Returns:
         (tuple):
-        - **x_state** (ndarray(n_state)): Simulated state.
-        - **var_meas** (ndarray(n_meas, n_meas)): Variance of simulated measure.
+        - **x_state** (ndarray(n_state)): Temporary state variable.
+        - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
         - **twgt_meas** (ndarray(n_meas, n_state)): Temporary matrix to store intermediate operation.
 
     """
@@ -137,7 +137,7 @@ cdef class KalmanODE:
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by :math:`Q`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; denoted by :math:`R`.
-        z_state (ndarray(n_state, n_eval)): Random N(0,1) matrix for forecasting and smoothing.
+        z_state (ndarray(n_state, 2*n_eval)): Random N(0,1) matrix for forecasting and smoothing.
 
     """
     cdef int n_state, n_meas, n_eval, n_steps
@@ -155,9 +155,6 @@ cdef class KalmanODE:
     cdef double[::1, :, :] var_state_pred
     cdef double[::1, :] mu_state_filt
     cdef double[::1, :, :] var_state_filt
-    cdef double[::1, :] mu_state_smooth
-    cdef double[::1, :, :] var_state_smooth
-    cdef double[::1, :] x_state_smooth
     cdef double[::1] x_state
     cdef double[::1] x_meas
     cdef double[::1] mu_meas
@@ -181,7 +178,7 @@ cdef class KalmanODE:
         self._mu_state = np.empty(self.n_state, order='F')
         self._wgt_state = np.empty((self.n_state, self.n_state), order='F')
         self._var_state = np.empty((self.n_state, self.n_state), order='F')
-        self._z_state = np.zeros((self.n_state, self.n_eval), order='F')
+        self._z_state = np.zeros((self.n_state, 2*self.n_eval), order='F')
 
         # iniitalize kalman variables
         self._wgt_meas[:] = W
@@ -201,9 +198,6 @@ cdef class KalmanODE:
             (self.n_state, self.n_steps), dtype=DTYPE, order='F')
         self.var_state_filt = np.empty(
             (self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        #self.mu_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        #self.var_state_smooth = np.empty((self.n_state, self.n_state, self.n_steps), dtype=DTYPE, order='F')
-        #self.x_state_smooth = np.empty((self.n_state, self.n_steps), dtype=DTYPE, order='F')
         self.x_state = np.empty(self.n_state, dtype=DTYPE, order='F')
         self.x_meas = np.empty(self.n_meas, dtype=DTYPE, order='F')
         self.mu_meas = np.zeros(self.n_meas, dtype=DTYPE, order='F')
@@ -275,15 +269,15 @@ cdef class KalmanODE:
 
     @z_state.deleter
     def z_state(self):
-        self._z_state = np.zeros((self.n_state, self.n_eval), order='F')
+        self._z_state = np.zeros((self.n_state, 2*self.n_eval), order='F')
 
-    cpdef _solve_filter(self, double[::1] x0, object theta=None):
+    cpdef _solve_filter(self, double[::1] x0, object theta=None, method="rodeo"):
         r"""
         Forward pass filter step in the KalmanODE solver.
 
         """
         if not np.any(self._z_state):
-            self.z_state[:] = rand_mat(self.n_eval, self.n_state)
+            self.z_state[:] = rand_mat(2*self.n_eval, self.n_state)
 
         if not np.asarray(x0).data.f_contiguous:
             raise TypeError('{} is not f contiguous.'.format('x0'))
@@ -305,24 +299,27 @@ cdef class KalmanODE:
                              self._mu_state,
                              self._wgt_state,
                              self._var_state)
-            # forecast(self.x_state,
-            #          self.var_meas,
-            #          self.twgt_meas,
-            #          self.llt_state,
-            #          self._wgt_meas,
-            #          self.mu_state_pred[:, t+1],
-            #          self.var_state_pred[:, :, t+1],
-            #          self._z_state[:, t])
-            forecast_rodeo(self.x_state,
-                           self.var_meas,
-                           self.twgt_meas,
-                           self._wgt_meas,
-                           self.mu_state_pred[:, t+1],
-                           self.var_state_pred[:, :, t+1])
-            #forecast_sch(self.x_state,
-            #             self.mu_state_pred[:, t+1])
-            self.ode_fun(self.x_state, self.tmin + (self.tmax -
-                                                    self.tmin)*(t+1)/self.n_eval, theta, self.x_meas)
+            if method=="chkrebtii":
+                interrogate_chkrebtii(self.x_state,
+                                      self.var_meas,
+                                      self.twgt_meas,
+                                      self.llt_state,
+                                      self._wgt_meas,
+                                      self.mu_state_pred[:, t+1],
+                                      self.var_state_pred[:, :, t+1],
+                                      self._z_state[:, self.n_eval+t])
+            elif method=="schober":
+                interrogate_schober(self.x_state,
+                                    self.mu_state_pred[:, t+1])
+            else:
+                interrogate_rodeo(self.x_state,
+                                  self.var_meas,
+                                  self.twgt_meas,
+                                  self._wgt_meas,
+                                  self.mu_state_pred[:, t+1],
+                                  self.var_state_pred[:, :, t+1]) 
+            self.ode_fun(self.x_state, self.tmin + (self.tmax - self.tmin)*(t+1)/self.n_eval, 
+                         theta, self.x_meas)
             self.ktv.update(self.mu_state_filt[:, t+1],
                             self.var_state_filt[:, :, t+1],
                             self.mu_state_pred[:, t+1],
@@ -333,7 +330,7 @@ cdef class KalmanODE:
                             self.var_meas)
         return
 
-    cpdef solve(self, double[::1] x0, double[::1, :] W=None, object theta=None):
+    cpdef solve(self, double[::1] x0, double[::1, :] W=None, object theta=None, method="rodeo"):
         r"""
         Returns a sample solution, a posterior mean and variance of the solution process to ODE problem.
 
@@ -341,6 +338,7 @@ cdef class KalmanODE:
             x0 (ndarray(n_state)): Initial value of the state variable :math:`x_n` at time :math:`t = 0`; :math:`x_0`.
             W (ndarray(n_var, n_state)): Transition matrix defining the measure prior; :math:`W`.
             theta (ndarray(n_theta)): Parameter in the ODE function.
+            method (string): Interrogation method.
 
         Returns:
             (tuple):
@@ -364,7 +362,7 @@ cdef class KalmanODE:
         if W is not None:
             self._wgt_meas[:] = W
 
-        self._solve_filter(x0, theta)
+        self._solve_filter(x0, theta, method)
         vec_copy(mu_state_smooth[:, 0], self.mu_state_filt[:, 0])
         vec_copy(x_state_smooth[:, 0], x0)
         vec_copy(mu_state_smooth[:, self.n_eval],
@@ -394,7 +392,7 @@ cdef class KalmanODE:
 
         return np.asarray(x_state_smooth.T), np.asarray(mu_state_smooth.T), np.asarray(var_state_smooth.T)
 
-    cpdef solve_sim(self, double[::1] x0, double[::1, :] W=None, object theta=None):
+    cpdef solve_sim(self, double[::1] x0, double[::1, :] W=None, object theta=None, method="rodeo"):
         r"""
         Only returns a sample solution from :func:`~KalmanODE.KalmanODE.solve`.
 
@@ -406,7 +404,7 @@ cdef class KalmanODE:
         if W is not None:
             self._wgt_meas[:] = W
 
-        self._solve_filter(x0, theta)
+        self._solve_filter(x0, theta, method)
         vec_copy(x_state_smooth[:, 0], x0)
         state_sim(x_state_smooth[:, self.n_eval],
                   self.llt_state,
@@ -427,7 +425,7 @@ cdef class KalmanODE:
 
         return np.asarray(x_state_smooth.T)
 
-    cpdef solve_mv(self, double[::1] x0, double[::1, :] W=None, object theta=None):
+    cpdef solve_mv(self, double[::1] x0, double[::1, :] W=None, object theta=None, method="rodeo"):
         r"""
         Only returns the mean and variance from :func:`~KalmanODE.KalmanODE.solve`.
 
@@ -442,7 +440,7 @@ cdef class KalmanODE:
         if W is not None:
             self._wgt_meas[:] = W
 
-        self._solve_filter(x0, theta)
+        self._solve_filter(x0, theta, method)
         vec_copy(mu_state_smooth[:, 0], self.mu_state_filt[:, 0])
         vec_copy(mu_state_smooth[:, self.n_eval],
                  self.mu_state_filt[:, self.n_eval])

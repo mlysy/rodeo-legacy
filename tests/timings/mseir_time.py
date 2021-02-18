@@ -16,9 +16,9 @@ from rodeo.ibm import ibm_init
 from rodeo.numba.KalmanODE import KalmanODE as KalmanODE_num
 from rodeo.cython.KalmanODE import KalmanODE as KalmanODE_cy
 from rodeo.eigen.KalmanODE import KalmanODE as KalmanODE_c
-from rodeo.tests.KalmanODE2 import KalmanODE as KalmanODE_c2
-from rodeo.tests.ode_functions import chkrebtii_fun as ode_fun_nd
-from rodeo.tests.ode_functions_ctuple import chkrebtii_fun as ode_fun_ct
+from rodeo.eigen.KalmanODE2 import KalmanODE as KalmanODE_c2
+from rodeo.tests.ode_functions import mseir_fun as ode_fun_nd
+from rodeo.tests.ode_functions_ctuple import mseir_fun as ode_fun_ct
 
 # pick ode function
 use_ctuple = False
@@ -93,7 +93,7 @@ x0_state = zero_pad(X0, n_deriv, n_deriv_prior)
 dt = (tmax-tmin)/n_eval
 ode_init = ibm_init(dt, n_deriv_prior, sigma)
 kinit = indep_init(ode_init, n_deriv_prior)
-z_state = rand_mat(n_eval, p)
+z_state = rand_mat(2*n_eval, p)
 
 # pick ode function with ndarray or ctuple inputs
 ode_fun = ode_fun_ct if use_ctuple else ode_fun_nd
