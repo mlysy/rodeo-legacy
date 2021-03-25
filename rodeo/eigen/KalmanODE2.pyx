@@ -3,7 +3,7 @@ cimport cython
 import numpy as np
 cimport numpy as np
 
-from kalmantv.eigen.KalmanTV cimport KalmanTV
+from kalmantv.eigen.KalmanTV cimport KalmanTV_raw
 from kalmantv.cython.blas cimport mat_triple_mult, vec_copy, mat_copy
 from rodeo.utils import rand_mat
 
@@ -57,7 +57,7 @@ cdef class KalmanODE:
     cdef double[::1] _mu_state
     cdef double[::1, :] _var_state
     cdef double[::1, :] _z_state
-    cdef KalmanTV * ktv
+    cdef KalmanTV_raw * ktv
 
     # malloc variables
     cdef double[::1, :] mu_state_pred
@@ -117,7 +117,7 @@ cdef class KalmanODE:
         self.twgt_meas = np.empty((self.n_meas, self.n_state), dtype=DTYPE, order='F')
 
         # initialize class
-        self.ktv = new KalmanTV(self.n_meas, self.n_state)
+        self.ktv = new KalmanTV_raw(self.n_meas, self.n_state)
     
     @property
     def wgt_meas(self):

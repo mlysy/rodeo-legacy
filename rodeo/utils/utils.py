@@ -46,41 +46,41 @@ def solveV(V, B):
     L, low = scl.cho_factor(V)
     return scl.cho_solve((L, low), B)
 
-def zero_pad(x, n_deriv, n_deriv_prior):
+def zero_pad(x, n_deriv, n_order):
     """
     Pad x with 0 at the end for each variable.
 
     Args:
         x0 (ndarray(n_dim1, n_dim2)): Any matrix or vector.
         n_deriv (list): Number of derivatives for each variable in ODE IVP.
-        n_deriv_prior (list): Number of derivatives for each variable in Kalman solver.
+        n_order (list): Number of derivatives for each variable in Kalman solver.
 
     Returns:
         (ndarray(n_dim1, n_dim2)): Padded matrix or vector.
 
     """
     if len(x.shape)==1:
-        X = np.zeros(sum(n_deriv_prior), order='F')
+        X = np.zeros(sum(n_order), order='F')
     else:
-        X = np.zeros((len(n_deriv), sum(n_deriv_prior)), order='F')
+        X = np.zeros((len(n_deriv), sum(n_order)), order='F')
     
     n_deriv = [x+1 for x in n_deriv]
     for i in range(len(n_deriv)):
         indx = sum(n_deriv[:i])
-        indX = sum(n_deriv_prior[:i])
+        indX = sum(n_order[:i])
         if len(x.shape)==1:
             X[indX:indX+n_deriv[i]] = x[indx:indx+n_deriv[i]]
         else:
             X[i, indX:indX+n_deriv[i]] = x[i, indx:indx+n_deriv[i]]
     return X
 
-def indep_init(init, n_deriv_prior):
+def indep_init(init, n_order):
     """
     Computes the necessary parameters for the Kalman filter and smoother.
 
     Args:
         init (list(n_var)): Computed initial parameters for each variable.
-        n_deriv_prior (int): Number of derivatives for each variable in Kalman solver.
+        n_order (list(int)): Number of derivatives for each variable in Kalman solver.
     
     Returns:
         (tuple):
@@ -95,14 +95,14 @@ def indep_init(init, n_deriv_prior):
     var_state_i = init['var_state']
 
     n_var = len(var_state_i)
-    p = sum(n_deriv_prior)
+    p = sum(n_order)
     wgt_state = np.zeros((p, p), order='F')
     var_state = np.zeros((p, p), order='F')
     ind = 0
     for i in range(n_var):
-        wgt_state[ind:ind+n_deriv_prior[i], ind:ind+n_deriv_prior[i]] = wgt_state_i[i]
-        var_state[ind:ind+n_deriv_prior[i], ind:ind+n_deriv_prior[i]] = var_state_i[i]
-        ind += n_deriv_prior[i]
+        wgt_state[ind:ind+n_order[i], ind:ind+n_order[i]] = wgt_state_i[i]
+        var_state[ind:ind+n_order[i], ind:ind+n_order[i]] = var_state_i[i]
+        ind += n_order[i]
     kinit = {"wgt_state":wgt_state, "mu_state":mu_state,
             "var_state":var_state}
     
