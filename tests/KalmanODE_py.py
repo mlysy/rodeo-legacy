@@ -1,6 +1,6 @@
 import numpy as np
 
-from probDE.utils.utils import rand_mat
+from rodeo.utils.utils import rand_mat
 from depreciated.kalman.kalman_ode_higher import kalman_ode_higher
 
 

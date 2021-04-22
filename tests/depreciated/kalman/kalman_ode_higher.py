@@ -7,7 +7,7 @@ Probabilistic ODE solver based on the Kalman filter and smoother.
 import numpy as np
 
 from .KalmanTV import KalmanTV
-from probDE.utils import norm_sim
+from rodeo.utils import norm_sim
 import scipy as sp
 
 def _interrogate_chkrebtii(x_state, var_meas, wgt_meas, 
@@ -141,7 +141,6 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     mu_state_filt[0] = x0_state
     #x_meass[0] = x0_state.dot(wgt_meas.T)
     mu_state_pred[0] = mu_state_filt[0]
-    var_state_pred[0] = var_state_filt[0]
     mu_state_smooth[0] = mu_state_filt[0]
     x_state_smooth[0] = x0_state
 
@@ -237,4 +236,4 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     elif smooth_mv:
         return mu_state_smooth, var_state_smooth
     elif smooth_sim:
-        return x_state_smooth
+        return mu_state_filt, var_state_filt, x_state_smooth
