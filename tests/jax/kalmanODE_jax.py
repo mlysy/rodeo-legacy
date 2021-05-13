@@ -44,7 +44,7 @@ def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
 ### kalman_ode does not take function as arguments for now.
 ### Jax (XLA) cannot set uninitialized arrays so jnp.empty defaults to jnp.zeros.
 ### jnp.zeros does not have order argument to get fortran contiguous. 
-def _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
                   var_state, wgt_meas, z_state, theta=None):
     
     # Dimensions of state and measure variables
@@ -96,7 +96,7 @@ def _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state,
     return mu_state_pred, var_state_pred, mu_state_filt, var_state_filt
 
 
-def solve_sim(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
               var_state, wgt_meas, z_state, theta=None):
     
     """
@@ -149,7 +149,7 @@ def solve_sim(x0, tmin, tmax, n_eval, wgt_state, mu_state,
     
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
-        _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
                       var_state, wgt_meas, z_state, theta)
     
     # backward pass

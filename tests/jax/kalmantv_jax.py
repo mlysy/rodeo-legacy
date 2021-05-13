@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 import jax.scipy
+import numpy as np
 from jax_utils import _solveV
 from jax.config import config
 config.update("jax_enable_x64", True)

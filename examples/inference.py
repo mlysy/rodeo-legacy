@@ -1,4 +1,5 @@
 from scipy.integrate import odeint
+from math import ceil
 import numpy as np
 import scipy as sp
 import scipy.stats
@@ -55,6 +56,27 @@ class inference:
         r"Calculate the loglikelihood of the lognormal distribution."
         return np.sum(sp.stats.norm.logpdf(x=x, loc=mean, scale=var))
     
+    def loglikep(self, x, mean):
+        r"Calculate the loglikelihood of the poisson distribution."
+        return np.sum(sp.stats.poisson.logpmf(x, mean))
+    
+    def covid_obs(self, X_t, theta):
+        r"""Get the observations for the SEIRAH Covid example.
+        None of the compartments are directly observed, however 
+        the daily infections and hospitalizations are observed. 
+        They can be computed as
+        
+        .. math::
+
+            I^{(in)}(t) = rE(t)/D_e
+            H^{(in)}(t) = I(t)/D_q
+
+        """
+        I_in = theta[1]*X_t[:,1]/theta[3]
+        H_in = X_t[:,2]/theta[5]
+        X_in = np.array([I_in, H_in]).T
+        return X_in
+
     def simulate(self, fun, x0, theta_true, gamma):
         r"Simulate observed data for inference"
         tseq = np.linspace(self.tmin, self.tmax, self.tmax-self.tmin+1)
@@ -62,6 +84,14 @@ class inference:
         e_t = np.random.default_rng().normal(loc=0.0, scale=1, size=X_t.shape)
         Y_t = X_t + gamma*e_t
         return Y_t, X_t
+
+    def simulatep(self, fun, x0, theta_true):
+        r"Simulate observed data for SEIRAH Covid model."
+        tseq = np.linspace(self.tmin, self.tmax, self.tmax-self.tmin+1)
+        X_t = odeint(fun, x0, tseq, args=(theta_true,))[1:,]
+        X_in = self.covid_obs(X_t, theta_true)
+        Y_in = np.random.default_rng().poisson(X_in)
+        return Y_in, X_in
 
     def thinning(self, data_tseq, ode_tseq, X):
         r"Thin a highly discretized ODE solution to match the observed data."
@@ -83,7 +113,7 @@ class inference:
         return X[ind,:]
 
     def kalman_nlpost(self, phi, Y_t, x0, step_size, phi_mean, phi_sd, gamma):
-        r"Compute the negative loglikihood of :math:`Y_t` using the Euler method."
+        r"Compute the negative loglikihood of :math:`Y_t` using the KalmanODE."
         theta = np.exp(phi)
         data_tseq = np.linspace(1, self.tmax, self.tmax-self.tmin)
         ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
@@ -92,7 +122,19 @@ class inference:
         lp = self.loglike(Y_t, X_t, gamma)
         lp += self.loglike(phi, phi_mean, phi_sd)
         return -lp
-        
+    
+    def kalman_nlpostp(self, phi, Y_t, x0, step_size, phi_mean, phi_sd):
+        r"Compute the negative loglikihood of :math:`Y_t` using the KalmanODE for the SEIRAH example."
+        theta = np.exp(phi)
+        data_tseq = np.linspace(1, self.tmax, self.tmax-self.tmin)
+        ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
+        X_t = self.kode.solve_mv(x0, self.W, theta)[0]
+        X_t = self.thinning(data_tseq, ode_tseq, X_t)[:, self.state_ind]
+        X_in = self.covid_obs(X_t, theta)
+        lp = self.loglikep(Y_t, X_in)
+        lp += self.loglike(phi, phi_mean, phi_sd)
+        return -lp
+
     def euler(self, x0, step_size, theta):
         r"Evaluate Euler approximation given :math:`\theta`"
         n_eval = int((self.tmax-self.tmin)/step_size)
@@ -114,6 +156,15 @@ class inference:
         lp += self.loglike(phi, phi_mean, phi_sd)
         return -lp
     
+    def euler_nlpostp(self, phi, Y_t, x0, step_size, phi_mean, phi_sd):
+        r"Compute the negative loglikihood of :math:`Y_t` using the Euler method for the SEIRAH example."
+        theta = np.exp(phi)
+        X_t = self.euler(x0, step_size, theta)
+        X_in = self.covid_obs(X_t, theta)
+        lp = self.loglikep(Y_t, X_in)
+        lp += self.loglike(phi, phi_mean, phi_sd)
+        return -lp
+
     def phi_fit(self, Y_t, x0, step_size, theta_true, phi_sd, gamma, kalman):
         r"""Compute the optimized :math:`\log{\theta}` and its variance given 
             :math:`Y_t`."""
@@ -133,6 +184,25 @@ class inference:
         phi_var = sp.linalg.cho_solve((phi_cho, low), np.eye(n_theta))
         return phi_hat, phi_var
     
+    def phi_fitp(self, Y_t, x0, step_size, theta_true, phi_sd, kalman):
+        r"""Compute the optimized :math:`\log{\theta}` and its variance given 
+            :math:`Y_t` for the SEIRAH model."""
+        phi_mean = np.log(theta_true)
+        n_theta = len(theta_true)
+        if kalman:
+            obj_fun = self.kalman_nlpostp
+        else:
+            obj_fun = self.euler_nlpostp
+        opt_res = sp.optimize.minimize(obj_fun, phi_mean + .1,
+                                    args=(Y_t, x0, step_size, phi_mean, phi_sd),
+                                    method='Nelder-Mead')
+        phi_hat = opt_res.x
+        hes = nd.Hessian(obj_fun)
+        phi_fisher = hes(phi_hat, Y_t, x0, step_size, phi_mean, phi_sd)
+        phi_cho, low = sp.linalg.cho_factor(phi_fisher)
+        phi_var = sp.linalg.cho_solve((phi_cho, low), np.eye(n_theta))
+        return phi_hat, phi_var
+
     def theta_sample(self, phi_hat, phi_var, n_samples):
         r"""Simulate :math:`\theta` given the :math:`\log{\hat{\theta}}` 
             and its variance."""
@@ -143,35 +213,38 @@ class inference:
     def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes, clip=None, rows=1):
         r"""Plot the distribution of :math:`\theta` using the Kalman solver 
             and the Euler approximation."""
-        n_size, _, n_theta = theta_euler.shape
-        n_theta = n_theta//rows
+        n_hlst, _, n_theta = theta_euler.shape
+        ncol = ceil(n_theta/rows)
         nrow = 2
-        fig, axs = plt.subplots(rows*nrow, n_theta, figsize=(20, 10*rows))
-        patches = [None]*(n_size+1)
+        fig = plt.figure(figsize=(20, 10*rows))
+        patches = [None]*(n_hlst+1)
         if clip is None:
-            clip = [None]*n_theta*rows 
-        for r in range(rows):
-            for col in range(n_theta):
-                axs[nrow*r, col].set_title('$\\theta_{}$'.format(r*n_theta+col))
-                for row in range(nrow):
-                    axs[nrow*r+row, col].axvline(x=theta_true[r*n_theta+col], linewidth=1, color='r', linestyle='dashed')
-                    axs[nrow*r+row, col].locator_params(axis='x', tight=True, nbins=3)
-                    axs[nrow*r+row, col].set_yticks([])
-                    if row==1:
-                        axs[nrow*r+row, col].get_shared_x_axes().join(axs[nrow*r+row, col], axs[nrow*r, col])
-                for i in range(n_size):
-                    if col==0:
-                        patches[i] = mpatches.Patch(color='C{}'.format(i), label='h={}'.format(step_sizes[i]))
-                    sns.kdeplot(theta_euler[i, :, r*n_theta+col], ax=axs[nrow*r, col], clip=clip[r*n_theta+col])
-                    sns.kdeplot(theta_kalman[i, :, r*n_theta+col], ax=axs[nrow*r+1, col], clip=clip[r*n_theta+col])
+            clip = [None]*ncol*rows 
 
-        for r in range(nrow*rows):
-            if r%2==0:
-                axs[r, 0].set_ylabel('Euler')
-            else:
-                axs[r, 0].set_ylabel('rodeo')
-        patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
-        axs[-1, -1].legend(handles=patches, framealpha=0.5)
+        for t in range(1,n_theta+1):
+            row = (t-1)//ncol
+            axs1 = fig.add_subplot(rows*nrow, ncol, t+row*ncol)
+            axs2 = fig.add_subplot(rows*nrow, ncol, t+(row+1)*ncol)
+            axs2.get_shared_x_axes().join(axs2, axs1)
+            if t%ncol==1:
+                axs1.set_ylabel('Euler')
+                axs2.set_ylabel('rodeo')
+            
+            for axs in [axs1, axs2]:
+                axs.axvline(x=theta_true[t-1], linewidth=1, color='r', linestyle='dashed')
+                axs.locator_params(axis='x', tight=True, nbins=3)
+                axs.set_yticks([])
+
+            for h in range(n_hlst):
+                if t==1:
+                    patches[h] = mpatches.Patch(color='C{}'.format(h), label='h={}'.format(step_sizes[h]))
+                sns.kdeplot(theta_euler[h, :, t-1], ax=axs1, clip=clip[t-1])
+                sns.kdeplot(theta_kalman[h, :, t-1], ax=axs2, clip=clip[t-1])
+            
+            if t==n_theta:
+                patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
+                axs2.legend(handles=patches, framealpha=0.5)
+        
         fig.tight_layout()
         plt.show()
         return fig
