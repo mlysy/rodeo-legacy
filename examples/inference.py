@@ -174,7 +174,8 @@ class inference:
             obj_fun = self.kalman_nlpost
         else:
             obj_fun = self.euler_nlpost
-        opt_res = sp.optimize.minimize(obj_fun, phi_mean + .1,
+        phi_init = phi_mean + .1
+        opt_res = sp.optimize.minimize(obj_fun, phi_init,
                                     args=(Y_t, x0, step_size, phi_mean, phi_sd, gamma),
                                     method='Nelder-Mead')
         phi_hat = opt_res.x
@@ -193,7 +194,8 @@ class inference:
             obj_fun = self.kalman_nlpostp
         else:
             obj_fun = self.euler_nlpostp
-        opt_res = sp.optimize.minimize(obj_fun, phi_mean + .1,
+        phi_init = phi_mean + .1
+        opt_res = sp.optimize.minimize(obj_fun, phi_init,
                                     args=(Y_t, x0, step_size, phi_mean, phi_sd),
                                     method='Nelder-Mead')
         phi_hat = opt_res.x

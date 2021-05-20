@@ -1,5 +1,6 @@
 import numpy as np
 import jax.numpy as jnp
+from jax import jit, partial
 from jax.ops import index, index_update
 from jax.config import config
 from math import sin
@@ -7,19 +8,32 @@ from kalmantv_jax import *
 from kalmantv_jax import _state_sim
 config.update("jax_enable_x64", True)
 
-def fun(x, t, theta=None, x_out=None):
-    if x_out is None:
-        x_out = jnp.zeros(1)
-    x_out = index_update(x_out, index[0], sin(2*t) - x[0])
+# @partial(jit, static_argnums=(1))
+# def fun(x, t, theta=None):
+#     if x_out is None:
+#         x_out = jnp.zeros(1)
+#     x_out = index_update(x_out, index[0], sin(2*t) - x[0])
+#     return x_out
+
+@partial(jit, static_argnums=(1))
+def fun(X_t, t, theta):
+    "Fitz ODE written for jax"
+    x_out = jnp.zeros(2)
+    a, b, c = theta
+    V, R = X_t[0], X_t[3]
+    x_out = index_update(x_out, index[0], c*(V - V*V*V/3 + R))   
+    x_out = index_update(x_out, index[1], -1/c*(V - a + b*R))
     return x_out
 
-def _fzeros(shape):
-    """
-    Create an empty ndarray with the given shape in fortran order.
+# @jit
+# def _fzeros(shape):
+#     """
+#     Create an empty ndarray with the given shape in fortran order.
     
-    """
-    return jnp.zeros(shape[::-1]).T
+#     """
+#     return jnp.zeros(shape[::-1]).T
 
+@jit
 def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
     """
     Interrogate method of rodeo.
@@ -53,11 +67,11 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
     n_steps = n_eval + 1
 
     # argumgents for kalman_filter and kalman_smooth
-    mu_meas = _fzeros((n_meas,))
-    mu_state_filt = _fzeros((n_state, n_steps))
-    var_state_filt = _fzeros((n_state, n_state, n_steps))
-    mu_state_pred = _fzeros((n_state, n_steps))
-    var_state_pred = _fzeros((n_state, n_state, n_steps))
+    mu_meas = jnp.zeros((n_meas,))
+    mu_state_filt = jnp.zeros((n_state, n_steps))
+    var_state_filt = jnp.zeros((n_state, n_state, n_steps))
+    mu_state_pred = jnp.zeros((n_state, n_steps))
+    var_state_pred = jnp.zeros((n_state, n_state, n_steps))
 
     # initialize things
     mu_state_filt = index_update(mu_state_filt, index[:, 0], x0)
@@ -94,7 +108,6 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
         var_state_filt = index_update(var_state_filt, index[:, :, t+1], var_state_filt_temp)
         
     return mu_state_pred, var_state_pred, mu_state_filt, var_state_filt
-
 
 def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
               var_state, wgt_meas, z_state, theta=None):
@@ -143,9 +156,9 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
     n_steps = n_eval + 1
     
     # initialize
-    mu_state_smooth = _fzeros((n_state, n_steps))
-    var_state_smooth = _fzeros((n_state, n_state, n_steps))
-    x_state_smooth = _fzeros((n_state, n_steps))
+    mu_state_smooth = jnp.zeros((n_state, n_steps))
+    var_state_smooth = jnp.zeros((n_state, n_state, n_steps))
+    x_state_smooth = jnp.zeros((n_state, n_steps))
     
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
