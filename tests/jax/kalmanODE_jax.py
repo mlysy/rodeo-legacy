@@ -1,8 +1,6 @@
 import numpy as np
 import jax.numpy as jnp
-from jax import jit, partial
-from jax.ops import index, index_update
-from jax.lax import fori_loop, while_loop
+from jax import jit, partial, lax
 from jax.config import config
 from math import sin
 from kalmantv_jax import *
@@ -11,12 +9,10 @@ config.update("jax_enable_x64", True)
 
 def fun(X_t, t, theta):
     "Fitz ODE written for jax"
-    x_out = jnp.zeros(2)
     a, b, c = theta
     V, R = X_t[0], X_t[3]
-    x_out = index_update(x_out, index[0], c*(V - V*V*V/3 + R))   
-    x_out = index_update(x_out, index[1], -1/c*(V - a + b*R))
-    return x_out
+    return jnp.stack([c*(V - V*V*V/3 + R),
+                      -1/c*(V - a + b*R)])
 
 @jit
 def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
@@ -51,54 +47,54 @@ def _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state,
     n_state = len(mu_state)
     n_steps = n_eval + 1
 
-    # argumgents for kalman_filter and kalman_smooth
-    mu_meas = jnp.zeros((n_meas,))
-    mu_state_filt = jnp.zeros((n_state, n_steps))
-    var_state_filt = jnp.zeros((n_state, n_state, n_steps))
-    mu_state_pred = jnp.zeros((n_state, n_steps))
-    var_state_pred = jnp.zeros((n_state, n_state, n_steps))
+    # arguments for kalman_filter and kalman_smooth
+    mu_meas = jnp.zeros(n_meas)
+    init_mu_state_filt = x0
+    init_var_state_filt = jnp.zeros((n_state, n_state))
 
-    # initialize things
-    mu_state_filt = index_update(mu_state_filt, index[:, 0], x0)
-    mu_state_pred = index_update(mu_state_pred, index[:, 0], x0)
-
-    def forward_pass(t, init_val):
-        mu_state_filt, var_state_filt, mu_state_pred, var_state_pred = init_val
-        mu_state_pred_temp, var_state_pred_temp = (
-            predict(mu_state_past=mu_state_filt[:, t],
-                    var_state_past=var_state_filt[:, :, t],
+    def forward_pass(state_filts, t):
+        mu_state_filt, var_state_filt = state_filts
+        mu_state_pred, var_state_pred = (
+            predict(mu_state_past=mu_state_filt,
+                    var_state_past=var_state_filt,
                     mu_state=mu_state,
                     wgt_state=wgt_state,
                     var_state=var_state)
         )
-        mu_state_pred = index_update(mu_state_pred, index[:, t+1], mu_state_pred_temp)
-        var_state_pred = index_update(var_state_pred, index[:, :, t+1], var_state_pred_temp)
 
         # model interrogation
         x_state, var_meas = \
             _interrogate_rodeo(wgt_meas=wgt_meas,
-                               mu_state_pred=mu_state_pred[:, t+1],
-                               var_state_pred=var_state_pred[:, :, t+1])
+                               mu_state_pred=mu_state_pred,
+                               var_state_pred=var_state_pred)
         x_meas = fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
 
-        mu_state_filt_temp, var_state_filt_temp = (
-            update(mu_state_pred=mu_state_pred[:, t+1],
-                   var_state_pred=var_state_pred[:, :, t+1],
+        mu_state_filt_next, var_state_filt_next = (
+            update(mu_state_pred=mu_state_pred,
+                   var_state_pred=var_state_pred,
                    x_meas=x_meas,
                    mu_meas=mu_meas,
                    wgt_meas=wgt_meas,
                    var_meas=var_meas)
         )
-        mu_state_filt = index_update(mu_state_filt, index[:, t+1], mu_state_filt_temp)
-        var_state_filt = index_update(var_state_filt, index[:, :, t+1], var_state_filt_temp)
         
-        return mu_state_filt, var_state_filt, mu_state_pred, var_state_pred
-    
-    init_val = (mu_state_filt, var_state_filt, mu_state_pred, var_state_pred)
-    (mu_state_filt, var_state_filt, mu_state_pred, var_state_pred) = \
-        fori_loop(0, n_eval, forward_pass, init_val)
-        
+        new_state_filts = mu_state_filt_next, var_state_filt_next
+        filts_and_preds = new_state_filts + (mu_state_pred, var_state_pred)
+        return new_state_filts, filts_and_preds
+
+    init_state_filts = (init_mu_state_filt, init_var_state_filt)
+    _, scan_out = lax.scan(forward_pass, init_state_filts, jnp.arange(n_eval))
+
+    # Append initial value at time step 0 then move time axis to the end
+    init_state_preds = init_state_filts
+    init_vals = init_state_filts + init_state_preds
+    (mu_state_filt, var_state_filt, mu_state_pred, var_state_pred) = (
+        jnp.moveaxis(jnp.concatenate([init[None], out]), 0, -1)
+        for init, out in zip(init_vals, scan_out)
+    )
+
     return mu_state_pred, var_state_pred, mu_state_filt, var_state_filt
+
 
 @partial(jit, static_argnums=(1,2,3))
 def solve_sim(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
@@ -144,47 +140,47 @@ def solve_sim(x0, tmin, tmax, n_eval, wgt_state, mu_state,
           times :math:`t = 0,1/N,\ldots,1`.
 
     """
-    n_state = len(mu_state)
-    n_steps = n_eval + 1
-    
-    # initialize
-    mu_state_smooth = jnp.zeros((n_state, n_steps))
-    var_state_smooth = jnp.zeros((n_state, n_state, n_steps))
-    x_state_smooth = jnp.zeros((n_state, n_steps))
-    
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
         _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
                       var_state, wgt_meas, z_state, theta)
     
     # backward pass
-    mu_state_smooth = index_update(mu_state_smooth, index[:, 0], mu_state_filt[:, 0])
-    x_state_smooth = index_update(x_state_smooth, index[:, 0], x0)
-    mu_state_smooth = index_update(mu_state_smooth, index[:, n_eval], mu_state_filt[:, n_eval])
-    var_state_smooth = index_update(var_state_smooth, index[:, :, n_eval],  var_state_filt[:, :, n_eval])
-    x_state_temp = _state_sim(mu_state_smooth[:, n_eval],
-                              var_state_smooth[:, :, n_eval],
-                              z_state[:, n_eval-1])
+    last_mu_state_smooth = mu_state_filt[:, n_eval]
+    last_var_state_smooth = var_state_filt[:, :, n_eval]
+    last_x_state_smooth = _state_sim(last_mu_state_smooth,
+                                     last_var_state_smooth,
+                                     z_state[:, n_eval-1])
     
-    x_state_smooth = index_update(x_state_smooth, index[:, n_eval], x_state_temp)
-    
-    def cond_fun(val):
-        t, _ = val
-        return t>0
-    
-    def backward_pass(val):
-        t, x_state_smooth = val
-        x_state_temp = smooth_sim(x_state_next=x_state_smooth[:, t+1],
-                                  mu_state_filt=mu_state_filt[:, t],
-                                  var_state_filt=var_state_filt[:, :, t],
-                                  mu_state_pred=mu_state_pred[:, t+1],
-                                  var_state_pred=var_state_pred[:, :, t+1],
+    def backward_pass(x_state_next, smooth_sim_kwargs):
+        x_state_prev = smooth_sim(x_state_next=x_state_next,
                                   wgt_state=wgt_state,
-                                  z_state=z_state[:, t-1])
-        x_state_smooth = index_update(x_state_smooth, index[:, t], x_state_temp)
-        t-=1
-        return t, x_state_smooth
+                                  **smooth_sim_kwargs)
+        return x_state_prev, x_state_prev
+
+    # lax.scan will efficiently iterate over these arrays for each time step.
+    # We slice these arrays so they are aligned.
+    # More precisely, for time step t, we want filt[t], pred[t+1], z_state[t-1]
+    all_smooth_sim_kwargs = {
+        'mu_state_filt': mu_state_filt[:, 1:n_eval],
+        'var_state_filt': var_state_filt[:, :, 1:n_eval],
+        'mu_state_pred': mu_state_pred[:, 2:n_eval+1],
+        'var_state_pred': var_state_pred[:, :, 2:n_eval+1],
+        'z_state': z_state[:, :n_eval-1]
+    }
+    # Move time axis to the front:
+    all_smooth_sim_kwargs = {
+        k: jnp.moveaxis(v, -1, 0) for k, v in all_smooth_sim_kwargs.items()
+    }
     
-    (t, x_state_smooth) = \
-        while_loop(cond_fun, backward_pass, (n_eval-1, x_state_smooth))
-    return x_state_smooth.T
+    (_, x_state_smooth) = lax.scan(backward_pass,
+                                   last_x_state_smooth,
+                                   all_smooth_sim_kwargs,
+                                   reverse=True)
+
+    # Append initial and final values
+    x_state_smooth = jnp.concatenate(
+        [x0[None], x_state_smooth, last_x_state_smooth[None]]
+    )
+
+    return x_state_smooth
