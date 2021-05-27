@@ -35,7 +35,7 @@ class KalmanODETest(unittest.TestCase):
         dt = (tmax-tmin)/n_eval
         # All necessary parameters are in kinit, namely, T, c, R, W
         kinit = ibm_init(dt, n_deriv_prior, sigma)
-        z_state = rand_mat(n_eval, sum(n_deriv_prior))
+        z_state = rand_mat(2*n_eval, sum(n_deriv_prior))
 
         # Get Cython solution
         kode_cy = KalmanODE_cy(W, tmin, tmax, n_eval, chkrebtii_kalman, **kinit)

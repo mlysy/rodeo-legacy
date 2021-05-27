@@ -236,4 +236,4 @@ def kalman_ode_higher(fun, x0_state, tmin, tmax, n_eval, wgt_state, mu_state, va
     elif smooth_mv:
         return mu_state_smooth, var_state_smooth
     elif smooth_sim:
-        return mu_state_filt, var_state_filt, x_state_smooth
+        return x_state_smooth
