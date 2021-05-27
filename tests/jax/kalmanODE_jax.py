@@ -2,20 +2,13 @@ import numpy as np
 import jax.numpy as jnp
 from jax import jit, partial
 from jax.ops import index, index_update
+from jax.lax import fori_loop, while_loop
 from jax.config import config
 from math import sin
 from kalmantv_jax import *
 from kalmantv_jax import _state_sim
 config.update("jax_enable_x64", True)
 
-# @partial(jit, static_argnums=(1))
-# def fun(x, t, theta=None):
-#     if x_out is None:
-#         x_out = jnp.zeros(1)
-#     x_out = index_update(x_out, index[0], sin(2*t) - x[0])
-#     return x_out
-
-@partial(jit, static_argnums=(1))
 def fun(X_t, t, theta):
     "Fitz ODE written for jax"
     x_out = jnp.zeros(2)
@@ -24,14 +17,6 @@ def fun(X_t, t, theta):
     x_out = index_update(x_out, index[0], c*(V - V*V*V/3 + R))   
     x_out = index_update(x_out, index[1], -1/c*(V - a + b*R))
     return x_out
-
-# @jit
-# def _fzeros(shape):
-#     """
-#     Create an empty ndarray with the given shape in fortran order.
-    
-#     """
-#     return jnp.zeros(shape[::-1]).T
 
 @jit
 def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
@@ -57,8 +42,8 @@ def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
 
 ### kalman_ode does not take function as arguments for now.
 ### Jax (XLA) cannot set uninitialized arrays so jnp.empty defaults to jnp.zeros.
-### jnp.zeros does not have order argument to get fortran contiguous. 
-def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+@partial(jit, static_argnums=(1,2,3))
+def _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
                   var_state, wgt_meas, z_state, theta=None):
     
     # Dimensions of state and measure variables
@@ -77,8 +62,8 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
     mu_state_filt = index_update(mu_state_filt, index[:, 0], x0)
     mu_state_pred = index_update(mu_state_pred, index[:, 0], x0)
 
-    # forward pass
-    for t in range(n_eval):
+    def forward_pass(t, init_val):
+        mu_state_filt, var_state_filt, mu_state_pred, var_state_pred = init_val
         mu_state_pred_temp, var_state_pred_temp = (
             predict(mu_state_past=mu_state_filt[:, t],
                     var_state_past=var_state_filt[:, :, t],
@@ -88,14 +73,14 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
         )
         mu_state_pred = index_update(mu_state_pred, index[:, t+1], mu_state_pred_temp)
         var_state_pred = index_update(var_state_pred, index[:, :, t+1], var_state_pred_temp)
-        
+
         # model interrogation
         x_state, var_meas = \
             _interrogate_rodeo(wgt_meas=wgt_meas,
                                mu_state_pred=mu_state_pred[:, t+1],
                                var_state_pred=var_state_pred[:, :, t+1])
         x_meas = fun(x_state, tmin + (tmax-tmin)*(t+1)/n_eval, theta)
-        
+
         mu_state_filt_temp, var_state_filt_temp = (
             update(mu_state_pred=mu_state_pred[:, t+1],
                    var_state_pred=var_state_pred[:, :, t+1],
@@ -107,9 +92,16 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
         mu_state_filt = index_update(mu_state_filt, index[:, t+1], mu_state_filt_temp)
         var_state_filt = index_update(var_state_filt, index[:, :, t+1], var_state_filt_temp)
         
+        return mu_state_filt, var_state_filt, mu_state_pred, var_state_pred
+    
+    init_val = (mu_state_filt, var_state_filt, mu_state_pred, var_state_pred)
+    (mu_state_filt, var_state_filt, mu_state_pred, var_state_pred) = \
+        fori_loop(0, n_eval, forward_pass, init_val)
+        
     return mu_state_pred, var_state_pred, mu_state_filt, var_state_filt
 
-def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+@partial(jit, static_argnums=(1,2,3))
+def solve_sim(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
               var_state, wgt_meas, z_state, theta=None):
     
     """
@@ -162,7 +154,7 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
     
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
-        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+        _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
                       var_state, wgt_meas, z_state, theta)
     
     # backward pass
@@ -175,7 +167,13 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
                               z_state[:, n_eval-1])
     
     x_state_smooth = index_update(x_state_smooth, index[:, n_eval], x_state_temp)
-    for t in range(n_eval-1, 0, -1):
+    
+    def cond_fun(val):
+        t, _ = val
+        return t>0
+    
+    def backward_pass(val):
+        t, x_state_smooth = val
         x_state_temp = smooth_sim(x_state_next=x_state_smooth[:, t+1],
                                   mu_state_filt=mu_state_filt[:, t],
                                   var_state_filt=var_state_filt[:, :, t],
@@ -184,5 +182,9 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
                                   wgt_state=wgt_state,
                                   z_state=z_state[:, t-1])
         x_state_smooth = index_update(x_state_smooth, index[:, t], x_state_temp)
-        
+        t-=1
+        return t, x_state_smooth
+    
+    (t, x_state_smooth) = \
+        while_loop(cond_fun, backward_pass, (n_eval-1, x_state_smooth))
     return x_state_smooth.T
