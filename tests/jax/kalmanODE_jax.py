@@ -7,13 +7,6 @@ from kalmantv_jax import *
 from kalmantv_jax import _state_sim
 config.update("jax_enable_x64", True)
 
-def fun(X_t, t, theta):
-    "Fitz ODE written for jax"
-    a, b, c = theta
-    V, R = X_t[0], X_t[3]
-    return jnp.stack([c*(V - V*V*V/3 + R),
-                      -1/c*(V - a + b*R)])
-
 @jit
 def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
     """
@@ -38,8 +31,8 @@ def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
 
 ### kalman_ode does not take function as arguments for now.
 ### Jax (XLA) cannot set uninitialized arrays so jnp.empty defaults to jnp.zeros.
-@partial(jit, static_argnums=(1,2,3))
-def _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+@partial(jit, static_argnums=(0,2,3,4))
+def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
                   var_state, wgt_meas, z_state, theta=None):
     
     # Dimensions of state and measure variables
@@ -96,8 +89,8 @@ def _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state,
     return mu_state_pred, var_state_pred, mu_state_filt, var_state_filt
 
 
-@partial(jit, static_argnums=(1,2,3))
-def solve_sim(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+@partial(jit, static_argnums=(0,2,3,4))
+def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
               var_state, wgt_meas, z_state, theta=None):
     
     """
@@ -142,7 +135,7 @@ def solve_sim(x0, tmin, tmax, n_eval, wgt_state, mu_state,
     """
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
-        _solve_filter(x0, tmin, tmax, n_eval, wgt_state, mu_state, 
+        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
                       var_state, wgt_meas, z_state, theta)
     
     # backward pass
