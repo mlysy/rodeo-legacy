@@ -1,5 +1,5 @@
 import numpy as np
-from inference import inference
+from .inference.normal import normal as inference
 from rodeo.ibm import ibm_init
 from rodeo.cython.KalmanODE import KalmanODE
 from rodeo.utils import indep_init, zero_pad
@@ -60,7 +60,8 @@ def fitz_example():
     hlst = np.array([0.1, 0.05, 0.02, 0.01, 0.005])
     theta_euler = np.zeros((len(hlst), n_samples, n_theta))
     for i in range(len(hlst)):
-        phi_hat, phi_var = inf.phi_fit(Y_t, x0, hlst[i], theta_true, phi_sd, gamma, False)
+        phi_hat, phi_var = inf.phi_fit(Y_t, x0, hlst[i], theta_true, phi_sd, inf.euler_nlpost,
+                                       inf.euler_solve, inf.loglike, gamma)
         theta_euler[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
 
     # Parameter inference using Kalman solver
@@ -72,7 +73,8 @@ def fitz_example():
         kode = KalmanODE(W, tmin, tmax, n_eval, fitz, **kinit)
         inf.kode = kode
         inf.W = W
-        phi_hat, phi_var = inf.phi_fit(Y_t, x0_state, hlst[i], theta_true, phi_sd, gamma, True)
+        phi_hat, phi_var = inf.phi_fit(Y_t, x0_state, hlst[i], theta_true, phi_sd, inf.kalman_nlpost,
+                                       inf.kalman_solve, inf.loglike, gamma)
         theta_kalman[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
     
     # Produces the graph in Figure 3

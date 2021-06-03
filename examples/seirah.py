@@ -1,5 +1,5 @@
 import numpy as np
-from inference import inference
+from inference.covid import covid as inference
 import matplotlib.pyplot as plt
 from rodeo.ibm import ibm_init
 from rodeo.cython.KalmanODE import KalmanODE
@@ -55,7 +55,7 @@ def seirah_example(load_calcs=False):
 
     # Initialize inference class and simulate observed data
     inf = inference(state_ind, tmin, tmax, seirah)
-    Y_t, X_t = inf.simulatep(seirah, x0, theta_true)
+    Y_t, X_t = inf.simulate(seirah, x0, theta_true)
 
     # Plot observations and true value
     tseq = np.linspace(1, tmax, tmax-tmin)
@@ -77,7 +77,8 @@ def seirah_example(load_calcs=False):
     else:
         theta_euler = np.zeros((len(hlst), n_samples, n_theta))
         for i in range(len(hlst)):
-            phi_hat, phi_var = inf.phi_fitp(Y_t, x0, hlst[i], theta_true, phi_sd, False)
+            phi_hat, phi_var = inf.phi_fit(Y_t, x0, hlst[i], theta_true, phi_sd, inf.euler_nlpost,
+                                           inf.euler_solve, inf.loglike_pois)
             theta_euler[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
         np.save('saves/seirah_theta_euler1.npy', theta_euler)
         
@@ -91,7 +92,8 @@ def seirah_example(load_calcs=False):
             kode = KalmanODE(W, tmin, tmax, n_eval, seirah, **kinit)
             inf.kode = kode
             inf.W = W
-            phi_hat, phi_var = inf.phi_fitp(Y_t, x0_state, hlst[i], theta_true, phi_sd, True)
+            phi_hat, phi_var = inf.phi_fit(Y_t, x0, hlst[i], theta_true, phi_sd, inf.kalman_nlpost,
+                                           inf.kalman_solve, inf.loglike_pois)
             theta_kalman[i] = inf.theta_sample(phi_hat, phi_var, n_samples)
         np.save('saves/seirah_theta_kalman1.npy', theta_kalman)
     
