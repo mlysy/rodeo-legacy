@@ -54,7 +54,8 @@ def fitz_example():
 
     # Initialize inference class and simulate observed data
     inf = inference(state_ind, tmin, tmax, fitz)
-    Y_t = inf.simulate(fitz, x0, theta_true, gamma)
+    tseq = np.linspace(tmin, tmax, tmax-tmin+1)
+    Y_t = inf.simulate(fitz, x0, theta_true, gamma, tseq)
 
     # Parameter inference using Euler's approximation
     hlst = np.array([0.1, 0.05, 0.02, 0.01, 0.005])

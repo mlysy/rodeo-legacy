@@ -5,9 +5,8 @@ import numpy as np
 class normal(inference):
     r"Inference assuming a normal prior"
     
-    def simulate(self, fun, x0, theta, gamma):
+    def simulate(self, fun, x0, theta, gamma, tseq):
         r"Get the observations assuming a normal distribution."
-        tseq = np.linspace(self.tmin, self.tmax, self.tmax-self.tmin+1)
         X_t = odeint(fun, x0, tseq, args=(theta,))[1:,]
         e_t = np.random.default_rng().normal(loc=0.0, scale=1, size=X_t.shape)
         Y_t = X_t + gamma*e_t

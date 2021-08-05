@@ -23,6 +23,8 @@ class inference:
         fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking 
             arguments :math:`x` and :math:`t`.
         kode (object): KalmanODE solver used to perform parameter inference.
+        data_tseq (ndarray(n)): Time points of the observed data.
+        ode_tseq (ndarray(N)): Time points of the ODE solution.
         x0 (ndarray(n_state)): Initial value of the state variable :math:`x_t` at 
             time :math:`t = 0`.
         theta_true (ndarray(n_theta)): True value of :math:`\theta` in the ODE function.
@@ -32,9 +34,10 @@ class inference:
         step_size (float): Distance between discretisation points.
         phi_mean (ndarray(n_theta)): Mean of :math:`\phi`.
         phi_sd (ndarray(n_theta)): Standard deviation of :math:`\phi`.
+        kalman_solve (fun): Kalman solve method defined by the parameter inference problem.
+        euler_solve (fun): Euler solve method defined by the parameter inference problem.
+        solve (fun): Either kalman_solve or euler_solve.
         theta (ndarray(n_theta)): Observed :math:`\theta`.
-        kalman (bool): Flag to indicate if the KalmanODE solver or Euler's method 
-            is used.
         phi_hat (ndarray(n_theta)): Optimized observed :math:`\phi`.
         phi_var (ndarray(n_theta, n_theta)): Variance matrix of phi_hat.
         n_samples (int): Number of samples of :math:`\theta` to simulate.
@@ -145,6 +148,7 @@ class inference:
             axs1 = fig.add_subplot(rows*nrow, ncol, t+row*ncol)
             axs2 = fig.add_subplot(rows*nrow, ncol, t+(row+1)*ncol)
             axs2.get_shared_x_axes().join(axs2, axs1)
+            axs1.set_title('$\\theta_{}$'.format(t-1))
             if t%ncol==1:
                 axs1.set_ylabel('Euler')
                 axs2.set_ylabel('rodeo')
@@ -156,7 +160,7 @@ class inference:
 
             for h in range(n_hlst):
                 if t==1:
-                    patches[h] = mpatches.Patch(color='C{}'.format(h), label='h={}'.format(step_sizes[h]))
+                    patches[h] = mpatches.Patch(color='C{}'.format(h), label='$\\Delta$ t ={}'.format(step_sizes[h]))
                 sns.kdeplot(theta_euler[h, :, t-1], ax=axs1, clip=clip[t-1])
                 sns.kdeplot(theta_kalman[h, :, t-1], ax=axs2, clip=clip[t-1])
             

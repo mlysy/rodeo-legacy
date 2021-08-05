@@ -3,6 +3,7 @@ import jax.numpy as jnp
 from jax import jit, partial, lax
 from jax.config import config
 from math import sin
+from rodeo.utils.utils import rand_mat
 from kalmantv_jax import *
 from kalmantv_jax import _state_sim
 config.update("jax_enable_x64", True)
@@ -32,8 +33,8 @@ def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
 ### kalman_ode does not take function as arguments for now.
 ### Jax (XLA) cannot set uninitialized arrays so jnp.empty defaults to jnp.zeros.
 @partial(jit, static_argnums=(0,2,3,4))
-def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
-                  var_state, wgt_meas, z_state, theta=None):
+def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state, 
+                  var_state, theta=None):
     
     # Dimensions of state and measure variables
     n_meas = wgt_meas.shape[0]
@@ -90,8 +91,8 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
 
 
 @partial(jit, static_argnums=(0,2,3,4))
-def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
-              var_state, wgt_meas, z_state, theta=None):
+def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state, 
+              var_state, z_state=None, theta=None):
     
     """
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
@@ -133,10 +134,13 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state,
           times :math:`t = 0,1/N,\ldots,1`.
 
     """
+    if z_state is None:
+        z_state = jnp.array(rand_mat(2*n_eval, len(x0)))
+
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
-        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_state, mu_state, 
-                      var_state, wgt_meas, z_state, theta)
+        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, 
+                      mu_state, var_state, theta)
     
     # backward pass
     last_mu_state_smooth = mu_state_filt[:, n_eval]
