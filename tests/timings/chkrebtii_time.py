@@ -48,6 +48,7 @@ def ode_fun2(x, t, theta=None, x_out=None):
 
 # ode function used by odeint (output is different)
 
+@njit
 def f(x_t, t, theta=None):
     return [x_t[1], sin(2*t) - x_t[0]]
 

@@ -120,12 +120,14 @@ kode_py = KalmanODE_py(W, tmin, tmax, n_eval, ode_fun, **kinit)
 kode_py.z_state = z_state
 time_py = timing(kode_py, x0_state, W, theta, n_loops)
 
-# odeint
-tseq = np.linspace(tmin, tmax, n_eval+1)
-time_det = det_timing(ode_fun, x0, tseq, n_loops, theta)
+# odeint2
+# Need to run once to compile jitted ode function
+_ = odeint(ode_fun2, x0, tseq, args=(theta, ))
+time_det2 = det_timing(ode_fun2, x0, tseq, n_loops, theta)
 
 print("Cython is {}x faster than Python".format(time_py/time_cy))
 print("Numba is {}x faster than Python".format(time_py/time_num))
 print("C++ is {}x faster than Python".format(time_py/time_c))
 print("C++2 is {}x faster than Python".format(time_py/time_c2))
 print("ode is {}x faster than Python".format(time_py/time_det))
+print("ode2 is {}x faster than Python".format(time_py/time_det))
