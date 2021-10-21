@@ -2,11 +2,11 @@ from scipy.integrate import odeint
 from inference_jax import inference
 import jax.numpy as jnp
 import jax.scipy as jsp
-import numpy as np
 
-class lotka(inference):
+class proka(inference):
     r"""
-    Perform parameter inference for the Lotka-Volterra model using the base inference class. 
+    Perform parameter inference for the Prokaryotic auto-regulatory gene network
+    model using the base inference class. 
 
     Args:
         x0 (ndarray(n_state)): Initial value of the state variable :math:`x_t` at 
@@ -20,18 +20,6 @@ class lotka(inference):
     def loglike(self, x, mean, sd):
         r"Calculate the loglikelihood of the normal distribution."
         return jnp.sum(jsp.stats.norm.logpdf(x=x, loc=mean, scale=sd))
-    
+
     def logprior(self, x, mean, sd):
         return self.loglike(x, mean, sd)
-        
-    def simulate(self, x0, phi_true, sigma, tseq, log=False):
-        r"Get the observations assuming a normal distribution."
-        theta_true = np.exp(phi_true)
-        X_t = odeint(self.fun, x0, tseq, args=(theta_true,))[1:,]
-        e_t = np.random.default_rng().normal(loc=0.0, scale=1, size=X_t.shape)
-        if log is False:
-            Y_t = X_t + sigma*e_t
-        else:
-            Y_t = np.exp(X_t) + sigma*e_t
-            X_t = np.exp(X_t)
-        return Y_t, X_t

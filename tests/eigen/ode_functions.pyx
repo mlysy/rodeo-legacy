@@ -1,5 +1,6 @@
 # cythonized versions of the ODE functions used in the timing benchmarks
 import cython
+import numpy as np
 from libc.math cimport sin
 
 
@@ -15,31 +16,35 @@ cpdef chkrebtii_fun(double[::1] X, double t, double[::1] theta, double[::1] out)
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef lorenz_fun(double[::1] X, double t, double[::1] theta, double[::1] out):
+cpdef lorenz_fun(double[::1] X, double t, double[::1] theta, double[::1] out=None):
     """
     Lorenz63 ODE function.
     """
+    if out is None:
+        out = np.empty(3)
     rho, sigma, beta = theta
     cdef int p = len(X)//3
     x, y, z = X[p*0], X[p*1], X[p*2]
     out[0] = -sigma*x + sigma*y
     out[1] = rho*x - y - x*z
     out[2] = -beta*z + x*y
-    return
+    return out
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef fitz_fun(double[::1] X, double t, double[::1] theta, double[::1] out):
+cpdef fitz_fun(double[::1] X, double t, double[::1] theta, double[::1] out=None):
     """
     FitzHugh-Nagumo ODE function.
     """
+    if out is None:
+        out = np.empty(2)
     a, b, c = theta
     cdef int p = len(X)//2
     V, R = X[0], X[p]
     out[0] = c*(V - V**3/3 + R)
     out[1] = -1/c*(V - a + b*R)
-    return
+    return out
 
 
 @cython.boundscheck(False)
@@ -58,3 +63,24 @@ cpdef mseir_fun(double[::1] X, double t, double[::1] theta, double[::1] out):
     out[3] = epsilon*E - (gamma + mu)*I
     out[4] = gamma*I - mu*R
     return
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef seirah_fun(double[::1] X, double t, double[::1] theta, double[::1] out=None):
+    """
+    SEIRAH ODE function.
+    """
+    if out is None:
+        out = np.empty(6)
+    cdef int p = len(X)//6
+    S, E, I, R, A, H= X[::p]
+    cdef double N = S+E+I+R+A+H
+    b, r, alpha, D_e, D_I, D_q = theta
+    D_h = 30
+    out[0] = -b*S*(I + alpha*A)/N
+    out[1] = b*S*(I + alpha*A)/N - E/D_e
+    out[2] = r*E/D_e - I/D_q - I/D_I
+    out[3] = (I + A)/D_I + H/D_h
+    out[4] = (1-r)*E/D_e - A/D_I
+    out[5] = I/D_q - H/D_h
+    return out

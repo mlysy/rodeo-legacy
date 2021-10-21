@@ -27,7 +27,7 @@ def lorenz_example():
     # Initial value, x0, for the IVP
     x0 = [-12, -5, 38]
     v0 = [70, 125, -124/3]
-    X0 = np.column_stack([x0, v0])
+    X0 = np.ravel([x0, v0], 'F')
     
     # prior process definition
     n_deriv = [1, 1, 1] # number of derivatives in IVP
@@ -53,7 +53,7 @@ def lorenz_example():
     dt = (tmax-tmin)/n_points # step size
 
     # generate the Kalman parameters corresponding to the prior
-    ode_init, x0_pad = car_init(dt, n_deriv_prior, tau, sigma, X0)
+    ode_init, x0_pad = car_init(dt, n_deriv, n_deriv_prior, tau, sigma, X0)
     kinit = indep_init(ode_init, n_deriv_prior)
 
     # Initialize the Kalman class
@@ -62,7 +62,7 @@ def lorenz_example():
     kalman_sim = kalmanode.solve_sim(x0_pad, theta=theta)
 
     # Produce the graph in Figure 2
-    draws = 1000
+    draws = 100
     lorenz_graph(lorenz, n_deriv, n_deriv_prior, tmin, tmax, n_points, W_mat, tau, sigma, X0, theta, draws)
     return
 

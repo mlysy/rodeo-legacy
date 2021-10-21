@@ -1,5 +1,6 @@
 from jax import grad, jacfwd, jacrev
 from kalmanODE_jax import *
+from math import ceil
 import jax.numpy as jnp
 import numpy as np
 import scipy as sp
@@ -51,7 +52,7 @@ class inference:
         self.fun = fun
         self.W = W
         self.n_eval = n_eval
-        self.f = None
+        self.funpad = None
 
     def thinning(self, data_tseq, ode_tseq, X):
         r"Thin a highly discretized ODE solution to match the observed data."
@@ -72,42 +73,44 @@ class inference:
                 diff = 1000
         return X[ind,:]
     
-    def kalman_nlpost(self, phi, Y_t, deltat, h, phi_mean, phi_sd, prior, x0=None, sigma=None, log=False):
+    def kalman_nlpost(self, phi, Y_t, obs_t, dt, phi_mean, phi_sd, prior, x0=None, sigma=[None], log=False):
         r"Compute the negative loglikihood of :math:`Y_t` using the KalmanODE."
         phi_ind = len(phi_mean)
         theta = jnp.exp(phi[0:len(phi_mean)])
-        if sigma is None:
-            sigma = jnp.exp(phi[phi_ind])
-            phi_ind += 1
+        if None in sigma:
+            len_sigma = len(sigma)
+            sigma = jnp.exp(phi[phi_ind:phi_ind+len_sigma])
+            phi_ind += len_sigma
         if None in x0:
             len_x0 = len(x0)
             x00 = phi[phi_ind:phi_ind+len_x0]
-            x0 = self.f(x00, 0, theta)
+            x0 = self.funpad(x00, 0, theta)
         phi = phi[0:len(phi_mean)]
         X_t = solve_sim(self.fun, x0, self.tmin, self.tmax, self.n_eval, self.W, **prior, theta=theta)
-        X_t = X_t[::int(deltat/h)][1:][:, self.state_ind]
+        X_t = X_t[::int(obs_t/dt)][1:][:, self.state_ind]
         if log:
             X_t = jnp.exp(X_t)
         lp = self.loglike(Y_t, X_t, sigma)
-        lp += self.loglike(phi, phi_mean, phi_sd)
+        lp += self.logprior(phi, phi_mean, phi_sd)
         return -lp
 
-    def phi_fit(self, Y_t, x0, deltat, h, phi_true, phi_sd, prior, sigma=None, log=False):
+    def phi_fit(self, Y_t, x0, obs_t, dt, phi_true, phi_sd, prior, phi_init=None, sigma=[None], log=False):
         r"""Compute the optimized :math:`\log{\theta}` and its variance given 
             :math:`Y_t`."""
         n_theta = len(phi_true)    
-        if sigma is None:
-            n_theta += 1
+        if None in sigma:
+            n_theta += len(sigma)
         if None in x0:
             n_theta += len(x0)
-        phi_init = jnp.zeros(n_theta)
+        if phi_init is None:
+            phi_init = jnp.zeros(n_theta)
         kalman_grad = grad(self.kalman_nlpost)
         kalman_hes = jacfwd(jacrev(self.kalman_nlpost))
         opt_res = sp.optimize.minimize(self.kalman_nlpost, phi_init,
-                                       args=(Y_t, deltat, h, phi_true, phi_sd, prior, x0, sigma, log),
+                                       args=(Y_t, obs_t, dt, jnp.zeros(len(phi_true)), phi_sd, prior, x0, sigma, log),
                                        method='Newton-CG',
                                        jac=kalman_grad)
-        phi_fisher = kalman_hes(opt_res.x, Y_t, deltat, h, phi_true, phi_sd, prior, x0, sigma, log)
+        phi_fisher = kalman_hes(opt_res.x, Y_t, obs_t, dt, jnp.zeros(len(phi_true)), phi_sd, prior, x0, sigma, log)
         phi_cho, low = sp.linalg.cho_factor(phi_fisher)
         phi_var = sp.linalg.cho_solve((phi_cho, low), jnp.eye(n_theta))
         return opt_res.x, phi_var
@@ -122,12 +125,15 @@ class inference:
         r"Plot the posterior distribution against the true theta."
         kalman_theta = jnp.exp(kalman_phi)
         theta_true = jnp.exp(phi_true)
-        n_theta = len(theta_true)
-        fig, axs = plt.subplots(1, n_theta, figsize=(20, 10))
+        n_theta = kalman_theta.shape[1]
+        fig = plt.figure(figsize=(20,10))
         for i in range(n_theta):
-            sns.kdeplot(kalman_theta[:,i], ax=axs[i])
-            axs[i].axvline(x=theta_true[i], linewidth=1, color='r', linestyle='dashed')
-            axs[i].set_title(var_names[i])
+            fig.add_subplot(ceil(n_theta/5), min(n_theta,5), i+1)
+            sns.kdeplot(kalman_theta[:,i])
+            if i < len(theta_true):
+                plt.axvline(x=theta_true[i], linewidth=1, color='r', linestyle='dashed')
+            plt.title(var_names[i])
+        fig.tight_layout()
         plt.close()
         return fig
 

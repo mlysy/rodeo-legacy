@@ -43,15 +43,7 @@ ext_modules = [Extension("rodeo.tests.ode_functions",
                          ["ode_functions_ctuple"+ext_c],
                          extra_compile_args=extra_compile_args,
                          define_macros=disable_numpy_warnings,
-                         language="c"),
-               Extension("rodeo.tests.KalmanODE2",
-                         ["KalmanODE2"+ext_cpp],
-                         include_dirs=[
-                             np.get_include(),
-                             eigen_path],
-                         extra_compile_args=extra_compile_args,
-                         define_macros=disable_numpy_warnings,
-                         language="c++")]
+                         language="c")]
 
 setup(
     name="rodeo_test",

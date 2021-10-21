@@ -11,3 +11,5 @@ docs/build
 Untitled.ipynb
 /examples/figures
 /examples/saves
+*.csv
+*.zip

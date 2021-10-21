@@ -102,25 +102,24 @@ kode_c2.z_state = z_state
 time_c2 = timing(kode_c2, x0_state, W, theta, n_loops)
 
 # cython
-kode_cy = KalmanODE_cy(W, tmin, tmax, n_eval,
-                       ode_fun, **kinit)  # Initialize the class
+kode_cy = KalmanODE_cy(W, tmin, tmax, n_eval, ode_fun, **kinit)  
 kode_cy.z_state = z_state
 time_cy = timing(kode_cy, x0_state, W, theta, n_loops)
 
 # numba
 kode_num = KalmanODE_num(W, tmin, tmax, n_eval, ode_fun2, **kinit, z_state=z_state)
 # Need to run once to compile KalmanTV
-_ = kode_num.solve_sim(x0_state, W, np.asarray(theta))
-time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops)
+_ = kode_num.solve_sim(x0_state, W, theta)
+time_num = timing(kode_num, x0_state, W, theta, n_loops)
 
 # python
 kode_py = KalmanODE_py(W, tmin, tmax, n_eval, ode_fun, **kinit)
 kode_py.z_state = z_state
-time_py = timing(kode_py, x0_state, W, theta, n_loops//10)
+time_py = timing(kode_py, x0_state, W, theta, n_loops)
 
 # odeint
 tseq = np.linspace(tmin, tmax, n_eval+1)
-time_det = det_timing(ode_fun2, x0, tseq, n_loops*10, theta)
+time_det = det_timing(ode_fun, x0, tseq, n_loops, theta)
 
 print("Cython is {}x faster than Python".format(time_py/time_cy))
 print("Numba is {}x faster than Python".format(time_py/time_num))
