@@ -107,7 +107,7 @@ html_theme = 'sphinx_rtd_theme'
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'probDEdoc'
+htmlhelp_basename = 'rodeodoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------

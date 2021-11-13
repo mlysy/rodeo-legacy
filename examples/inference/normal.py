@@ -16,7 +16,7 @@ class normal(inference):
         r"Using Kalman solver to compute solutions"
         data_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/obs_size)+1)
         ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
-        X_t = self.kode.solve_sim(x0, self.W, theta)
+        X_t = self.kode.solve_mv(x0, self.W, theta)[0]
         X_t = self.thinning(ode_tseq, data_tseq, X_t)[:, self.state_ind]
         return X_t
     

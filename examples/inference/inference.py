@@ -123,7 +123,7 @@ class inference:
         lp += self.loglike(phi, phi_mean, phi_sd)
         return -lp
     
-    def phi_fit(self, Y_t, x0, step_size, obs_size, phi_mean, phi_sd, obj_fun, solve, loglik, *args, phi_init=None):
+    def phi_fit(self, Y_t, x0, step_size, obs_size, phi_mean, phi_sd, obj_fun, solve, loglik, *args, phi_init=None, bounds=None):
         r"""Compute the optimized :math:`\log{\theta}` and its variance given 
             :math:`Y_t`."""
         if phi_init is None:
@@ -134,7 +134,8 @@ class inference:
         n_phi = len(phi_init)
         opt_res = sp.optimize.minimize(obj_fun, phi_init,
                                        args=(Y_t, x0, step_size, obs_size, phi_mean, phi_sd, solve, loglik, *args),
-                                       method='Nelder-Mead')
+                                       method='Nelder-Mead',
+                                       bounds=bounds)
         phi_hat = opt_res.x
         hes = nd.Hessian(obj_fun)
         phi_fisher = hes(phi_hat, Y_t, x0, step_size, obs_size,phi_mean, phi_sd, solve, loglik, *args)
@@ -142,12 +143,11 @@ class inference:
         phi_var = sp.linalg.cho_solve((phi_cho, low), np.eye(n_phi))
         return phi_hat, phi_var
 
-    def theta_sample(self, phi_hat, phi_var, n_samples):
+    def phi_sample(self, phi_hat, phi_var, n_samples):
         r"""Simulate :math:`\theta` given the :math:`\log{\hat{\theta}}` 
             and its variance."""
         phi = np.random.multivariate_normal(phi_hat, phi_var, n_samples)
-        theta = np.exp(phi)
-        return theta
+        return phi
     
     def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes, var_names, clip=None, rows=1):
         r"""Plot the distribution of :math:`\theta` using the Kalman solver 
@@ -183,7 +183,7 @@ class inference:
             
             if t==n_theta:
                 patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
-                axs2.legend(handles=patches, framealpha=0.5)
+                fig.legend(handles=patches, framealpha=0.5, loc="best")
         
         fig.tight_layout()
         plt.show()

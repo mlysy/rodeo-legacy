@@ -87,16 +87,13 @@ setup(
     # cython
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-
     install_requires=[
         'numpy', 'scipy', 
-        'kalmantv', 'Cython', 
-        'numba',
-        'eigenpip @ https://github.com/mohanwu/eigenpip/archive/main.zip'
+        'Cython', 'numba'
     ],
     extras_require={
         'docs': ['sphinx', 'sphinx_rtd_theme', 'recommonmark'],
         'examples': ['jupyter', 'matplotlib', 'numdifftools', 'seaborn']
     },
-    setup_requires=['setuptools>=38']
+    setup_requires=['setuptools>=38', 'eigenpip', 'kalmantv']
 )

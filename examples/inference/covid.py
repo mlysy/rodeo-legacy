@@ -18,7 +18,7 @@ class covid(inference):
         X_in = np.array([I_in, H_in]).T
         return X_in
     
-    def simulate(self, fun, x0, theta):
+    def simulate(self, fun, x0, theta, tseq):
         r"""Get the observations for the SEIRAH Covid example.
         None of the compartments are directly observed, however 
         the daily infections and hospitalizations are observed. 
@@ -30,8 +30,7 @@ class covid(inference):
             H^{(in)}(t) = I(t)/D_q
 
         """
-        tseq = np.linspace(self.tmin, self.tmax, self.tmax-self.tmin+1)
-        X_t = odeint(fun, x0, tseq, args=(theta,))[1:,]
+        X_t = odeint(fun, x0, tseq, args=(theta,))
         X_in = self.covid_obs(X_t, theta)
         Y_in = np.random.default_rng().poisson(X_in)
         return Y_in, X_in
@@ -40,7 +39,7 @@ class covid(inference):
         r"Using Kalman solver to compute solutions"
         data_tseq = np.linspace(self.tmin+1, self.tmax, int((self.tmax-self.tmin)/obs_size))
         ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
-        X_t = self.kode.solve_sim(x0, self.W, theta)
+        X_t = self.kode.solve_mv(x0, self.W, theta)[0]
         X_t = self.thinning(ode_tseq, data_tseq, X_t)[:, self.state_ind]
         X_in = self.covid_obs(X_t, theta)
         return X_in
