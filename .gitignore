@@ -13,3 +13,4 @@ Untitled.ipynb
 /examples/saves
 *.csv
 *.zip
+build/

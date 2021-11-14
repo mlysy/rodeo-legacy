@@ -76,7 +76,7 @@ ext_modules = [Extension("rodeo.cython.KalmanODE",
 
 setup(
     name='rodeo',
-    version='0.1',
+    version='0.2',
     author='Mohan Wu, Martin Lysy',
     author_email='mlysy@uwaterloo.ca',
     long_description=long_description,
@@ -89,11 +89,12 @@ setup(
     ext_modules=ext_modules,
     install_requires=[
         'numpy', 'scipy', 
-        'Cython', 'numba'
+        'Cython', 'numba',
+        'eigenpip', 'kalmantv'
     ],
     extras_require={
         'docs': ['sphinx', 'sphinx_rtd_theme', 'recommonmark'],
         'examples': ['jupyter', 'matplotlib', 'numdifftools', 'seaborn']
     },
-    setup_requires=['setuptools>=38', 'eigenpip', 'kalmantv']
+    setup_requires=['setuptools>=38']
 )
