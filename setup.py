@@ -76,14 +76,19 @@ ext_modules = [Extension("rodeo.cython.KalmanODE",
 
 setup(
     name='rodeo',
-    version='0.2',
+    version='0.4',
     author='Mohan Wu, Martin Lysy',
     author_email='mlysy@uwaterloo.ca',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mlysy/rodeo",
-    packages=find_packages(exclude=["tests", "examples"]),
-
+    #packages=find_packages(exclude=["tests*", "examples"]),
+    packages=["rodeo", "rodeo/eigen", "rodeo/ibm", "rodeo/car",
+              "rodeo/numba", "rodeo/cython", "rodeo/utils"],
+    package_data={
+        "rodeo/eigen": ["*.pxd", "*.h"],
+        #"kalmantv/include/eigen": extra_files
+    },
     # cython
     cmdclass=cmdclass,
     ext_modules=ext_modules,
