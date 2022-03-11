@@ -342,10 +342,10 @@ cdef class KalmanODE:
 
         Returns:
             (tuple):
-            - **kalman_sim** (ndarray(n_steps, n_state)): Sample solution at time t given observations from times [0...T].
-            - **kalman_mu** (ndarray(n_steps, n_state)): Posterior mean of the solution process :math:`y_n` at times
+            - **x_state_smooth** (ndarray(n_steps, n_state)): Sample solution at time t given observations from times [0...T].
+            - **mu_state_smooth** (ndarray(n_steps, n_state)): Posterior mean of the solution process :math:`y_n` at times
               [0...T].
-            - **kalman_var** (ndarray(n_steps, n_state, n_state)): Posterior variance of the solution process at
+            - **var_state_smooth** (ndarray(n_steps, n_state, n_state)): Posterior variance of the solution process at
               times [0...T].
 
         """

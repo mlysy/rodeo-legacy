@@ -2,6 +2,10 @@ from math import ceil
 import numpy as np
 import scipy as sp
 import scipy.stats
+import jax
+from jax import random, jacfwd, jacrev, grad, lax
+import jax.numpy as jnp
+import jax.scipy as jsp
 import numdifftools as nd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -46,18 +50,19 @@ class inference:
         theta_kalman (ndarray(n_samples, n_theta)): Simulated n_samples of 
             :math:`\theta` using KalmanODE solver.
     """
-    def __init__(self, state_ind, tmin, tmax, fun, W=None, kode=None):
+    def __init__(self, state_ind, tmin, tmax, fun, n_eval=None, W=None, kinit=None):
         self.state_ind = state_ind
         self.tmin = tmin
         self.tmax = tmax
+        self.n_eval = n_eval
         self.fun = fun
         self.W = W
-        self.kode = kode
+        self.kinit = kinit
         self.funpad = None
-    
+
     def loglike(self, x, mean, var):
         r"Calculate the loglikelihood of the lognormal distribution."
-        return np.sum(sp.stats.norm.logpdf(x=x, loc=mean, scale=var))
+        return jnp.sum(jsp.stats.norm.logpdf(x=x, loc=mean, scale=var))
 
     def thinning(self, ode_tseq, data_tseq, X):
         r"Thin a highly discretized ODE solution to match the observed data."
@@ -89,7 +94,7 @@ class inference:
                 xx0[i] = phi[phi_ind + j]
                 j+=1
         phi = phi[:phi_ind]
-        theta = np.exp(phi)
+        theta = jnp.exp(phi)
         xx0 = self.funpad(xx0, 0, theta)
         X_t = kalman_solve(step_size, obs_size, xx0, theta)
         lp = loglik(Y_t, X_t, *args)
@@ -99,11 +104,15 @@ class inference:
     def euler(self, x0, ode_tseq, data_tseq, step_size, theta):
         r"Evaluate Euler approximation given :math:`\theta`"
         n_eval = len(ode_tseq) - 1
-        X_t = np.zeros((n_eval+1, len(x0)))
-        X_t[0] = x0
-        for i in range(n_eval):
-            self.fun(X_t[i], step_size*i, theta, X_t[i+1])
-            X_t[i+1] = X_t[i] + X_t[i+1]*step_size
+
+        # setup lax.scan:
+        # scan function
+        def fun(x_old, t):
+            x_new = x_old + self.fun(x_old, step_size*t, theta)*step_size
+            return x_new, x_new
+        (_, X_t) = lax.scan(fun, x0, jnp.arange(n_eval))
+
+        X_t = jnp.concatenate([x0[None], X_t])
         X_t = self.thinning(ode_tseq, data_tseq, X_t)
         return X_t
     
@@ -111,19 +120,22 @@ class inference:
         r"Compute the negative loglikihood of :math:`Y_t` using the Euler method."
         phi_ind = len(phi_mean)
         j=0
-        xx0 = np.copy(x0)
+        xx0 = []
         for i in range(len(x0)):
             if x0[i] is None:
-                xx0[i] = phi[phi_ind+j]
+                xx0.append(phi[phi_ind+j])
                 j+=1
+            else:
+                xx0.append(x0[i])
+        xx0 = jnp.array(xx0)
         phi = phi[:phi_ind]
-        theta = np.exp(phi)
+        theta = jnp.exp(phi)
         X_t = euler_solve(xx0, step_size, obs_size, theta)
         lp = loglik(Y_t, X_t, *args)
         lp += self.loglike(phi, phi_mean, phi_sd)
         return -lp
     
-    def phi_fit(self, Y_t, x0, step_size, obs_size, phi_mean, phi_sd, obj_fun, solve, loglik, *args, phi_init=None, bounds=None):
+    def phi_fit(self, Y_t, x0, step_size, obs_size, phi_mean, phi_sd, obj_fun, solve, loglik, *args, phi_init=None, method="Newton-CG"):
         r"""Compute the optimized :math:`\log{\theta}` and its variance given 
             :math:`Y_t`."""
         if phi_init is None:
@@ -132,21 +144,22 @@ class inference:
             phi_init = np.zeros(n_theta + n_x0)
         
         n_phi = len(phi_init)
+        gradf = grad(obj_fun)
+        hes = jacfwd(jacrev(obj_fun))
         opt_res = sp.optimize.minimize(obj_fun, phi_init,
                                        args=(Y_t, x0, step_size, obs_size, phi_mean, phi_sd, solve, loglik, *args),
-                                       method='Nelder-Mead',
-                                       bounds=bounds)
+                                       method=method,
+                                       jac=gradf)
         phi_hat = opt_res.x
-        hes = nd.Hessian(obj_fun)
-        phi_fisher = hes(phi_hat, Y_t, x0, step_size, obs_size,phi_mean, phi_sd, solve, loglik, *args)
-        phi_cho, low = sp.linalg.cho_factor(phi_fisher)
-        phi_var = sp.linalg.cho_solve((phi_cho, low), np.eye(n_phi))
+        phi_fisher = hes(phi_hat, Y_t, x0, step_size, obs_size, phi_mean, phi_sd, solve, loglik, *args)
+        phi_cho, low = jsp.linalg.cho_factor(phi_fisher)
+        phi_var = jsp.linalg.cho_solve((phi_cho, low), jnp.eye(n_phi))
         return phi_hat, phi_var
 
     def phi_sample(self, phi_hat, phi_var, n_samples):
         r"""Simulate :math:`\theta` given the :math:`\log{\hat{\theta}}` 
             and its variance."""
-        phi = np.random.multivariate_normal(phi_hat, phi_var, n_samples)
+        phi = np.random.default_rng(12345).multivariate_normal(phi_hat, phi_var, n_samples)
         return phi
     
     def theta_plot(self, theta_euler, theta_kalman, theta_true, step_sizes, var_names, clip=None, rows=1):
@@ -183,7 +196,7 @@ class inference:
             
             if t==n_theta:
                 patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
-                fig.legend(handles=patches, framealpha=0.5, loc="best")
+                fig.legend(handles=patches, framealpha=0.5, loc='center', bbox_to_anchor=(0.5, 0, 0.5, 0.5))
         
         fig.tight_layout()
         plt.show()

@@ -3,10 +3,13 @@ Python file for the sole purpose of producing the graphs in the README file.
 """
 import numpy as np
 from math import sin, cos
+import jax
+import jax.numpy as jnp
+from jax import random
 import matplotlib.pyplot as plt
 
 from rodeo.ibm import ibm_init
-from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.jax.KalmanODE import *
 from rodeo.utils import indep_init, zero_pad
 from euler_approx import euler_approx
 
@@ -24,15 +27,16 @@ def ode_euler(x,t):
 
 # Helper function to draw samples from Kalman solver
 def readme_kalman_draw(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_mat, init, draws):
+    key = random.PRNGKey(0)
     dt = (tmax-tmin)/n_eval
     X = np.zeros((draws, n_eval+1, sum(n_deriv_prior)))
-    W = zero_pad(w_mat, n_deriv, n_deriv_prior)
-    x0_state = zero_pad(init, n_deriv, n_deriv_prior)
+    W = jnp.array(zero_pad(w_mat, n_deriv, n_deriv_prior))
+    x0_state = jnp.array(zero_pad(init, n_deriv, n_deriv_prior))
     prior = ibm_init(dt, n_deriv_prior, sigma)
-    kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **prior)
+    prior = dict((k, jnp.array(v)) for k, v in prior.items())
     for i in range(draws):
-        X[i]= kalmanode.solve_sim(x0_state, W)
-        del kalmanode.z_state
+        key, subkey = random.split(key)
+        X[i]= solve_sim(fun, x0_state, tmin, tmax, n_eval, W, **prior, key=subkey)
     return X
 
 def readme_kalman_mv(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_mat, init):
@@ -40,8 +44,7 @@ def readme_kalman_mv(fun, n_deriv, n_deriv_prior, n_eval, tmin, tmax, sigma, w_m
     W = zero_pad(w_mat, n_deriv, n_deriv_prior)
     x0_state = zero_pad(init, n_deriv, n_deriv_prior)
     prior = ibm_init(dt, n_deriv_prior, sigma)
-    kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **prior)
-    X = kalmanode.solve_mv(x0_state, W)[0]
+    X = solve_mv(fun, x0_state, tmin, tmax, n_eval, W, **prior)[0]
     return X
 
 def readme_solve(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, sigma, init, draws):
