@@ -1,5 +1,5 @@
-from jax import grad, jacfwd, jacrev
-from kalmanODE_jax import *
+from jax import grad, jacfwd, jacrev, random
+from rodeo.jax.KalmanODE import *
 from math import ceil
 import jax.numpy as jnp
 import numpy as np
@@ -45,13 +45,14 @@ class inference:
         kalman_phi (ndarray(n_samples, n_theta)): Simulated n_samples of 
             :math:`\phi` using KalmanODE solver.
     """
-    def __init__(self, state_ind, tmin, tmax, n_eval, fun, W):
+    def __init__(self, state_ind, tmin, tmax, n_eval, fun, W, key):
         self.state_ind = state_ind
         self.tmin = tmin
         self.tmax = tmax
         self.fun = fun
         self.W = W
         self.n_eval = n_eval
+        self.key = key
         self.funpad = None
 
     def thinning(self, data_tseq, ode_tseq, X):
@@ -73,8 +74,9 @@ class inference:
                 diff = 1000
         return X[ind,:]
     
-    def kalman_nlpost(self, phi, Y_t, obs_t, dt, phi_mean, phi_sd, prior, x0=None, sigma=[None], log=False):
+    def kalman_nlpost(self, phi, Y_t, x0, obs_t, dt, phi_mean, phi_sd, prior, sigma, log):
         r"Compute the negative loglikihood of :math:`Y_t` using the KalmanODE."
+        self.key, subkey = random.split(self.key)
         phi_ind = len(phi_mean)
         theta = jnp.exp(phi[0:len(phi_mean)])
         if None in sigma:
@@ -86,31 +88,25 @@ class inference:
             x00 = phi[phi_ind:phi_ind+len_x0]
             x0 = self.funpad(x00, 0, theta)
         phi = phi[0:len(phi_mean)]
-        X_t = solve_sim(self.fun, x0, self.tmin, self.tmax, self.n_eval, self.W, **prior, theta=theta)
+        X_t = solve_sim(self.fun, jnp.array(x0), self.tmin, self.tmax, self.n_eval, self.W, **prior, key=subkey, theta=theta)
         X_t = X_t[::int(obs_t/dt)][1:][:, self.state_ind]
         if log:
             X_t = jnp.exp(X_t)
-        lp = self.loglike(Y_t, X_t, sigma)
+        lp = self.loglike(Y_t, X_t, jnp.array(sigma))
         lp += self.logprior(phi, phi_mean, phi_sd)
         return -lp
 
-    def phi_fit(self, Y_t, x0, obs_t, dt, phi_true, phi_sd, prior, phi_init=None, sigma=[None], log=False):
+    def phi_fit(self, Y_t, x0, obs_t, dt, phi_true, phi_sd, prior, sigma, phi_init, log=False):
         r"""Compute the optimized :math:`\log{\theta}` and its variance given 
             :math:`Y_t`."""
-        n_theta = len(phi_true)    
-        if None in sigma:
-            n_theta += len(sigma)
-        if None in x0:
-            n_theta += len(x0)
-        if phi_init is None:
-            phi_init = jnp.zeros(n_theta)
+        n_theta = len(phi_init)    
         kalman_grad = grad(self.kalman_nlpost)
         kalman_hes = jacfwd(jacrev(self.kalman_nlpost))
         opt_res = sp.optimize.minimize(self.kalman_nlpost, phi_init,
-                                       args=(Y_t, obs_t, dt, jnp.zeros(len(phi_true)), phi_sd, prior, x0, sigma, log),
+                                       args=(Y_t, x0, obs_t, dt, jnp.zeros(len(phi_true)), phi_sd, prior, sigma, log),
                                        method='Newton-CG',
                                        jac=kalman_grad)
-        phi_fisher = kalman_hes(opt_res.x, Y_t, obs_t, dt, jnp.zeros(len(phi_true)), phi_sd, prior, x0, sigma, log)
+        phi_fisher = kalman_hes(opt_res.x, Y_t, x0, obs_t, dt, jnp.zeros(len(phi_true)), phi_sd, prior, sigma, log)
         phi_cho, low = sp.linalg.cho_factor(phi_fisher)
         phi_var = sp.linalg.cho_solve((phi_cho, low), jnp.eye(n_theta))
         return opt_res.x, phi_var

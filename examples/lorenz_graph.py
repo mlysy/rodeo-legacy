@@ -5,12 +5,15 @@ Python file for the sole purpose of producing the graphs in the Lorenz63 example
 
 """
 import numpy as np
-from scipy.integrate import odeint
+import jax
+import jax.numpy as jnp
+from jax import random
 import matplotlib.pyplot as plt
+from scipy.integrate import odeint
 
 from rodeo.car import car_init
 from rodeo.ibm import ibm_init
-from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.jax.KalmanODE import *
 from rodeo.utils import indep_init, zero_pad
 
 def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, sigma, init, theta, draws, method="rodeo", load_calcs=False):
@@ -37,9 +40,9 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
         method (string) : Interrogation method.
 
     """
+    key = random.PRNGKey(0)
     tseq = np.linspace(tmin, tmax, n_eval+1)
     exact = odeint(fun, init[:, 0], tseq, args=(theta, ))
-    init = np.ravel([init[:, 0], init[:, 1]], order='F')
     ylabel = ['x', 'y', 'z']
     n_var = len(ylabel)
     dt = (tmax-tmin)/n_eval
@@ -49,19 +52,19 @@ def lorenz_graph(fun, n_deriv, n_deriv_prior, tmin, tmax, n_eval, w_mat, tau, si
         Xn = np.load(('saves/lorenz{}.npy').format(method))
     else:
         Xn = np.zeros((draws, n_eval+1, p))
-        W = zero_pad(w_mat, n_deriv, n_deriv_prior)
-        v_init = zero_pad(init, n_deriv, n_deriv_prior)
-        ode_init = ibm_init(dt, n_deriv_prior, sigma)
+        W = jnp.array(zero_pad(w_mat, n_deriv, n_deriv_prior))
+        ode_init, v_init = car_init(dt, n_deriv_prior, tau, sigma, init)
+        v_init = jnp.array(v_init)
         kinit = indep_init(ode_init, n_deriv_prior)
-        kalmanode = KalmanODE(W, tmin, tmax, n_eval, fun, **kinit)
+        kinit = dict((k, jnp.array(v)) for k, v in kinit.items())
         for i in range(draws):
-            Xn[i] = kalmanode.solve_sim(v_init, theta=theta, method=method)
-            del kalmanode.z_state
+            key, subkey = random.split(key)
+            Xn[i] = solve_sim(fun, v_init, tmin, tmax, n_eval, W, **kinit, key=subkey, theta=theta, method=method)
         if method=="rodeo":
-            Xmean = kalmanode.solve_mv(v_init, theta=theta, method=method)[0]
+            Xmean = solve_mv(fun, v_init, tmin, tmax, n_eval, W, **kinit, theta=theta)[0]
             Xmean = np.array([Xmean])
             Xn = np.concatenate([Xn, Xmean])
-        np.save(('saves/lorenz{}.npy').format(method), Xn)
+        #np.save(('saves/lorenz{}.npy').format(method), Xn)
     
     fig, axs = plt.subplots(n_var, 1, figsize=(20, 10))
     for prow in range(n_var):

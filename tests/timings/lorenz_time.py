@@ -1,6 +1,9 @@
 import warnings
 import numba
 import numpy as np
+import jax
+import jax.numpy as jnp
+from jax import random, jit
 import getopt
 import sys
 from numba.core.errors import NumbaPerformanceWarning
@@ -16,6 +19,7 @@ from rodeo.numba.KalmanODE import KalmanODE as KalmanODE_num
 from rodeo.cython.KalmanODE import KalmanODE as KalmanODE_cy
 from rodeo.eigen.KalmanODE import KalmanODE as KalmanODE_c
 from rodeo.eigen.KalmanODE2 import KalmanODE as KalmanODE_c2
+from rodeo.jax.KalmanODE import *
 from rodeo.tests.ode_functions import lorenz_fun as ode_fun_nd
 from rodeo.tests.ode_functions_ctuple import lorenz_fun as ode_fun_ct
 
@@ -27,6 +31,25 @@ for o, a in opts:
 
 warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
+# ode function used by jax
+@jit
+def ode_fun_jax(X, t, theta):
+    rho, sigma, beta = theta
+    p = len(X)//3
+    x, y, z = X[p*0], X[p*1], X[p*2]
+    dx = -sigma*x + sigma*y
+    dy = rho*x - y -x*z
+    dz = -beta*z + x*y
+    return jnp.array([dx, dy, dz])
+
+def ode_fun_jax2(X, t, theta):
+    rho, sigma, beta = theta
+    p = len(X)//3
+    x, y, z = X[p*0], X[p*1], X[p*2]
+    dx = -sigma*x + sigma*y
+    dy = rho*x - y -x*z
+    dz = -beta*z + x*y
+    return jnp.array([dx, dy, dz])
 
 # ode function used by cython, C++, python
 
@@ -41,7 +64,6 @@ warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
 # ode function used by numba, odeint
 
-
 @njit
 def ode_fun2(X, t, theta, out=None):
     if out is None:
@@ -51,7 +73,6 @@ def ode_fun2(X, t, theta, out=None):
     x, y, z = X[p*0], X[p*1], X[p*2]
     out[:] = -sigma*x + sigma*y, rho*x - y - x*z, -beta*z + x*y
     return out
-
 
 # problem setup and intialization
 n_deriv = [1, 1, 1] 
@@ -115,6 +136,18 @@ kode_num = KalmanODE_num(W, tmin, tmax, n_eval, ode_fun2, **kinit, z_state=z_sta
 _ = kode_num.solve_sim(x0_state, W, np.asarray(theta))
 time_num = timing(kode_num, x0_state, W, np.asarray(theta), n_loops)
 
+# jax
+key = random.PRNGKey(0)
+kinit2 = dict((k, jnp.array(v)) for k, v in kinit.items())
+x0_statej = jnp.array(x0_state)
+Wj = jnp.array(W)
+_ = solve_sim(ode_fun_jax, x0_statej, tmin, tmax, n_eval, Wj, **kinit2, key=key, theta=theta) 
+start = timer()
+for i in range(n_loops):
+    _ = solve_sim(ode_fun_jax, x0_statej, tmin, tmax, n_eval, Wj, **kinit2, key=key, theta=theta) 
+end = timer()
+time_jax = (end - start)/n_loops
+
 # python
 kode_py = KalmanODE_py(W, tmin, tmax, n_eval, ode_fun, **kinit)
 kode_py.z_state = z_state
@@ -122,9 +155,9 @@ time_py = timing(kode_py, x0_state, W, theta, n_loops)
 
 # odeint
 tseq = np.linspace(tmin, tmax, n_eval+1)
-time_det = det_timing(ode_fun, x0, tseq, n_loops, theta)
+#time_det = det_timing(ode_fun, x0, tseq, n_loops, theta)
 
-p# odeint2
+# odeint2
 # Need to run once to compile jitted ode function
 _ = odeint(ode_fun2, x0, tseq, args=(theta, ))
 time_det2 = det_timing(ode_fun2, x0, tseq, n_loops, theta)
@@ -133,5 +166,6 @@ print("Cython is {}x faster than Python".format(time_py/time_cy))
 print("Numba is {}x faster than Python".format(time_py/time_num))
 print("C++ is {}x faster than Python".format(time_py/time_c))
 print("C++2 is {}x faster than Python".format(time_py/time_c2))
-print("ode is {}x faster than Python".format(time_py/time_det))
+print("Jax is {}x faster than Python".format(time_py/time_jax))
+#print("ode is {}x faster than Python".format(time_py/time_det))
 print("ode2 is {}x faster than Python".format(time_py/time_det2))

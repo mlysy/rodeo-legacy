@@ -55,7 +55,7 @@ class TestFact(unittest.TestCase):
         # joint distribution using single mvn
         mu_tildeX1 = jnp.matmul(Q_1, tildeX_0)
         mu_tildeX2 = jnp.matmul(Q_2, mu_tildeX1)
-        mu_Y = jnp.matmul(W, mu_tildeX2)
+        mu_Y = jnp.matmul(W, mu_tildeX2) + b
         Sigma_12 = jnp.matmul(R_1, Q_2.T)
         Sigma_13 = jnp.matmul(Sigma_12, W.T)
         Sigma_22 = jnp.matmul(Q_2, Sigma_12) + R_2
@@ -72,7 +72,7 @@ class TestFact(unittest.TestCase):
         lpdf1 = jsp.stats.multivariate_normal.logpdf(tildeX_1, jnp.matmul(Q_1, tildeX_0), R_1)
         lpdf1 = lpdf1 + jsp.stats.multivariate_normal.logpdf(tildeX_2, jnp.matmul(Q_2, tildeX_1), R_2)
         lpdf1 = lpdf1 + \
-            jsp.stats.multivariate_normal.logpdf(Y, jnp.matmul(W, tildeX_2), Omega)
+            jsp.stats.multivariate_normal.logpdf(Y, jnp.matmul(W, tildeX_2) + b, Omega)
 
         # joint distribution using single mvn
         lpdf2 = jsp.stats.multivariate_normal.logpdf(jnp.block([tildeX_1, tildeX_2, Y]), mu, Sigma)

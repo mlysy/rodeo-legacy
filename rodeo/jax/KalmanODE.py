@@ -2,8 +2,8 @@ import numpy as np
 import jax.numpy as jnp
 from jax import jit, partial, lax, random
 from jax.config import config
-from kalmantv_jax import *
-from kalmantv_jax import _state_sim
+from kalmantv.jax.kalmantv import *
+from kalmantv.jax.kalmantv import _state_sim
 config.update("jax_enable_x64", True)
 
 @jit
@@ -167,6 +167,7 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
         wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
+        method (str): Interrogation method.
 
     Returns:
         (tuple):
@@ -174,8 +175,7 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
           :math:`t = 0,1/N,\ldots,1`.
 
     """
-    key, subkey = random.split(key)
-    z_state = random.normal(subkey, (len(x0), n_eval))
+    z_state = random.normal(key, (len(x0), n_eval))
     
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
@@ -240,6 +240,7 @@ def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
         wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
+        method (str): Interrogation method.
 
     Returns:
         (tuple):
@@ -341,6 +342,7 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
         wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
+        method (str): Interrogation method.
 
     Returns:
         (tuple):
@@ -353,8 +355,7 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
 
     """
     n_state = len(mu_state)
-    key, subkey = random.split(key)
-    z_state = random.normal(subkey, (len(x0), n_eval))
+    z_state = random.normal(key, (len(x0), n_eval))
     
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \

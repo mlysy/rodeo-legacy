@@ -1,35 +1,35 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import jax
+import jax.numpy as jnp
+from jax import jit
+
 from inference.normal import normal as inference
 from rodeo.ibm import ibm_init
-from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.jax.KalmanODE import *
 from rodeo.utils import indep_init, zero_pad
 
-def fitz(X_t, t, theta, out=None):
-    "FN ODE function with optional overwriting of output."
-    if out is None:
-        out = np.empty(2)
+@jit
+def fitz(X_t, t, theta):
+    "Fitz ODE written for jax"
     a, b, c = theta
     p = len(X_t)//2
     V, R = X_t[0], X_t[p]
-    out[0] = c*(V - V*V*V/3 + R)
-    out[1] = -1/c*(V - a + b*R)
-    return out
+    return jnp.array([c*(V - V*V*V/3 + R),
+                      -1/c*(V - a + b*R)])
 
 def fitzpad(X_t, t, theta):
     a, b, c = theta
     p = len(X_t)//2
     V, R = X_t[0], X_t[p]
-    return np.array([V, c*(V - V*V*V/3 + R), 0,
-                     R, -1/c*(V - a + b*R), 0])
+    return jnp.array([V, c*(V - V*V*V/3 + R), 0,
+                      R, -1/c*(V - a + b*R), 0])
 
 def fitz_example(load_calcs=False):
     "Perform parameter inference using the FitzHugh-Nagumo function."
     # These parameters define the order of the ODE and the CAR(p) process
     n_deriv = [1, 1] # Total state
-    n_obs = 2 # Total measures
     n_deriv_prior = [3, 3]
-    p = sum(n_deriv_prior)
     state_ind = [0, 3] # Index of 0th derivative of each state
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
@@ -48,7 +48,7 @@ def fitz_example(load_calcs=False):
 
     # pad the inputs
     w_mat = np.array([[0., 1., 0., 0.], [0., 0., 0., 1.]])
-    W = zero_pad(w_mat, n_deriv, n_deriv_prior)
+    W = jnp.array(zero_pad(w_mat, n_deriv, n_deriv_prior))
 
     # logprior parameters
     theta_true = np.array([0.2, 0.2, 3]) # True theta
@@ -77,45 +77,48 @@ def fitz_example(load_calcs=False):
     axs[1].scatter(tseq, Y_t[:,1], label = 'Y_t', color='orange')
     axs[1].set_title("$R^{(0)}_t$")
     axs[1].legend(loc='upper left', bbox_to_anchor=[1, 1])
-    fig.savefig('figures/fitzsim.pdf')
+    #fig.savefig('figures/fitzsim.pdf')
     
-    hlst = np.array([0.1, 0.05, 0.02, 0.01, 0.005])
+    dtlst = np.array([0.1])
+    obs_t = 1
     if load_calcs:
-        theta_euler = np.load('saves/fitz_theta_euler.npy')
-        theta_kalman = np.load('saves/fitz_theta_kalman.npy')
+        theta_euler = np.load('saves/fitz_theta_euler3.npy')
+        theta_kalman = np.load('saves/fitz_theta_kalman3.npy')
     else:
         # Parameter inference using Euler's approximation
-        theta_euler = np.zeros((len(hlst), n_samples, n_theta))
+        theta_euler = np.zeros((len(dtlst), n_samples, n_theta+n_var))
         phi_init = np.append(np.log(theta_true), x0)
-        for i in range(len(hlst)):
-            print(hlst[i])
-            phi_hat, phi_var = inf.phi_fit(Y_t, np.array([None, None]), hlst[i], phi_mean, phi_sd, inf.euler_nlpost,
+        for i in range(len(dtlst)):
+            phi_hat, phi_var = inf.phi_fit(Y_t, np.array([None, None]), dtlst[i], obs_t, phi_mean, phi_sd, inf.euler_nlpost,
                                            inf.euler_solve, inf.loglike, gamma, phi_init=phi_init)
-            theta_euler[i] = inf.theta_sample(phi_hat[:3], phi_var[:3, :3], n_samples)
-        np.save('saves/fitz_theta_euler.npy', theta_euler)
+            theta_euler[i] = inf.phi_sample(phi_hat, phi_var, n_samples)
+            theta_euler[i, :, :n_theta] = np.exp(theta_euler[i, :, :n_theta])
+        #np.save('saves/fitz_theta_euler3.npy', theta_euler)
         
         # Parameter inference using Kalman solver
-        theta_kalman = np.zeros((len(hlst), n_samples, n_theta))
-        for i in range(len(hlst)):
-            print(hlst[i])
-            ode_init = ibm_init(hlst[i], n_deriv_prior, sigma)
+        theta_kalman = np.zeros((len(dtlst), n_samples, n_theta+n_var))
+        for i in range(len(dtlst)):
+            ode_init = ibm_init(dtlst[i], n_deriv_prior, sigma)
             kinit = indep_init(ode_init, n_deriv_prior)
-            n_eval = int((tmax-tmin)/hlst[i])
-            kode = KalmanODE(W, tmin, tmax, n_eval, fitz, **kinit)
-            inf.kode = kode
+            kinit = dict((k, jnp.array(v)) for k, v in kinit.items())
+            n_eval = int((tmax-tmin)/dtlst[i])
+            inf.n_eval = n_eval
+            inf.kinit = kinit
             inf.W = W
-            phi_hat, phi_var = inf.phi_fit(Y_t, np.array([None, None]), hlst[i], phi_mean, phi_sd, inf.kalman_nlpost,
+            phi_hat, phi_var = inf.phi_fit(Y_t, np.array([None, None]), dtlst[i], obs_t, phi_mean, phi_sd, inf.kalman_nlpost,
                                            inf.kalman_solve, inf.loglike, gamma, phi_init = phi_init)
-            theta_kalman[i] = inf.theta_sample(phi_hat[:3], phi_var[:3, :3], n_samples)
-        np.save('saves/fitz_theta_kalman.npy', theta_kalman)
+            theta_kalman[i] = inf.phi_sample(phi_hat, phi_var, n_samples)
+            theta_kalman[i, :, :n_theta] = np.exp(theta_kalman[i, :, :n_theta])
+        #np.save('saves/fitz_theta_kalman3.npy', theta_kalman)
         
     # Produces the graph in Figure 3
     plt.rcParams.update({'font.size': 20})
-    var_names = ['a', 'b', 'c']
-    figure = inf.theta_plot(theta_euler, theta_kalman, theta_true, hlst, var_names, clip=[None, (0, 0.5), None])
-    figure.savefig('figures/fitzfigure.pdf')
+    var_names = ['a', 'b', 'c', r"$V_t^{(0)}$", r"$R_t^{(0)}$"]
+    param_true = np.append(theta_true, np.array([-1, 1]))
+    figure = inf.theta_plot(theta_euler, theta_kalman, param_true, dtlst, var_names, clip=[None, (0, 0.5), None, None, None], rows=2)
+    #figure.savefig('figures/fitzfigure.pdf')
     return
 
 if __name__ == '__main__':
-    fitz_example()
+    fitz_example(False)
     

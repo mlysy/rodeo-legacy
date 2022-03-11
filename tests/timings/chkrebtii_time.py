@@ -1,10 +1,14 @@
 import warnings
 import numba
 import numpy as np
+import jax
+import jax.numpy as jnp
+from jax import random, jit
 import getopt
 import sys
 from numba.core.errors import NumbaPerformanceWarning
 from timer import *
+from timeit import default_timer as timer
 from numba import njit
 from scipy.integrate import odeint
 from math import sin
@@ -17,6 +21,7 @@ from rodeo.numba.KalmanODE import KalmanODE as KalmanODE_num
 from rodeo.cython.KalmanODE import KalmanODE as KalmanODE_cy
 from rodeo.eigen.KalmanODE import KalmanODE as KalmanODE_c
 from rodeo.eigen.KalmanODE2 import KalmanODE as KalmanODE_c2
+from rodeo.jax.KalmanODE import *
 from rodeo.tests.ode_functions import chkrebtii_fun as ode_fun_nd
 from rodeo.tests.ode_functions_ctuple import chkrebtii_fun as ode_fun_ct
 
@@ -29,15 +34,10 @@ for o, a in opts:
 warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
 
-# ode function used by cython, C++, python
-# def ode_fun(x, t, theta=None, x_out=None):
-#     if x_out is None:
-#         x_out = np.zeros(1)
-#     x_out[0] = sin(2*t) - x[0]
-#     return
-
-# ode function used by numba
-
+# ode function used by jax
+@jit
+def ode_fun_jax(x, t, theta=None):
+    return jnp.array([jnp.sin(2*t) - x[0]])
 
 @njit
 def ode_fun2(x, t, theta=None, x_out=None):
@@ -111,6 +111,16 @@ kode_num = KalmanODE_num(W, tmin, tmax, n_eval, ode_fun2, **kinit, z_state=z_sta
 _ = kode_num.solve_sim(x0_state, W, theta)
 time_num = timing(kode_num, x0_state, W, theta, n_loops)
 
+# jax
+key = random.PRNGKey(0)
+kinit2 = dict((k, jnp.array(v)) for k, v in kinit.items())
+kode_jax = solve_sim(ode_fun_jax, jnp.array(x0_state), tmin, tmax, n_eval, jnp.array(W), **kinit2, key=key) 
+start = timer()
+for i in range(n_loops):
+    kode_jax = solve_sim(ode_fun_jax, jnp.array(x0_state), tmin, tmax, n_eval, jnp.array(W), **kinit2, key=key) 
+end = timer()
+time_jax = (end - start)/n_loops
+
 # python
 kode_py = KalmanODE_py(W, tmin, tmax, n_eval, ode_fun, **kinit)
 kode_py.z_state = z_state
@@ -125,4 +135,5 @@ print("Cython is {}x faster than Python".format(time_py/time_cy))
 print("Numba is {}x faster than Python".format(time_py/time_num))
 print("C++ is {}x faster than Python".format(time_py/time_c))
 print("C++2 is {}x faster than Python".format(time_py/time_c2))
+print("Jax is {}x faster than Python".format(time_py/time_jax))
 print("ode is {}x faster than Python".format(time_py/time_det))

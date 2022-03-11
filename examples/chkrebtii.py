@@ -1,21 +1,25 @@
 import numpy as np
 from math import sin
+import jax
+import jax.numpy as jnp
+from jax import random, jit
 import matplotlib.pyplot as plt
 
 from rodeo.ibm import ibm_init
-from rodeo.cython.KalmanODE import KalmanODE
+from rodeo.jax.KalmanODE import *
 from rodeo.utils import indep_init, zero_pad
 from readme_graph import readme_graph
 
 # ODE function
-def ode_fun(x, t, theta=None, x_out=None):
-    if x_out is None:
-        x_out = np.empty(1)
-    x_out[0] = sin(2*t) - x[0]
-    return
+@jit
+def ode_fun(x, t, theta=None):
+    return jnp.array([jnp.sin(2*t) - x[0]])
 
 def chkrebtii_example():
     r"Produces the graph in Figure 1 of the paper."
+    # Produce a Pseudo-RNG key
+    key = random.PRNGKey(0)
+
     # LHS vector of ODE
     # 2.  Define the IVP
 
@@ -38,8 +42,8 @@ def chkrebtii_example():
     n_deriv_prior = [4]  # number of derivatives in IBM prior
 
     # zero padding
-    W_pad = zero_pad(W, n_deriv, n_deriv_prior)
-    x0_pad = zero_pad(x0, n_deriv, n_deriv_prior)
+    W_pad = jnp.array(zero_pad(W, n_deriv, n_deriv_prior))
+    x0_pad = jnp.array(zero_pad(x0, n_deriv, n_deriv_prior))
 
     # IBM process scale factor
     sigma = [.5]
@@ -51,23 +55,28 @@ def chkrebtii_example():
 
     # generate the Kalman parameters corresponding to the prior
     prior = ibm_init(dt, n_deriv_prior, sigma)
-
-    # instantiate the ODE solver
-    ode = KalmanODE(W=W_pad,
-                    tmin=tmin,
-                    tmax=tmax,
-                    n_eval=n_points,
-                    fun=ode_fun,
-                    **prior)
-
+    prior = dict((k, jnp.array(v)) for k, v in prior.items())
 
     # 5.  Evaluate the ODE solution
 
     # deterministic output: posterior mean
-    mut, Sigmat = ode.solve_mv(x0=x0_pad)
+    mut, Sigmat = solve_mv(fun = ode_fun, 
+                           x0 = x0_pad,
+                           tmin = tmin,
+                           tmax = tmax,
+                           n_eval = n_points,
+                           wgt_meas = W_pad,
+                           **prior)
 
     # probabilistic output: draw from posterior
-    xt = ode.solve_sim(x0=x0_pad)
+    xt = solve_sim(fun = ode_fun, 
+                   x0 = x0_pad,
+                   tmin = tmin,
+                   tmax = tmax,
+                   n_eval = n_points,
+                   wgt_meas = W_pad,
+                   **prior,
+                   key=key)
     
     # Produces the graph in Figure 1
     draws = 100

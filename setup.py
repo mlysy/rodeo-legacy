@@ -84,7 +84,7 @@ setup(
     url="https://github.com/mlysy/rodeo",
     #packages=find_packages(exclude=["tests*", "examples"]),
     packages=["rodeo", "rodeo/eigen", "rodeo/ibm", "rodeo/car",
-              "rodeo/numba", "rodeo/cython", "rodeo/utils"],
+              "rodeo/numba", "rodeo/cython", "rodeo/jax", "rodeo/utils"],
     package_data={
         "rodeo/eigen": ["*.pxd", "*.h"],
         #"kalmantv/include/eigen": extra_files
@@ -95,6 +95,7 @@ setup(
     install_requires=[
         'numpy', 'scipy', 
         'Cython', 'numba',
+        'jax',
         'eigenpip', 'kalmantv'
     ],
     extras_require={
