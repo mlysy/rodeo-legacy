@@ -13,11 +13,13 @@ p(tildeX_1 | tildeX_0) p(tildeX_2 | tildeX_1) p(Y | tildeX_2).
 and P(W, Y) = P(Y) P(W|Y).
 """
 import unittest
+import numpy as np
 import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
 import jax.random as random
 from utils import var_sim, rel_err
+from rodeo.utils import mvncond
 from jax.config import config
 config.update("jax_enable_x64", True)
 
@@ -55,7 +57,7 @@ class TestFact(unittest.TestCase):
         # joint distribution using single mvn
         mu_tildeX1 = jnp.matmul(Q_1, tildeX_0)
         mu_tildeX2 = jnp.matmul(Q_2, mu_tildeX1)
-        mu_Y = jnp.matmul(W, mu_tildeX2)
+        mu_Y = jnp.matmul(W, mu_tildeX2) + b
         Sigma_12 = jnp.matmul(R_1, Q_2.T)
         Sigma_13 = jnp.matmul(Sigma_12, W.T)
         Sigma_22 = jnp.matmul(Q_2, Sigma_12) + R_2
@@ -72,12 +74,39 @@ class TestFact(unittest.TestCase):
         lpdf1 = jsp.stats.multivariate_normal.logpdf(tildeX_1, jnp.matmul(Q_1, tildeX_0), R_1)
         lpdf1 = lpdf1 + jsp.stats.multivariate_normal.logpdf(tildeX_2, jnp.matmul(Q_2, tildeX_1), R_2)
         lpdf1 = lpdf1 + \
-            jsp.stats.multivariate_normal.logpdf(Y, jnp.matmul(W, tildeX_2), Omega)
+            jsp.stats.multivariate_normal.logpdf(Y, jnp.matmul(W, tildeX_2) + b, Omega)
 
         # joint distribution using single mvn
         lpdf2 = jsp.stats.multivariate_normal.logpdf(jnp.block([tildeX_1, tildeX_2, Y]), mu, Sigma)
 
         self.assertAlmostEqual(rel_err(lpdf1, lpdf2), 0.0)
-        
+    
+    def test_double_fact(self):
+        """
+        Check if P(W, Y) = P(Y) P(W|Y).
+        """
+        key = random.PRNGKey(0)
+        n_W = 3
+        n_Y = 2
+
+        # generate random values of the matrices and vectors
+        key, *subkeys = random.split(key, num=5)
+        W = random.normal(subkeys[0], (n_W,))
+        Y = random.normal(subkeys[1], (n_Y,))
+        mu = random.normal(subkeys[2], (n_W + n_Y, ))
+        Sigma = var_sim(subkeys[3], n_W + n_Y)
+
+        # joint distribution using factorization
+        icond = jnp.array([True]*n_W + [False]*n_Y)
+        A, b, V = mvncond(mu, Sigma, icond)
+        lpdf1 = jsp.stats.multivariate_normal.logpdf(W, mu[icond], Sigma[np.ix_(icond, icond)])
+        lpdf1 = lpdf1 + jsp.stats.multivariate_normal.logpdf(Y, jnp.matmul(A, W) + b, V)
+
+        # joint distribution using single mvn
+        lpdf2 = jsp.stats.multivariate_normal.logpdf(jnp.block([W, Y]), mu, Sigma)
+
+        self.assertAlmostEqual(rel_err(lpdf1, lpdf2), 0.0)
+
+
 if __name__ == '__main__':
     unittest.main()
