@@ -1,6 +1,7 @@
 import numpy as np
 import jax.numpy as jnp
-from jax import jit, partial, lax, random
+from jax import jit, lax, random
+from functools import partial
 from jax.config import config
 from kalmantv.jax.kalmantv import *
 from kalmantv.jax.kalmantv import _state_sim

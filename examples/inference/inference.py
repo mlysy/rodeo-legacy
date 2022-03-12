@@ -6,7 +6,6 @@ import jax
 from jax import random, jacfwd, jacrev, grad, lax
 import jax.numpy as jnp
 import jax.scipy as jsp
-import numdifftools as nd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
