@@ -7,6 +7,7 @@ from kalmantv.jax.kalmantv import *
 from kalmantv.jax.kalmantv import _state_sim
 config.update("jax_enable_x64", True)
 
+
 @jit
 def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
     """
@@ -18,16 +19,17 @@ def _interrogate_rodeo(wgt_meas, mu_state_pred, var_state_pred):
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
         var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given
             observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
-        
+
     Returns:
         (tuple):
         - **x_state** (ndarray(n_state)): Temporary state variable.
         - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
-    
+
     """
     var_meas = jnp.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
     x_state = mu_state_pred
     return x_state, var_meas
+
 
 @jit
 def _interrogate_chkrebtii(wgt_meas, mu_state_pred, var_state_pred, z_state):
@@ -51,6 +53,7 @@ def _interrogate_chkrebtii(wgt_meas, mu_state_pred, var_state_pred, z_state):
     x_state = _state_sim(mu_state_pred, var_state_pred, z_state)
     return x_state, var_meas
 
+
 @jit
 def _interrogate_schober(mu_state_pred):
     """
@@ -59,18 +62,20 @@ def _interrogate_schober(mu_state_pred):
     Args:
         mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
-        
+
     Returns:
         (ndarray(n_state)): Temporary state variable.
-    
+
     """
     x_state = mu_state_pred
     return x_state
 
-### kalman_ode does not take function as arguments for now.
-### Jax (XLA) cannot set uninitialized arrays so jnp.empty defaults to jnp.zeros.
-@partial(jit, static_argnums=(0,2,3,4, 11))
-def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state, 
+# kalman_ode does not take function as arguments for now.
+# Jax (XLA) cannot set uninitialized arrays so jnp.empty defaults to jnp.zeros.
+
+
+@partial(jit, static_argnums=(0, 4, 11))
+def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
                   var_state, key=None, theta=None, method='rodeo'):
     r"""
     Helper function to the solve methods which implements the Kalmant Filter steps.
@@ -95,13 +100,13 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
                     var_state=var_state)
         )
         # model interrogation
-        if method=="chkrebtii":
+        if method == "chkrebtii":
             x_state, var_meas = \
                 _interrogate_chkrebtii(wgt_meas=wgt_meas,
                                        mu_state_pred=mu_state_pred,
                                        var_state_pred=var_state_pred,
                                        z_state=arg['z_state'])
-        elif method=="schober":
+        elif method == "schober":
             x_state = \
                 _interrogate_schober(mu_state_pred=mu_state_pred)
             var_meas = jnp.zeros((n_meas, n_meas))
@@ -120,13 +125,13 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
                    wgt_meas=wgt_meas,
                    var_meas=var_meas)
         )
-        
+
         new_state_filts = mu_state_filt_next, var_state_filt_next
         filts_and_preds = new_state_filts + (mu_state_pred, var_state_pred)
         return new_state_filts, filts_and_preds
 
     init_state_filts = (init_mu_state_filt, init_var_state_filt)
-    if method=="chkrebtii":
+    if method == "chkrebtii":
         key, subkey = random.split(key)
         z_state = random.normal(subkey, (len(x0), n_eval)).T
         init_arg = {
@@ -149,8 +154,9 @@ def _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
 
     return mu_state_pred, var_state_pred, mu_state_filt, var_state_filt
 
-@partial(jit, static_argnums=(0,2,3,4, 11))
-def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state, 
+
+@partial(jit, static_argnums=(0, 4, 11))
+def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
               var_state, key, theta=None, method='rodeo'):
     r"""
     Only returns a sample from :func:`~KalmanODE.solve`.
@@ -176,20 +182,21 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
           :math:`t = 0,1/N,\ldots,1`.
 
     """
-    z_state = random.normal(key, (len(x0), n_eval))
-    
+    key, subkey = jax.random.split(key)
+    z_state = random.normal(subkey, (n_eval, len(x0))).T
+
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
-        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, 
+        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state,
                       mu_state, var_state, key, theta, method)
-    
+
     # backward pass
     last_mu_state_smooth = mu_state_filt[:, n_eval]
     last_var_state_smooth = var_state_filt[:, :, n_eval]
     last_x_state_smooth = _state_sim(last_mu_state_smooth,
                                      last_var_state_smooth,
                                      z_state[:, n_eval-1])
-    
+
     def backward_pass(x_state_next, smooth_sim_kwargs):
         x_state_prev = smooth_sim(x_state_next=x_state_next,
                                   wgt_state=wgt_state,
@@ -210,7 +217,7 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
     all_smooth_sim_kwargs = {
         k: jnp.moveaxis(v, -1, 0) for k, v in all_smooth_sim_kwargs.items()
     }
-    
+
     (_, x_state_smooth) = lax.scan(backward_pass,
                                    last_x_state_smooth,
                                    all_smooth_sim_kwargs,
@@ -223,8 +230,9 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
 
     return x_state_smooth
 
-@partial(jit, static_argnums=(0,2,3,4, 11))
-def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state, 
+
+@partial(jit, static_argnums=(0, 4, 11))
+def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
              var_state, key=None, theta=None, method='rodeo'):
     r"""
     Only returns the mean and variance from :func:`~KalmanODE.solve`.
@@ -254,7 +262,7 @@ def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
     n_state = len(mu_state)
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
-        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, 
+        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state,
                       mu_state, var_state, key, theta, method)
 
     # backward pass
@@ -267,7 +275,7 @@ def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
                       var_state_next=state_next["var"],
                       wgt_state=wgt_state,
                       **smooth_sim_kwargs)
-        
+
         state_prev = {
             "mu": mu_state_prev,
             "var": var_state_prev
@@ -287,7 +295,7 @@ def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
     all_smooth_sim_kwargs = {
         k: jnp.moveaxis(v, -1, 0) for k, v in all_smooth_sim_kwargs.items()
     }
-    
+
     last_state_smooth = {
         "mu": last_mu_state_smooth,
         "var": last_var_state_smooth
@@ -303,13 +311,15 @@ def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         [x0[None], state_smooth["mu"], last_mu_state_smooth[None]]
     )
     var_state_smooth = jnp.concatenate(
-        [jnp.zeros((n_state, n_state))[None], state_smooth["var"], last_var_state_smooth[None]]
+        [jnp.zeros((n_state, n_state))[None], state_smooth["var"],
+         last_var_state_smooth[None]]
     )
-    
+
     return mu_state_smooth, var_state_smooth
 
-@partial(jit, static_argnums=(0,2,3,4, 11))
-def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state, 
+
+@partial(jit, static_argnums=(0, 4, 11))
+def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
           var_state, key, theta=None, method='rodeo'):
     r"""
     Probabilistic ODE solver based on the Kalman filter and smoother. Returns an approximate solution to the higher order ODE
@@ -357,12 +367,12 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
     """
     n_state = len(mu_state)
     z_state = random.normal(key, (len(x0), n_eval))
-    
+
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
-        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, 
+        _solve_filter(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state,
                       mu_state, var_state, key, theta, method)
-    
+
     # backward pass
     last_mu_state_smooth = mu_state_filt[:, n_eval]
     last_var_state_smooth = var_state_filt[:, :, n_eval]
@@ -377,14 +387,14 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
                    var_state_next=state_next["var"],
                    wgt_state=wgt_state,
                    **smooth_sim_kwargs)
-        
+
         state_prev = {
             "x": x_state_prev,
             "mu": mu_state_prev,
             "var": var_state_prev
         }
         return state_prev, state_prev
-    
+
     # lax.scan will efficiently iterate over these arrays for each time step.
     # We slice these arrays so they are aligned.
     # More precisely, for time step t, we want filt[t], pred[t+1], z_state[t-1]
@@ -399,7 +409,7 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
     all_smooth_sim_kwargs = {
         k: jnp.moveaxis(v, -1, 0) for k, v in all_smooth_sim_kwargs.items()
     }
-    
+
     last_state_smooth = {
         "x": last_x_state_smooth,
         "mu": last_mu_state_smooth,
@@ -419,7 +429,8 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         [x0[None], state_smooth["mu"], last_mu_state_smooth[None]]
     )
     var_state_smooth = jnp.concatenate(
-        [jnp.zeros((n_state, n_state))[None], state_smooth["var"], last_var_state_smooth[None]]
+        [jnp.zeros((n_state, n_state))[None], state_smooth["var"],
+         last_var_state_smooth[None]]
     )
-    
+
     return x_state_smooth, mu_state_smooth, var_state_smooth
