@@ -51,7 +51,9 @@ def interrogate_rodeo(key, fun, t, theta,
         - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
 
     """
-    var_meas = jnp.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
+    var_meas = jnp.atleast_2d(
+        jnp.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
+    )
     x_state = mu_state_pred
     x_meas = fun(x_state, t, theta)
     return x_meas, var_meas

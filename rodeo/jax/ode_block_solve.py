@@ -43,12 +43,13 @@ def interrogate_rodeo(key, fun, t, theta,
         - **var_meas** (ndarray(n_block, n_bmeas, n_bmeas)): Interrogation variance.
 
     """
-    breakpoint()
     n_block = mu_state_pred.shape[0]
-    var_meas = jax.vmap(lambda wm, vsp: jnp.linalg.multi_dot([wm, vsp, wn.T]),
-                        wgt_meas, var_state_pred)
+    var_meas = jax.vmap(lambda wm, vsp:
+                        jnp.atleast_2d(jnp.linalg.multi_dot([wm, vsp, wm.T])))(
+        wgt_meas, var_state_pred
+    )
     # var_meas = jnp.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
-    x_state = jnp.flatten(mu_state_pred)
+    x_state = jnp.ravel(mu_state_pred)
     x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
     return x_meas, var_meas
 

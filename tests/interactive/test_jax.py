@@ -7,6 +7,7 @@ from jax import jit, random, lax
 # from rodeo.ibm import ibm_init
 from rodeo.ibm.ibm_init import ibm_state as ribm_state
 import rodeo.ibm as ribm
+import rodeo.jax.ode_block_solve as jblock
 from rodeo.utils.utils import indep_init, zero_pad
 from rodeo.jax.ode_solve import *
 from rodeo.jax.ode_solve import _solve_filter
@@ -140,11 +141,9 @@ if True:
         return jnp.stack([c*(V - V*V*V/3 + R),
                           -1/c*(V - a + b*R)])
 
-    n_deriv = [1, 1]  # Total state
+    n_deriv = 1  # Total state
     n_obs = 2  # Total measures
-    n_deriv_prior = [3, 3]
-    p = sum(n_deriv_prior)
-    state_ind = [0, 3]  # Index of 0th derivative of each state
+    n_deriv_prior = 3
 
     # it is assumed that the solution is sought on the interval [tmin, tmax].
     tmin = 0.
@@ -154,8 +153,7 @@ if True:
 
     # The rest of the parameters can be tuned according to ODE
     # For this problem, we will use
-    n_var = 2
-    sigma = [.1]*n_var
+    sigma = .1
 
     # Initial value, x0, for the IVP
     x0 = jnp.array([-1., 1.])
@@ -164,19 +162,52 @@ if True:
 
     # pad the inputs
     w_mat = jnp.array([[0., 1., 0., 0.], [0., 0., 0., 1.]])
-    W = jnp.array(zero_pad(w_mat, n_deriv, n_deriv_prior))
+    W = jnp.array(zero_pad(w_mat, [n_deriv]*n_obs, [n_deriv_prior]*n_obs))
 
     # function parameter
+    t = jnp.array(.25)  # time
     theta = jnp.array([0.2, 0.2, 3])  # True theta
 
-    ode_init = ribm.ibm_init(h, n_deriv_prior, sigma)
-    x0_state = jnp.array(zero_pad(X0, n_deriv, n_deriv_prior))
-    kinit = indep_init(ode_init, n_deriv_prior)
+    ode_init = ribm.ibm_init(h, [n_deriv_prior]*n_obs, [sigma]*n_obs)
+    x0_state = jnp.array(zero_pad(X0, [n_deriv]*n_obs, [n_deriv_prior]*n_obs))
+    kinit = indep_init(ode_init, [n_deriv_prior]*n_obs)
     kinit = dict((k, jnp.array(v)) for k, v in kinit.items())
 
-    KalmanODE._interrogate_rodeo(
+    key = jax.random.PRNGKey(0)
+    x_meas, var_meas = interrogate_rodeo(
+        key=key,
+        fun=fitz_jax,
+        t=t,
+        theta=theta,
+        wgt_meas=W,
+        mu_state_pred=x0_state,
+        var_state_pred=kinit["var_state"]
+    )
 
-    breakpoint()
+    n_bmeas = 1
+    n_bstate = n_deriv_prior
+    W_block = jnp.array([W[0, 0:n_bstate],
+                         W[1, n_bstate:2*n_bstate]])
+    var_block = jnp.array([kinit["var_state"][0:n_bstate, 0:n_bstate],
+                           kinit["var_state"][n_bstate:2*n_bstate,
+                                              n_bstate:2*n_bstate]])
+    x0_block = jnp.reshape(x0_state, (n_obs, n_bstate))
+    x_meas2, var_meas2 = jblock.interrogate_rodeo(
+        key=key,
+        fun=fitz_jax,
+        t=t,
+        theta=theta,
+        wgt_meas=W_block,
+        mu_state_pred=x0_block,
+        var_state_pred=var_block
+    )
+
+    print_diff("x_meas", jnp.reshape(x_meas, (n_obs, n_bmeas)), x_meas2)
+    print_diff("var_meas",
+               jnp.array([var_meas[0, 0:n_bmeas],
+                         var_meas[1, n_bmeas:2*n_bmeas]]),
+               var_meas2)
+
 
 else:
     pass
