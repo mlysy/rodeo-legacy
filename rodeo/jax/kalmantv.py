@@ -5,9 +5,9 @@ The Gaussian state space model underlying the algorithms is
 
 .. math::
 
-    x_n = Q_n(x_{n-1} -\lambda_n) + \lambda_n + R_n^{1/2} \epsilon_n
+    x_n = c_n + Q_n x_{n-1} + R_n^{1/2} \epsilon_n
 
-    y_n = d_n + W_n x_n + \Sigma_n^{1/2} \eta_n,
+    y_n = d_n + W_n x_n + V_n^{1/2} \eta_n,
 
 where :math:`\epsilon_n \stackrel{\text{iid}}{\sim} \mathcal{N}(0, I_p)` and independently :math:`\eta_n \stackrel{\text{iid}}{\sim} \mathcal{N}(0, I_q)`.  At each time :math:`n`, only :math:`y_n` is observed.  The Kalman filtering and smoothing algorithms efficiently calculate quantities of the form :math:`\theta_{m|n} = (\mu_{m|n}, \Sigma_{m|n})`, where
 
@@ -88,7 +88,8 @@ def predict(mu_state_past, var_state_past,
         - **var_state_pred** (ndarray(n_steps, n_state)): Covariance of estimate for state at time n given observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
 
     """
-    mu_state_pred = wgt_state.dot(mu_state_past - mu_state) + mu_state
+    # mu_state_pred = wgt_state.dot(mu_state_past - mu_state) + mu_state
+    mu_state_pred = wgt_state.dot(mu_state_past) + mu_state
     var_state_pred = jnp.linalg.multi_dot(
         [wgt_state, var_state_past, wgt_state.T]) + var_state
     return mu_state_pred, var_state_pred
@@ -307,16 +308,16 @@ def smooth(x_state_next,
         var_state_filt, var_state_pred, wgt_state
     )
     mu_state_temp = jnp.concatenate([x_state_next[None],
-                                     mu_state_next[None]]).T
+                                     mu_state_next[None]])
     mu_state_temp = mu_state_filt + \
-        var_state_temp_tilde.dot(mu_state_temp - mu_state_pred)
-    mu_state_sim = mu_state_temp[:, 0]
+        var_state_temp_tilde.dot((mu_state_temp - mu_state_pred).T).T
+    mu_state_sim = mu_state_temp[0]
     var_state_sim = var_state_filt - \
         var_state_temp_tilde.dot(var_state_temp.T)
     x_state_smooth = _state_sim(mu_state_sim,
                                 var_state_sim,
                                 z_state)
-    mu_state_smooth = mu_state_temp[:, 1]
+    mu_state_smooth = mu_state_temp[1]
     var_state_smooth = var_state_filt + \
         jnp.linalg.multi_dot(
             [var_state_temp_tilde, (var_state_next - var_state_pred),

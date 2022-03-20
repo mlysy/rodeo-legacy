@@ -59,7 +59,23 @@
 	- In the return of the solve methods, the time variable `t` should be between `t_min` and `t_max`, not `0` and `1`.
 
 	- Use the same letters `Q`, `\lambda`, and `R` in the solver documentation to correspond with those in the Kalman docs.  Or, perhaps use a different letter than `\lambda` to have all roman letters (vs mix of roman and greek)?
+	
+	**Update:** Turns out that `\lambda` is not the same thing as `mu_state`.  So, let's use the following notation in `kalmantv`:
+	
+	```
+	x_n = c_n + Q_n x_{n-1} + R_n^{1/2} \epsilon_n
 
+    y_n = d_n + W_n x_n + V_n^{1/2} \eta_n.
+	```
+	
+	Then in `ode_solve` let's use:
+	
+	```
+	x_n = c_n + Q_n x_{n-1} + R_n^{1/2} \epsilon_n
+
+    y_n = W x_n + V_n^{1/2} \eta_n.
+	```
+	
 - [ ] I think your `ibm_state()` function is incorrect, in that it should return a `(q+1) x (q+1)` matrix instead of `q x q`.  Please fix.
 
 	Also, please finish converting `rodeo/jax/ibm_init.py` from NumPy to JAX.  I've already done `ibm_state()` for you (up to issue above).
@@ -76,4 +92,4 @@
 
 - [ ] Unit tests for kalmantv (in addition to the JAX tests above):
 
-	- kalman vs gss
+	- kalman vs gss.
