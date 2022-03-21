@@ -86,20 +86,19 @@ def indep_init(init, n_order):
         (tuple):
         - **kinit** (dict): Dictionary holding the computed initial parameters for the
           Kalman solver.
-        - **wgt_meas** (ndarray(n_var, p)): Transition matrix defining the measure prior.
-        - **x0_state** (ndarray(p)): Initial state of the ODE function.
-
     """
-    mu_state = init['mu_state']
+    mu_state_i = init['mu_state']
     wgt_state_i = init['wgt_state']
     var_state_i = init['var_state']
 
     n_var = len(var_state_i)
     p = sum(n_order)
+    mu_state = np.zeros((p,), order='F')
     wgt_state = np.zeros((p, p), order='F')
     var_state = np.zeros((p, p), order='F')
     ind = 0
     for i in range(n_var):
+        mu_state[ind:ind+n_order[i]] = mu_state_i[i]
         wgt_state[ind:ind+n_order[i], ind:ind+n_order[i]] = wgt_state_i[i]
         var_state[ind:ind+n_order[i], ind:ind+n_order[i]] = var_state_i[i]
         ind += n_order[i]

@@ -6,6 +6,7 @@ import jax.scipy as jsp
 from jax import jit, random, lax
 # from rodeo.ibm import ibm_init
 from rodeo.ibm.ibm_init import ibm_state as ribm_state
+from rodeo.ibm.ibm_init import ibm_init as ribm_init
 import rodeo.ibm as ribm
 import rodeo.jax.ode_block_solve as jblock
 from rodeo.utils.utils import indep_init, zero_pad
@@ -19,6 +20,13 @@ def print_diff(name, x1, x2):
     ad = jnp.max(jnp.abs(x1 - x2))
     print(name + " abs diff = {}".format(ad))
     return ad
+
+def block_diag(array):
+    n_eval = array.shape[0]
+    out = jax.vmap(lambda t:
+                   jsp.linalg.block_diag(*array[t]))(jnp.arange(n_eval))
+        
+    return out
 
 # --- test rodeo.solve ---------------------------------------------------------
 
@@ -48,7 +56,7 @@ if False:
     # Get parameters needed to run the solver
     # All necessary parameters are in kinit, namely, T, c, R, W
     kinit = ribm.ibm_init((tmax-tmin)/n_eval, n_deriv_prior, sigma)
-    kinit = {key: jnp.array(value) for (key, value) in kinit.items()}
+    kinit = {key: jnp.array(value[0]) for (key, value) in kinit.items()}
 
     def higher_fun(x_t, t, theta):
         """2nd order ODE function from Chkrebtii et al (2016)."""
@@ -65,7 +73,7 @@ if False:
         tmin=tmin, tmax=tmax, n_eval=n_eval,
         wgt_meas=W, wgt_state=kinit["wgt_state"],
         mu_state=kinit["mu_state"], var_state=kinit["var_state"],
-        key=key, theta=jnp.array(0.), method='rodeo')
+        key=key, theta=jnp.array(0.), method="rodeo")
 
     print_diff("mu_state_filt", filt_out2[2].T, filt_out["state_filt"][0])
     print_diff("mu_state_pred", filt_out2[0].T, filt_out["state_pred"][0])
@@ -82,7 +90,7 @@ if False:
         fun=higher_fun, x0=x0_state,
         tmin=tmin, tmax=tmax, n_eval=n_eval,
         wgt_meas=W, wgt_state=kinit["wgt_state"],
-        mu_selftate=kinit["mu_state"], var_state=kinit["var_state"],
+        mu_state=kinit["mu_state"], var_state=kinit["var_state"],
         key=key, theta=jnp.array(0.), method='rodeo'
     )
 
@@ -128,8 +136,15 @@ if False:
     print_diff("ibm A", A, A2)
     print_diff("ibm Q", Q, Q2)
 
+    n_order = jnp.array([4])
+    sigma = jnp.array([.5])
+    jint = jibm.ibm_init(dt, n_order, sigma)
+    rint = ribm_init(dt, n_order, sigma)
+    print_diff("ibm wgt_state", jint['wgt_state'], jnp.array(rint['wgt_state']))
+    print_diff("ibm var_state", jint['var_state'], jnp.array(rint['var_state']))
 else:
     pass
+
 
 # --- test rodeo.solve_block ---------------------------------------------------
 
@@ -167,8 +182,9 @@ if True:
     # function parameter
     t = jnp.array(.25)  # time
     theta = jnp.array([0.2, 0.2, 3])  # True theta
-
-    ode_init = ribm.ibm_init(h, [n_deriv_prior]*n_obs, [sigma]*n_obs)
+    n_order = jnp.array([n_deriv_prior]*n_obs)
+    sigma = jnp.array([sigma]*n_obs)
+    ode_init = jibm.ibm_init(h, n_order, sigma)
     x0_state = jnp.array(zero_pad(X0, [n_deriv]*n_obs, [n_deriv_prior]*n_obs))
     kinit = indep_init(ode_init, [n_deriv_prior]*n_obs)
     kinit = dict((k, jnp.array(v)) for k, v in kinit.items())
@@ -188,9 +204,8 @@ if True:
     n_bstate = n_deriv_prior
     W_block = jnp.array([W[0, 0:n_bstate],
                          W[1, n_bstate:2*n_bstate]])
-    var_block = jnp.array([kinit["var_state"][0:n_bstate, 0:n_bstate],
-                           kinit["var_state"][n_bstate:2*n_bstate,
-                                              n_bstate:2*n_bstate]])
+    W_block = jnp.reshape(W_block, newshape=(2,1,3))
+    var_block = ode_init['var_state']
     x0_block = jnp.reshape(x0_state, (n_obs, n_bstate))
     x_meas2, var_meas2 = jblock.interrogate_rodeo(
         key=key,
@@ -208,6 +223,37 @@ if True:
                          var_meas[1, n_bmeas:2*n_bmeas]]),
                var_meas2)
 
+    filt_out = _solve_filter(key=key, fun=fitz_jax, theta=theta,
+                             x0=x0_state, tmin=tmin, tmax=tmax, n_eval=n_eval,
+                             wgt_meas=W, **kinit)
 
+    filt_out2 = jblock._solve_filter(key=key, theta=theta,
+                                     fun=fitz_jax, x0=x0_block,
+                                     tmin=tmin, tmax=tmax, n_eval=n_eval,
+                                     wgt_meas=W_block, **ode_init)
+    
+    mu_state_filt2 = jnp.reshape(filt_out2['state_filt'][0], newshape=(-1, 6))
+    mu_state_pred2 = jnp.reshape(filt_out2['state_pred'][0], newshape=(-1, 6))
+    var_state_filt2 = block_diag(filt_out2["state_filt"][1])
+    var_state_pred2 = block_diag(filt_out2["state_pred"][1])
+
+    print_diff("mu_state_filt", mu_state_filt2, filt_out["state_filt"][0])
+    print_diff("mu_state_pred", mu_state_pred2, filt_out["state_pred"][0])
+    print_diff("var_state_filt", var_state_filt2, filt_out["state_filt"][1])
+    print_diff("var_state_pred", var_state_pred2, filt_out["state_pred"][1])
+
+    sim_out = solve_sim(key=key, fun=fitz_jax, theta=theta,
+                        x0=x0_state, tmin=tmin, tmax=tmax, n_eval=n_eval,
+                        wgt_meas=W, **kinit)
+
+    sim_out2 = jblock.solve_sim(key=key, theta=theta,
+                                fun=fitz_jax, x0=x0_block,
+                                tmin=tmin, tmax=tmax, n_eval=n_eval,
+                                wgt_meas=W_block, **ode_init)
+    
+    print_diff("x_state_smooth", sim_out, sim_out2)
+    
 else:
     pass
+
+

@@ -18,15 +18,15 @@ def ibm_state(dt, q, sigma):
           Kalman solver.
 
     """
-    A = np.zeros((q, q), order='F')
-    Q = np.zeros((q, q), order='F')
-    for i in range(q):
-        for j in range(q):
+    A = np.zeros((q+1, q+1), order='F')
+    Q = np.zeros((q+1, q+1), order='F')
+    for i in range(q+1):
+        for j in range(q+1):
             if i<=j:
                 A[i, j] = dt**(j-i)/np.math.factorial(j-i)
     
-    for i in range(q):
-        for j in range(q):
+    for i in range(q+1):
+        for j in range(q+1):
             num = dt**(2*q+1-i-j)
             denom = (2*q+1-i-j)*np.math.factorial(q-i)*np.math.factorial(q-j)
             Q[i, j] = sigma**2*num/denom
@@ -44,21 +44,22 @@ def ibm_init(dt, n_order, sigma):
         
     Returns:
         (dict):
-        - **wgt_state** (ndarray(p, p)) Transition matrix defining the solution prior; :math:`T`.
-        - **mu_state** (ndarray(p)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
-        - **var_state** (ndarray(p, p)) Variance matrix defining the solution prior; :math:`R`.
+        - **wgt_state** (ndarray(n_block, p, p)) Transition matrix defining the solution prior; :math:`Q_n`.
+        - **mu_state** (ndarray(n_block, p)): Transition_offsets defining the solution prior; denoted by :math:`c_n`.
+        - **var_state** (ndarray(n_block, p, p)) Variance matrix defining the solution prior; :math:`R_n`.
 
     """
-    n_var = len(n_order)
-    mu_state = np.zeros(sum(n_order))
-    wgt_state = [None]*n_var
-    var_state = [None]*n_var
-    for i in range(n_var):
-        wgt_state[i], var_state[i] = ibm_state(dt, n_order[i], sigma[i])
+    n_block = len(n_order)
+    p = max(n_order)
+    mu_state = np.zeros((n_block, p))
+    wgt_state = [None]*n_block
+    var_state = [None]*n_block
+    for i in range(n_block):
+        wgt_state[i], var_state[i] = ibm_state(dt, n_order[i]-1, sigma[i])
     
-    if n_var == 1:
-        wgt_state = wgt_state[0]
-        var_state = var_state[0]
+    #if n_var == 1:
+    #    wgt_state = wgt_state[0]
+    #    var_state = var_state[0]
     
     init = {"wgt_state":wgt_state,  "mu_state":mu_state,
             "var_state":var_state}

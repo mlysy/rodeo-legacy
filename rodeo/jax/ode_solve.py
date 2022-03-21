@@ -39,6 +39,9 @@ def interrogate_rodeo(key, fun, t, theta,
 
     Args:
         key: JAX PRNG key.
+        fun: ODE function.
+        t: Time point.
+        theta: ODE parameter.
         wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
         mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
             times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
@@ -54,6 +57,66 @@ def interrogate_rodeo(key, fun, t, theta,
     var_meas = jnp.atleast_2d(
         jnp.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
     )
+    x_state = mu_state_pred
+    x_meas = fun(x_state, t, theta)
+    return x_meas, var_meas
+
+def interrogate_chkrebtii(key, fun, t, theta,
+                          wgt_meas, mu_state_pred, var_state_pred):
+    r"""
+    Interrogate method of Chkrebtii et al (2016); DOI: 10.1214/16-BA1017.
+
+    Args:
+        key: JAX PRNG key.
+        fun: ODE function.
+        t: Time point.
+        theta: ODE parameter.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
+        mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
+            times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
+        var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given
+            observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
+
+    Returns:
+        (tuple):
+        - **x_meas** (ndarray(n_state)): Interrogation variable.
+        - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
+
+    """
+    #key, subkey = jax.random.split(key)
+    n_state = len(mu_state_pred)
+    z_state = jax.random.normal(key, (n_state, ))
+    var_meas = jnp.atleast_2d(
+        jnp.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
+    )
+    x_state = _state_sim(mu_state_pred, var_state_pred, z_state)
+    x_meas = fun(x_state, t, theta)
+    return x_meas, var_meas
+
+def interrogate_schober(key, fun, t, theta,
+                        wgt_meas, mu_state_pred, var_state_pred):
+    r"""
+    Interrogate method of Schober et al (2019); DOI: https://doi.org/10.1007/s11222-017-9798-7.
+
+    Args:
+        key: JAX PRNG key.
+        fun: ODE function.
+        t: Time point.
+        theta: ODE parameter.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior.
+        mu_state_pred (ndarray(n_state)): Mean estimate for state at time n given observations from
+            times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
+        var_state_pred (ndarray(n_state, n_state)): Covariance of estimate for state at time n given
+            observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
+
+    Returns:
+        (tuple):
+        - **x_meas** (ndarray(n_state)): Interrogation variable.
+        - **var_meas** (ndarray(n_meas, n_meas)): Interrogation variance.
+
+    """
+    n_meas = wgt_meas.shape[0]
+    var_meas = jnp.zeros((n_meas,))
     x_state = mu_state_pred
     x_meas = fun(x_state, t, theta)
     return x_meas, var_meas
@@ -164,8 +227,8 @@ def solve_sim(key, fun, x0, theta,
 
     """
     n_state = len(mu_state)
-    key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(subkey, (n_eval, n_state))
+    #key, subkey = jax.random.split(key)
+    z_state = jax.random.normal(key, (n_eval, n_state))
 
     # forward pass
     filt_out = _solve_filter(
@@ -257,9 +320,9 @@ def solve_mv(key, fun, x0, theta,
     """
     n_state = len(mu_state)
     # forward pass
-    key, subkey = jax.random.split(key)
+    #key, subkey = jax.random.split(key)
     filt_out = _solve_filter(
-        key=subkey,
+        key=key,
         fun=fun, theta=theta, x0=x0,
         tmin=tmin, tmax=tmax, n_eval=n_eval,
         wgt_meas=wgt_meas, wgt_state=wgt_state,
@@ -342,13 +405,13 @@ def solve(key, fun, x0, theta,
 
     """
     n_state = len(mu_state)
-    key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(subkey, (n_eval, n_state))
+    #key, subkey = jax.random.split(key)
+    z_state = jax.random.normal(key, (n_eval, n_state))
 
     # forward pass
-    key, subkey = jax.random.split(key)
+    #key, subkey = jax.random.split(key)
     filt_out = _solve_filter(
-        key=subkey,
+        key=key,
         fun=fun, theta=theta, x0=x0,
         tmin=tmin, tmax=tmax, n_eval=n_eval,
         wgt_meas=wgt_meas, wgt_state=wgt_state,

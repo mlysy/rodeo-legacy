@@ -182,8 +182,8 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
           :math:`t = 0,1/N,\ldots,1`.
 
     """
-    key, subkey = jax.random.split(key)
-    z_state = random.normal(subkey, (n_eval, len(x0))).T
+    #key, subkey = jax.random.split(key)
+    z_state = random.normal(key, (n_eval, len(x0))).T
 
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \

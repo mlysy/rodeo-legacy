@@ -33,11 +33,11 @@ def ibm_state(dt, q, sigma):
           Kalman solver.
 
     """
-    I, J = jnp.meshgrid(jnp.arange(q), jnp.arange(q),
+    I, J = jnp.meshgrid(jnp.arange(q+1), jnp.arange(q+1),
                         indexing="ij", sparse=True)
     mesh = J-I
     A = jnp.maximum(dt**mesh/_factorial(mesh),
-                    jnp.zeros((q, q)))
+                    jnp.zeros((q+1, q+1)))
 
     mesh = (2.0*q+1.0) - I - J
     num = dt**mesh
@@ -61,32 +61,39 @@ def ibm_state(dt, q, sigma):
 
 def ibm_init(dt, n_order, sigma):
     """
-    Calculates the initial parameters necessary for the Kalman solver with the q-times
+    Calculates the initial parameters necessary for the Kalman solver with the p-1 times
     integrated Brownian Motion.
 
     Args:
         dt (float): The step size between simulation points.
-        n_order (list(int)): Dimension of the prior.
-        sigma (list(float)): Parameter in variance matrix.
+        n_order (jnp.array(n_block)): Dimension of the prior.
+        sigma (jnp.array(n_block)): Parameter in variance matrix.
 
     Returns:
         (dict):
-        - **wgt_state** (ndarray(p, p)) Transition matrix defining the solution prior; :math:`T`.
-        - **mu_state** (ndarray(p)): Transition_offsets defining the solution prior; denoted by :math:`\lambda`.
-        - **var_state** (ndarray(p, p)) Variance matrix defining the solution prior; :math:`R`.
+        - **wgt_state** (ndarray(n_block, p, p)) Transition matrix defining the solution prior; :math:`Q_n`.
+        - **mu_state** (ndarray(n_block, p)): Transition_offsets defining the solution prior; denoted by :math:`c_n`.
+        - **var_state** (ndarray(n_block, p, p)) Variance matrix defining the solution prior; :math:`R_n`.
 
     """
-    n_var = len(n_order)
-    mu_state = np.zeros(sum(n_order))
-    wgt_state = [None]*n_var
-    var_state = [None]*n_var
-    for i in range(n_var):
-        wgt_state[i], var_state[i] = ibm_state(dt, n_order[i], sigma[i])
+    n_block = len(n_order)
+    p = jnp.max(n_order)
+    mu_state = jnp.zeros((n_block, p))
+    wgt_state = [None]*n_block
+    var_state = [None]*n_block    
 
-    if n_var == 1:
-        wgt_state = wgt_state[0]
-        var_state = var_state[0]
-
+    #wgt_state, var_state = jax.vmap(lambda b:
+    #    ibm_state(dt, (n_order[b]-1), sigma[b]))(jnp.arange(n_block))
+    
+    for i in range(n_block):
+        wgt_state[i], var_state[i] = ibm_state(dt, n_order[i]-1, sigma[i])
+    
+    wgt_state = jnp.array(wgt_state)
+    var_state = jnp.array(var_state)
+    #if n_var == 1:
+    #    wgt_state = wgt_state[0]
+    #    var_state = var_state[0]
+    
     init = {"wgt_state": wgt_state,  "mu_state": mu_state,
             "var_state": var_state}
     return init

@@ -63,28 +63,30 @@ def _solve_filter(key, fun, x0, theta,
 
     FIXME: Document all arguments and outputs...
     """
-    # Dimensions of state and measure variables
-    n_meas = wgt_meas.shape[0]
-    n_state = len(mu_state)
+    # Dimensions of block, state and measure variables
+    n_block, n_bmeas, n_bstate = wgt_meas.shape
+    #n_state = len(mu_state)
 
     # arguments for kalman_filter and kalman_smooth
-    mu_meas = jnp.zeros(n_meas)
+    mu_meas = jnp.zeros((n_block, n_bmeas))
     mu_state_init = x0
-    var_state_init = jnp.zeros((n_state, n_state))
+    var_state_init = jnp.zeros((n_block, n_bstate, n_bstate))
 
     # lax.scan setup
     # scan function
     def scan_fun(carry, t):
         mu_state_filt, var_state_filt = carry["state_filt"]
-        key, subkey = jax.random.split(carry["key"])
+        key, subkey = jax.random.split(carry["key"], num=1)
         # kalman predict
-        mu_state_pred, var_state_pred = predict(
-            mu_state_past=mu_state_filt,
-            var_state_past=var_state_filt,
-            mu_state=mu_state,
-            wgt_state=wgt_state,
-            var_state=var_state
-        )
+        mu_state_pred, var_state_pred = jax.vmap(lambda b:
+            predict(
+                mu_state_past=mu_state_filt[b],
+                var_state_past=var_state_filt[b],
+                mu_state=mu_state[b],
+                wgt_state=wgt_state[b],
+                var_state=var_state[b]
+            )
+        )(jnp.arange(n_block))
         # model interrogation
         x_meas, var_meas = interrogate(
             key=subkey,
@@ -96,14 +98,16 @@ def _solve_filter(key, fun, x0, theta,
             var_state_pred=var_state_pred
         )
         # kalman update
-        mu_state_next, var_state_next = update(
-            mu_state_pred=mu_state_pred,
-            var_state_pred=var_state_pred,
-            x_meas=x_meas,
-            mu_meas=mu_meas,
-            wgt_meas=wgt_meas,
-            var_meas=var_meas
-        )
+        mu_state_next, var_state_next = jax.vmap(lambda b:
+            update(
+                mu_state_pred=mu_state_pred[b],
+                var_state_pred=var_state_pred[b],
+                x_meas=x_meas[b],
+                mu_meas=mu_meas[b],
+                wgt_meas=wgt_meas[b],
+                var_meas=var_meas[b]
+            )
+        )(jnp.arange(n_block))
         # output
         carry = {
             "state_filt": (mu_state_next, var_state_next),
@@ -158,9 +162,9 @@ def solve_sim(key, fun, x0, theta,
         **x_state_smooth** (ndarray(n_steps, n_state)): Sample solution at time t given observations from times [0...N] for :math:`t = 0,1/N,\ldots,1`.
 
     """
-    n_state = len(mu_state)
-    key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(subkey, (n_eval, n_state))
+    n_block, n_bstate = mu_state.shape
+    #key, subkey = jax.random.split(key)
+    z_state = jax.random.normal(key, (n_eval, n_block, n_bstate))
 
     # forward pass
     filt_out = _solve_filter(
@@ -177,22 +181,29 @@ def solve_sim(key, fun, x0, theta,
     # backward pass
     # lax.scan setup
     def scan_fun(x_state_next, smooth_kwargs):
-        x_state_curr = smooth_sim(
-            x_state_next=x_state_next,
-            wgt_state=wgt_state,
-            **smooth_kwargs
-            # mu_state_filt=mu_state_filt[t],
-            # var_state_filt=var_state_filt[t],
-            # mu_state_pred=var_state_pred[t+1],
-            # var_state_pred=var_state_pred[t+1],
-            # wgt_state=wgt_state,
-            # z_state=z_state[t-1]
-        )
+        mu_state_filt = smooth_kwargs['mu_state_filt']
+        var_state_filt = smooth_kwargs['var_state_filt']
+        mu_state_pred = smooth_kwargs['mu_state_pred']
+        var_state_pred = smooth_kwargs['var_state_pred']
+        z_state = smooth_kwargs['z_state']
+        x_state_curr = jax.vmap(lambda b:
+            smooth_sim(
+                x_state_next=x_state_next[b],
+                wgt_state=wgt_state[b],
+                # **smooth_kwargs
+                mu_state_filt=mu_state_filt[b],
+                var_state_filt=var_state_filt[b],
+                mu_state_pred=mu_state_pred[b],
+                var_state_pred=var_state_pred[b],
+                z_state=z_state[b]
+                )
+        )(jnp.arange(n_block))
         return x_state_curr, x_state_curr
     # initialize
-    scan_init = _state_sim(mu_state_filt[n_eval],
-                           var_state_filt[n_eval],
-                           z_state[n_eval-1])
+    scan_init = jax.vmap(lambda b: 
+                         _state_sim(mu_state_filt[n_eval, b],
+                         var_state_filt[n_eval, b],
+                         z_state[n_eval-1, b]))(jnp.arange(n_block))
     # scan arguments
     scan_kwargs = {
         'mu_state_filt': mu_state_filt[1:n_eval],
@@ -218,6 +229,7 @@ def solve_sim(key, fun, x0, theta,
     x_state_smooth = jnp.concatenate(
         [x0[None], scan_out, scan_init[None]]
     )
+    x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
     return x_state_smooth
 
 
