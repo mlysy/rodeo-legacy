@@ -14,6 +14,7 @@ from rodeo.jax.ode_solve import *
 from rodeo.jax.ode_solve import _solve_filter
 import rodeo.jax.ibm_init as jibm
 import rodeo.jax.KalmanODE as KalmanODE
+from rodeo.jax.utils import *
 
 
 def print_diff(name, x1, x2):
@@ -21,12 +22,7 @@ def print_diff(name, x1, x2):
     print(name + " abs diff = {}".format(ad))
     return ad
 
-def block_diag(array):
-    n_eval = array.shape[0]
-    out = jax.vmap(lambda t:
-                   jsp.linalg.block_diag(*array[t]))(jnp.arange(n_eval))
-        
-    return out
+
 
 # --- test rodeo.solve ---------------------------------------------------------
 
@@ -223,6 +219,58 @@ if True:
                          var_meas[1, n_bmeas:2*n_bmeas]]),
                var_meas2)
 
+    x_meas, var_meas = interrogate_chkrebtii(
+        key=key,
+        fun=fitz_jax,
+        t=t,
+        theta=theta,
+        wgt_meas=W,
+        mu_state_pred=x0_state,
+        var_state_pred=kinit["var_state"]
+    )
+
+    x_meas2, var_meas2 = jblock.interrogate_chkrebtii(
+        key=key,
+        fun=fitz_jax,
+        t=t,
+        theta=theta,
+        wgt_meas=W_block,
+        mu_state_pred=x0_block,
+        var_state_pred=var_block
+    )
+
+    print_diff("x_meas_chk", jnp.reshape(x_meas, (n_obs, n_bmeas)), x_meas2)
+    print_diff("var_meas_chk",
+               jnp.array([var_meas[0, 0:n_bmeas],
+                         var_meas[1, n_bmeas:2*n_bmeas]]),
+               var_meas2)
+    x_meas, var_meas = interrogate_schober(
+        key=key,
+        fun=fitz_jax,
+        t=t,
+        theta=theta,
+        wgt_meas=W,
+        mu_state_pred=x0_state,
+        var_state_pred=kinit["var_state"]
+    )
+
+    x_meas2, var_meas2 = jblock.interrogate_schober(
+        key=key,
+        fun=fitz_jax,
+        t=t,
+        theta=theta,
+        wgt_meas=W_block,
+        mu_state_pred=x0_block,
+        var_state_pred=var_block
+    )
+    #print(var_meas2)
+    #print(var_meas)
+    print_diff("x_meas_sch", jnp.reshape(x_meas, (n_obs, n_bmeas)), x_meas2)
+    print_diff("var_meas_sch",
+               jnp.array([var_meas[0, 0:n_bmeas],
+                         var_meas[1, n_bmeas:2*n_bmeas]]),
+               var_meas2)
+
     filt_out = _solve_filter(key=key, fun=fitz_jax, theta=theta,
                              x0=x0_state, tmin=tmin, tmax=tmax, n_eval=n_eval,
                              wgt_meas=W, **kinit)
@@ -253,6 +301,32 @@ if True:
     
     print_diff("x_state_smooth", sim_out, sim_out2)
     
+    mv_out = solve_mv(key=key, fun=fitz_jax, theta=theta,
+                      x0=x0_state, tmin=tmin, tmax=tmax, n_eval=n_eval,
+                      wgt_meas=W, **kinit)
+
+    mv_out2 = jblock.solve_mv(key=key, theta=theta,
+                              fun=fitz_jax, x0=x0_block,
+                              tmin=tmin, tmax=tmax, n_eval=n_eval,
+                              wgt_meas=W_block, **ode_init)
+
+    print_diff("mu_state_smooth", mv_out[0], mv_out2[0])
+    print_diff("var_state_smooth", mv_out[1], mv_out2[1])
+
+    solve_out = solve(key=key, fun=fitz_jax, theta=theta,
+                      x0=x0_state, tmin=tmin, tmax=tmax, n_eval=n_eval,
+                      wgt_meas=W, **kinit)
+
+    solve_out2 = jblock.solve(key=key, theta=theta,
+                              fun=fitz_jax, x0=x0_block,
+                              tmin=tmin, tmax=tmax, n_eval=n_eval,
+                              wgt_meas=W_block, **ode_init)
+
+    print_diff("x_state_smooth2", solve_out[0], solve_out2[0])
+    print_diff("mu_state_smooth2", solve_out[1], solve_out2[1])
+    print_diff("var_state_smooth2", solve_out[2], solve_out2[2])
+
+
 else:
     pass
 

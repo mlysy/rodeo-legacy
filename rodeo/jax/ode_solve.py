@@ -116,7 +116,7 @@ def interrogate_schober(key, fun, t, theta,
 
     """
     n_meas = wgt_meas.shape[0]
-    var_meas = jnp.zeros((n_meas,))
+    var_meas = jnp.zeros((n_meas, n_meas))
     x_state = mu_state_pred
     x_meas = fun(x_state, t, theta)
     return x_meas, var_meas
@@ -424,7 +424,7 @@ def solve(key, fun, x0, theta,
     # backward pass
     # lax.scan setup
     def scan_fun(state_next, smooth_kwargs):
-        x_state_curr, mu_state_curr, var_state_curr = smooth_mv(
+        x_state_curr, mu_state_curr, var_state_curr = smooth(
             x_state_next=state_next["x"],
             mu_state_next=state_next["mu"],
             var_state_next=state_next["var"],
