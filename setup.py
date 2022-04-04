@@ -97,7 +97,7 @@ setup(
     ext_modules=ext_modules,
     install_requires=[
         "cython>=0.29", "numpy>=1.22", 'scipy>=1.2.1',
-        'numba>=0.51.2', 'eigenpip', 'kalmantv'
+        'numba>=0.51.2', 'eigenpip', 'kalmantv', "jax"
     ],
     extras_require={
         'docs': ['sphinx', 'sphinx_rtd_theme', 'recommonmark'],
