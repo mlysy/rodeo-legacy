@@ -1,7 +1,7 @@
 import rodeo
 import rodeo.jax.gauss_markov as gm
 import rodeo.jax.kalmantv as ktv
-from rodeo.utils import mvncond
+from rodeo.jax.utils import mvncond
 import numpy as np
 import jax
 import jax.numpy as jnp
@@ -93,11 +93,11 @@ def kalman_theta(m, y, mu, Sigma):
 if True:
     # theta_{0|0}
     mu_state_past, var_state_past = kalman_theta(
-        m=0, y=np.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
+        m=0, y=jnp.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
     )
     # theta_{1|0}
     mu_state_pred, var_state_pred = kalman_theta(
-        m=1, y=np.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
+        m=1, y=jnp.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
     )
     mu_state_pred2, var_state_pred2 = ktv.predict(
         mu_state_past=mu_state_past,
@@ -114,7 +114,7 @@ else:
 
 # --- kalman.update ------------------------------------------------------------
 
-if True:
+if False:
     # theta_{1|0}
     mu_state_pred, var_state_pred = kalman_theta(
         m=1, y=np.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
@@ -139,7 +139,7 @@ else:
 
 # --- kalman.filter ------------------------------------------------------------
 
-if True:
+if False:
     # theta_{0|0}
     mu_state_past, var_state_past = kalman_theta(
         m=0, y=np.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
@@ -174,7 +174,7 @@ else:
 
 # --- kalman.smooth_mv ---------------------------------------------------------
 
-if True:
+if False:
     # theta_{1|1}
     mu_state_next, var_state_next = kalman_theta(
         m=1, y=x_meas, mu=mu_gm, Sigma=var_gm
@@ -210,7 +210,7 @@ else:
 
 # --- kalmantv.smooth_sim ------------------------------------------------------
 
-if True:
+if False:
     # theta_{0|0}
     mu_state_filt, var_state_filt = kalman_theta(
         m=0, y=np.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
@@ -249,7 +249,7 @@ else:
 
 # --- kalmantv.smooth ----------------------------------------------------------
 
-if True:
+if False:
     # theta_{1|1}
     mu_state_next, var_state_next = kalman_theta(
         m=1, y=x_meas, mu=mu_gm, Sigma=var_gm

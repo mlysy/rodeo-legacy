@@ -172,7 +172,7 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`T`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
         method (str): Interrogation method.
 
@@ -182,8 +182,8 @@ def solve_sim(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
           :math:`t = 0,1/N,\ldots,1`.
 
     """
-    #key, subkey = jax.random.split(key)
-    z_state = random.normal(key, (n_eval, len(x0))).T
+    key, subkey = jax.random.split(key)
+    z_state = random.normal(subkey, (n_eval, len(x0))).T
 
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \
@@ -247,7 +247,7 @@ def solve_mv(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`T`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
         method (str): Interrogation method.
 
@@ -351,7 +351,7 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`T`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
         method (str): Interrogation method.
 
@@ -366,7 +366,8 @@ def solve(fun, x0, tmin, tmax, n_eval, wgt_meas, wgt_state, mu_state,
 
     """
     n_state = len(mu_state)
-    z_state = random.normal(key, (len(x0), n_eval))
+    key, subkey = jax.random.split(key)
+    z_state = random.normal(subkey, (len(x0), n_eval))
 
     # forward pass
     mu_state_pred, var_state_pred, mu_state_filt, var_state_filt = \

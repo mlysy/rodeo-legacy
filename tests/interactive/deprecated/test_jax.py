@@ -14,8 +14,9 @@ from rodeo.jax.ode_solve import *
 from rodeo.jax.ode_solve import _solve_filter
 import rodeo.jax.ibm_init as jibm
 import rodeo.jax.KalmanODE as KalmanODE
-from rodeo.jax.utils import *
-
+from rodeo.jax.utils import block_diag
+from rodeo.jax.utils import zero_pad as zero_pad2
+import numpy as np
 
 def print_diff(name, x1, x2):
     ad = jnp.max(jnp.abs(x1 - x2))
@@ -170,7 +171,6 @@ if True:
     x0 = jnp.array([-1., 1.])
     v0 = jnp.array([1, 1/3])
     X0 = jnp.concatenate([x0, v0])
-
     # pad the inputs
     w_mat = jnp.array([[0., 1., 0., 0.], [0., 0., 0., 1.]])
     W = jnp.array(zero_pad(w_mat, [n_deriv]*n_obs, [n_deriv_prior]*n_obs))
@@ -203,6 +203,7 @@ if True:
     W_block = jnp.reshape(W_block, newshape=(2,1,3))
     var_block = ode_init['var_state']
     x0_block = jnp.reshape(x0_state, (n_obs, n_bstate))
+    print(W_block)
     x_meas2, var_meas2 = jblock.interrogate_rodeo(
         key=key,
         fun=fitz_jax,
@@ -263,8 +264,7 @@ if True:
         mu_state_pred=x0_block,
         var_state_pred=var_block
     )
-    #print(var_meas2)
-    #print(var_meas)
+
     print_diff("x_meas_sch", jnp.reshape(x_meas, (n_obs, n_bmeas)), x_meas2)
     print_diff("var_meas_sch",
                jnp.array([var_meas[0, 0:n_bmeas],
@@ -299,7 +299,7 @@ if True:
                                 tmin=tmin, tmax=tmax, n_eval=n_eval,
                                 wgt_meas=W_block, **ode_init)
     
-    print_diff("x_state_smooth", sim_out, sim_out2)
+    print_diff("x_state_smooth", sim_out, jnp.reshape(sim_out2, newshape=(-1, n_obs*n_bstate)))
     
     mv_out = solve_mv(key=key, fun=fitz_jax, theta=theta,
                       x0=x0_state, tmin=tmin, tmax=tmax, n_eval=n_eval,
@@ -310,8 +310,8 @@ if True:
                               tmin=tmin, tmax=tmax, n_eval=n_eval,
                               wgt_meas=W_block, **ode_init)
 
-    print_diff("mu_state_smooth", mv_out[0], mv_out2[0])
-    print_diff("var_state_smooth", mv_out[1], mv_out2[1])
+    print_diff("mu_state_smooth", mv_out[0], jnp.reshape(mv_out2[0], newshape=(-1, n_obs*n_bstate)))
+    print_diff("var_state_smooth", mv_out[1], block_diag(mv_out2[1]))
 
     solve_out = solve(key=key, fun=fitz_jax, theta=theta,
                       x0=x0_state, tmin=tmin, tmax=tmax, n_eval=n_eval,
@@ -322,12 +322,29 @@ if True:
                               tmin=tmin, tmax=tmax, n_eval=n_eval,
                               wgt_meas=W_block, **ode_init)
 
-    print_diff("x_state_smooth2", solve_out[0], solve_out2[0])
-    print_diff("mu_state_smooth2", solve_out[1], solve_out2[1])
-    print_diff("var_state_smooth2", solve_out[2], solve_out2[2])
+    print_diff("x_state_smooth2", solve_out[0], jnp.reshape(solve_out2[0], newshape=(-1, n_obs*n_bstate)))
+    print_diff("mu_state_smooth2", solve_out[1], jnp.reshape(solve_out2[1], newshape=(-1, n_obs*n_bstate)))
+    print_diff("var_state_smooth2", solve_out[2], block_diag(solve_out2[2]))
 
 
 else:
     pass
 
+# --- test rodeo.utils ---------------------------------------------------------
 
+if False:
+    key = random.PRNGKey(0)
+    key, *subkey = random.split(key, 4)
+    n_block = random.randint(subkey[0], (1,), 1, 10)[0]
+    n_bstate = random.randint(subkey[1], (1,), 1, 10)[0]
+    n_eval = 10
+    X = random.normal(subkey[2], (n_eval, n_block, n_bstate, n_bstate))
+    X_block = block_diag(X)
+    X_block2 = np.zeros((n_eval, n_block*n_bstate, n_block*n_bstate))
+    for i in range(n_eval):
+        for j in range(n_block):
+            X_block2[i, j*n_bstate:((j+1)*n_bstate), j*n_bstate:((j+1)*n_bstate)] = X[i, j]
+    print_diff("Blocks", X_block, jnp.array(X_block2))
+
+    w_mat = jnp.array([[[0., 1., 0.], [0., 0., 1.]],[[0., 1., 0.], [0., 0., 0.]]])
+    print(zero_pad2(w_mat, 3))

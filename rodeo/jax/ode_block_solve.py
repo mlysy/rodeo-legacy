@@ -53,8 +53,9 @@ def interrogate_rodeo(key, fun, t, theta,
         wgt_meas, var_state_pred
     )
     # var_meas = jnp.linalg.multi_dot([wgt_meas, var_state_pred, wgt_meas.T])
-    x_state = jnp.ravel(mu_state_pred)
-    x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
+    # x_state = jnp.ravel(mu_state_pred)
+    # x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
+    x_meas = fun(mu_state_pred, t, theta)
     return x_meas, var_meas
 
 
@@ -77,8 +78,9 @@ def interrogate_chkrebtii(key, fun, t, theta,
                        _state_sim(mu_state_pred[b],
                                   var_state_pred[b],
                                   z_state[b]))(jnp.arange(n_block))
-    x_state = jnp.ravel(x_state)
-    x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
+    # x_state = jnp.ravel(x_state)
+    # x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
+    x_meas = fun(mu_state_pred, t, theta)
     return x_meas, var_meas
 
 def interrogate_schober(key, fun, t, theta,
@@ -91,8 +93,9 @@ def interrogate_schober(key, fun, t, theta,
     """
     n_block, n_bmeas, _ = wgt_meas.shape
     var_meas = jnp.zeros((n_block, n_bmeas, n_bmeas))
-    x_state = jnp.ravel(mu_state_pred)
-    x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
+    # x_state = jnp.ravel(mu_state_pred)
+    # x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
+    x_meas = fun(mu_state_pred, t, theta)
     return x_meas, var_meas
 
 
@@ -190,14 +193,14 @@ def solve_sim(key, fun, x0, theta,
         key: PRNG key.
         fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
-        x0 (float): Initial value of the state variable :math:`x_t` at time :math:`t = a`.
-        tmin (int): First time point of the time interval to be evaluated; :math:`a`.
-        tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
+        x0 (ndarray(n_block, n_bstate)): Initial value of the state variable :math:`x_t` at time :math:`t = a`.
+        tmin (float): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (float): Last time point of the time interval to be evaluated; :math:`b`.
         n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated, such that discretization timestep is :math:`dt = b/N`.
-        wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`Q`.
-        mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
-        var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
+        wgt_state (ndarray(n_block, n_bstate, n_bstate)): Transition matrix defining the solution prior; :math:`Q`.
+        mu_state (ndarray(n_block, n_bstate)): Transition_offsets defining the solution prior; :math:`c`.
+        var_state (ndarray(n_block, n_bstate, n_bstate)): Variance matrix defining the solution prior; :math:`R`.
+        wgt_meas (ndarray(n_block, n_bmeas, n_bstate)): Transition matrix defining the measure prior; :math:`W`.
         interrogate: Function defining the interrogation method.
 
     Returns:
@@ -205,8 +208,8 @@ def solve_sim(key, fun, x0, theta,
 
     """
     n_block, n_bstate = mu_state.shape
-    #key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(key, (n_eval, n_block, n_bstate))
+    key, subkey = jax.random.split(key)
+    z_state = jax.random.normal(subkey, (n_eval, n_block, n_bstate))
 
     # forward pass
     filt_out = _solve_filter(
@@ -271,7 +274,7 @@ def solve_sim(key, fun, x0, theta,
     x_state_smooth = jnp.concatenate(
         [x0[None], scan_out, scan_init[None]]
     )
-    x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
+    # x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
     return x_state_smooth
 
 
@@ -293,7 +296,7 @@ def solve_mv(key, fun, x0, theta,
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`Q`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
         interrogate: Function defining the interrogation method.
 
     Returns:
@@ -304,7 +307,7 @@ def solve_mv(key, fun, x0, theta,
     """
     n_block, n_bstate = mu_state.shape
     # forward pass
-    #key, subkey = jax.random.split(key)
+    # key, subkey = jax.random.split(key)
     filt_out = _solve_filter(
         key=key,
         fun=fun, theta=theta, x0=x0,
@@ -363,8 +366,8 @@ def solve_mv(key, fun, x0, theta,
         [jnp.zeros((n_block, n_bstate, n_bstate))[None], scan_out["var"],
          scan_init["var"][None]]
     )
-    mu_state_smooth = jnp.reshape(mu_state_smooth, newshape=(-1, n_block*n_bstate))
-    var_state_smooth = block_diag(var_state_smooth)
+    # mu_state_smooth = jnp.reshape(mu_state_smooth, newshape=(-1, n_block*n_bstate))
+    # var_state_smooth = block_diag(var_state_smooth)
     return mu_state_smooth, var_state_smooth
 
 
@@ -386,7 +389,7 @@ def solve(key, fun, x0, theta,
         wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`Q`.
         mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_state)): Transition matrix defining the measure prior; :math:`W`.
+        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
         interrogate: Function defining the interrogation method.
 
     Returns:
@@ -397,11 +400,10 @@ def solve(key, fun, x0, theta,
 
     """
     n_block, n_bstate = mu_state.shape
-    # key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(key, (n_eval, n_block, n_bstate))
+    key, subkey = jax.random.split(key)
+    z_state = jax.random.normal(subkey, (n_eval, n_block, n_bstate))
 
     # forward pass
-    # key, subkey = jax.random.split(key)
     filt_out = _solve_filter(
         key=key,
         fun=fun, theta=theta, x0=x0,
@@ -476,7 +478,7 @@ def solve(key, fun, x0, theta,
         [jnp.zeros((n_block, n_bstate, n_bstate))[None], scan_out["var"],
          scan_init["var"][None]]
     )
-    x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
-    mu_state_smooth = jnp.reshape(mu_state_smooth, newshape=(-1, n_block*n_bstate))
-    var_state_smooth = block_diag(var_state_smooth)
+    # x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
+    # mu_state_smooth = jnp.reshape(mu_state_smooth, newshape=(-1, n_block*n_bstate))
+    # var_state_smooth = block_diag(var_state_smooth)
     return x_state_smooth, mu_state_smooth, var_state_smooth

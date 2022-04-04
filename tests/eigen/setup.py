@@ -58,6 +58,6 @@ setup(
     cmdclass=cmdclass,
     ext_modules=ext_modules,
 
-    install_requires=["numpy", "scipy"],
+    install_requires=["numpy>=1.22", "scipy"],
     setup_requires=["setuptools>=38"]
 )

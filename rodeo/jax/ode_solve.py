@@ -227,8 +227,8 @@ def solve_sim(key, fun, x0, theta,
 
     """
     n_state = len(mu_state)
-    #key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(key, (n_eval, n_state))
+    key, subkey = jax.random.split(key)
+    z_state = jax.random.normal(subkey, (n_eval, n_state))
 
     # forward pass
     filt_out = _solve_filter(
@@ -320,7 +320,7 @@ def solve_mv(key, fun, x0, theta,
     """
     n_state = len(mu_state)
     # forward pass
-    #key, subkey = jax.random.split(key)
+    # key, subkey = jax.random.split(key)
     filt_out = _solve_filter(
         key=key,
         fun=fun, theta=theta, x0=x0,
@@ -405,8 +405,8 @@ def solve(key, fun, x0, theta,
 
     """
     n_state = len(mu_state)
-    #key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(key, (n_eval, n_state))
+    key, subkey = jax.random.split(key)
+    z_state = jax.random.normal(subkey, (n_eval, n_state))
 
     # forward pass
     #key, subkey = jax.random.split(key)
