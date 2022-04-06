@@ -254,13 +254,13 @@ def smooth_sim(key,
     Calculates a draw: math: `x_{n|N}` from: math: `x_{n+1|N}`, : math: `\theta_{n|n}`, and: math: `\theta_{n+1|n}`.
 
     Args:
+        key (PRNGKey): PRNG key.
         x_state_next(ndarray(n_state)): Simulated state at time n+1 given observations from times[0...N]; denoted by: math: `\x_{n+1 | N}`.
         mu_state_filt(ndarray(n_state)): Mean estimate for state at time n given observations from times[0...n]; denoted by: math: `\mu_{n | n}`.
         var_state_filt(ndarray(n_state, n_state)): Covariance of estimate for state at time n given observations from times[0...n]; denoted by: math: `\Sigma_{n | n}`.
         mu_state_pred(ndarray(n_state)): Mean estimate for state at time n given observations from times[0...n-1]; denoted by: math: `\mu_{n | n-1}`.
         var_state_pred(ndarray(n_state, n_state)): Covariance of estimate for state at time n given observations from times[0...n-1]; denoted by: math: `\Sigma_{n | n-1}`.
         wgt_state(ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by: math: `Q`.
-        z_state(ndarray(n_state)): Random vector simulated from: math: `N(0, 1)`.
 
     Returns:
         (ndarray(n_state)): Sample solution at time n given observations from times[0...N]; denoted by: math: `X_{n | N}`.
@@ -297,6 +297,7 @@ def smooth(key,
     Combines: func: `kalmantv.smooth_mv` and : func: `kalmantv.smooth_sim` steps to get : math: `x_{n|N}` and : math: `\theta_{n|N}` from : math: `\theta_{n+1|N}`, : math: `\theta_{n|n}`, and : math: `\theta_{n+1|n}`.
 
     Args:
+        key (PRNGKey): PRNG key.
         x_state_next(ndarray(n_state)): Simulated state at time n+1 given observations from times[0...N]; denoted by: math: `\x_{n+1 | N}`.
         mu_state_next(ndarray(n_state)): Mean estimate for state at time n+1 given observations from times[0...N]; denoted by: math: `\mu_{n+1 | N}`.
         var_state_next(ndarray(n_state, n_state)): Covariance of estimate for state at time n+1 given observations from times[0...N]; denoted by: math: `\Sigma_{n+1 | N}`.
@@ -305,8 +306,7 @@ def smooth(key,
         mu_state_pred(ndarray(n_state)): Mean estimate for state at time n given observations from times[0...n-1]; denoted by: math: `\mu_{n | n-1}`.
         var_state_pred(ndarray(n_state, n_state)): Covariance of estimate for state at time n given observations from times[0...n-1]; denoted by: math: `\Sigma_{n | n-1}`.
         wgt_state(ndarray(n_state, n_state)): Transition matrix defining the solution prior; denoted by: math: `Q`.
-        z_state(ndarray(n_state)): Random vector simulated from: math: `N(0, 1)`.
-
+        
     Returns:
         (tuple):
         - **x_state_smooth ** (ndarray(n_state)): Sample solution at time n given observations from times[0...N]; denoted by: math: `X_{n | N}`.

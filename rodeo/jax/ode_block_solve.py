@@ -77,19 +77,27 @@ def interrogate_chkrebtii(key, fun, t, theta,
 
     """
     n_block, n_bstate = mu_state_pred.shape
-    z_state = jax.random.normal(key, (n_block, n_bstate))
+    key, *subkeys = jax.random.split(key, num=n_block+1)
+    subkeys = jnp.array(subkeys)
+    #z_state = jax.random.normal(key, (n_block, n_bstate))
     var_meas = jax.vmap(lambda wm, vsp:
                         jnp.atleast_2d(jnp.linalg.multi_dot([wm, vsp, wm.T])))(
         wgt_meas, var_state_pred
     )
     # x_state = _state_sim(mu_state_pred, var_state_pred, z_state)
-    x_state = jax.vmap(lambda b: 
-                       _state_sim(mu_state_pred[b],
-                                  var_state_pred[b],
-                                  z_state[b]))(jnp.arange(n_block))
+    #x_state = jax.vmap(lambda b: 
+    #                   _state_sim(mu_state_pred[b],
+    #                              var_state_pred[b],
+    #                              z_state[b]))(jnp.arange(n_block))
+    x_state = jax.vmap(lambda b:
+                       jax.random.multivariate_normal(
+                           subkeys[b],
+                           mu_state_pred[b],
+                           var_state_pred[b]
+                       ))(jnp.arange(n_block))
     # x_state = jnp.ravel(x_state)
     # x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
-    x_meas = fun(mu_state_pred, t, theta)
+    x_meas = fun(x_state, t, theta)
     return x_meas, var_meas
 
 def interrogate_schober(key, fun, t, theta,

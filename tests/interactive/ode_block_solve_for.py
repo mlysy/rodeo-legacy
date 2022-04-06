@@ -1,5 +1,5 @@
 r"""
-Stochastic block solver for ODE initial value problems.
+For-loop version of the stochastic block solver for ODE initial value problems.
 
 In the notation defined in the `ode_solve`, recall that the Gaussian state space model underlying the ODE-IVP is
 
@@ -34,10 +34,10 @@ def interrogate_rodeo(key, fun, t, theta,
     Rodeo interrogation method.
 
     Args:
-        key: JAX PRNG key.
-        fun: ODE function.
-        t: Time point.
-        theta: ODE parameter.
+        key (PRNGKey): Jax PRNG key.
+        fun (function): Higher order ODE function :math:`W X_t = F(X_t, t)` taking arguments :math:`X` and :math:`t`.
+        t (float): Time point.
+        theta (ndarray(n_theta)): ODE parameter.
         wgt_meas (ndarray(n_block, n_bmeas, n_bstate)): Transition matrix defining the measure prior.
         mu_state_pred (ndarray(n_block, n_bstate)): Mean estimate for state at time n given observations from times [0...n-1]; denoted by :math:`\mu_{n|n-1}`.
         var_state_pred (ndarray(n_block, n_bstate, n_bstate)): Covariance of estimate for state at time n given observations from times [0...n-1]; denoted by :math:`\Sigma_{n|n-1}`.
@@ -70,15 +70,16 @@ def interrogate_chkrebtii(key, fun, t, theta,
 
     """
     n_block, n_bmeas, n_bstate = wgt_meas.shape
-    z_state = jax.random.normal(key, (n_block, n_bstate))
+    key, *subkeys = jax.random.split(key, num=n_block+1)
+    #z_state = jax.random.normal(key, (n_block, n_bstate))
     var_meas = np.zeros((n_block, n_bmeas, n_bmeas))
     x_state = np.zeros((n_block, n_bstate))
     for i in range(n_block):
         var_meas[i] = np.linalg.multi_dot([wgt_meas[i], var_state_pred[i], wgt_meas[i].T])
-        x_state[i] = _state_sim(mu_state_pred[i], var_state_pred[i], z_state[i])
+        x_state[i] = jax.random.multivariate_normal(subkeys[i], mu_state_pred[i], var_state_pred[i])
     # x_state = jnp.ravel(x_state)
     # x_meas = jnp.reshape(fun(x_state, t, theta), newshape=(n_block, -1))
-    x_meas = fun(mu_state_pred, t, theta)
+    x_meas = fun(x_state, t, theta)
     var_meas = jnp.array(var_meas)
     return x_meas, var_meas
 
@@ -89,7 +90,26 @@ def _solve_filter(key, fun, x0, theta,
     r"""
     Forward pass of the ODE solver.
 
-    FIXME: Document all arguments and outputs...
+    key (PRNGKey): PRNG key.
+        fun (function): Higher order ODE function :math:`W X_t = F(X_t, t)` taking arguments :math:`X` and :math:`t`.
+        x0 (ndarray(n_block, n_bstate)): Initial value of the state variable :math:`X_t` at time :math:`t = a`.
+        theta (ndarray(n_theta)): Parameters in the ODE function.
+        tmin (float): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (float): Last time point of the time interval to be evaluated; :math:`b`.
+        n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated, such that discretization timestep is :math:`dt = b/N`.
+        wgt_state (ndarray(n_block, n_bstate, n_bstate)): Transition matrix defining the solution prior; :math:`Q`.
+        mu_state (ndarray(n_block, n_bstate)): Transition_offsets defining the solution prior; :math:`c`.
+        var_state (ndarray(n_block, n_bstate, n_bstate)): Variance matrix defining the solution prior; :math:`R`.
+        wgt_meas (ndarray(n_block, n_bmeas, n_bstate)): Transition matrix defining the measure prior; :math:`W`.
+        interrogate (function): Function defining the interrogation method.
+
+    Returns:
+        (tuple):
+        - **mu_state_pred** (ndarray(n_steps, n_block, n_bstate)): Mean estimate for state at time t given observations from times [a...t-1] for :math:`t \in [a, b]`.
+        - **var_state_pred** (ndarray(n_steps, n_block, n_bstate, n_bstate)): Variance estimate for state at time t given observations from times [a...t-1] for :math:`t \in [a, b]`.
+        - **mu_state_filt** (ndarray(n_steps, n_block, n_bstate)): Mean estimate for state at time t given observations from times [a...t] for :math:`t \in [a, b]`.
+        - **var_state_filt** (ndarray(n_steps, n_block, n_bstate, n_bstate)): Variance estimate for state at time t given observations from times [a...t] for :math:`t \in [a, b]`.
+
     """
     # Dimensions of block, state and measure variables
     n_block, n_bmeas, n_bstate = wgt_meas.shape
@@ -149,10 +169,10 @@ def solve_sim(key, fun, x0, theta,
     Random draw from the stochastic ODE solver.
 
     Args:
-        key: PRNG key.
-        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
+        key (PRNGKey): PRNG key.
+        fun (function): Higher order ODE function :math:`W X_t = F(X_t, t)` taking arguments :math:`X` and :math:`t`.
+        x0 (ndarray(n_block, n_bstate)): Initial value of the state variable :math:`X_t` at time :math:`t = a`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
-        x0 (ndarray(n_block, n_bstate)): Initial value of the state variable :math:`x_t` at time :math:`t = a`.
         tmin (float): First time point of the time interval to be evaluated; :math:`a`.
         tmax (float): Last time point of the time interval to be evaluated; :math:`b`.
         n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated, such that discretization timestep is :math:`dt = b/N`.
@@ -160,15 +180,17 @@ def solve_sim(key, fun, x0, theta,
         mu_state (ndarray(n_block, n_bstate)): Transition_offsets defining the solution prior; :math:`c`.
         var_state (ndarray(n_block, n_bstate, n_bstate)): Variance matrix defining the solution prior; :math:`R`.
         wgt_meas (ndarray(n_block, n_bmeas, n_bstate)): Transition matrix defining the measure prior; :math:`W`.
-        interrogate: Function defining the interrogation method.
+        interrogate (function): Function defining the interrogation method.
 
     Returns:
-        (ndarray(n_steps, n_state)): Sample solution for :math:`X_t` at times :math:`t \in [a, b]`.
+        (ndarray(n_steps, n_blocks, n_bstate)): Sample solution for :math:`X_t` at times :math:`t \in [a, b]`.
 
     """
     n_block, n_bstate = mu_state.shape
-    key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(subkey, (n_eval, n_block, n_bstate))
+    # key, subkey = jax.random.split(key)
+    key, *subkeys = jax.random.split(key, num=n_eval*n_block+1)
+    subkeys = jnp.reshape(jnp.array(subkeys), newshape=(n_eval, n_block, 2))
+    # z_state = jax.random.normal(subkey, (n_eval, n_block, n_bstate))
     x_state_smooth = np.zeros((n_eval+1, n_block, n_bstate))
     x_state_smooth[0] = x0
 
@@ -183,24 +205,31 @@ def solve_sim(key, fun, x0, theta,
             interrogate=interrogate
         )
 
+    # for b in range(n_block):
+    #     x_state_smooth[n_eval, b] = \
+    #         _state_sim(
+    #             mu_state_filt[n_eval, b],
+    #             var_state_filt[n_eval, b],
+    #             z_state[n_eval-1, b])
+
     for b in range(n_block):
         x_state_smooth[n_eval, b] = \
-            _state_sim(
+            jax.random.multivariate_normal(
+                subkeys[n_eval-1, b],
                 mu_state_filt[n_eval, b],
-                var_state_filt[n_eval, b],
-                z_state[n_eval-1, b])
+                var_state_filt[n_eval, b])
 
     for t in range(n_eval-1, 0, -1):
         for b in range(n_block):
             x_state_smooth[t, b] = \
                 smooth_sim(
+                    subkeys[t-1, b],
                     x_state_next=x_state_smooth[t+1, b],
                     wgt_state=wgt_state[b],
                     mu_state_filt=mu_state_filt[t, b],
                     var_state_filt=var_state_filt[t, b],
                     mu_state_pred=mu_state_pred[t+1, b],
-                    var_state_pred=var_state_pred[t+1, b],
-                    z_state=z_state[t-1, b]
+                    var_state_pred=var_state_pred[t+1, b]
                 )
     
     # x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
@@ -214,23 +243,23 @@ def solve_mv(key, fun, x0, theta,
     Mean and variance of the stochastic ODE solver.
 
     Args:
-        key: PRNG key.
-        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
+        key (PRNGKey): PRNG key.
+        fun (function): Higher order ODE function :math:`W X_t = F(X_t, t)` taking arguments :math:`X` and :math:`t`.
+        x0 (ndarray(n_block, n_bstate)): Initial value of the state variable :math:`X_t` at time :math:`t = a`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
-        x0 (float): Initial value of the state variable :math:`x_t` at time :math:`t = a`.
-        tmin (int): First time point of the time interval to be evaluated; :math:`a`.
-        tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
+        tmin (float): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (float): Last time point of the time interval to be evaluated; :math:`b`.
         n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated, such that discretization timestep is :math:`dt = b/N`.
-        wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`Q`.
-        mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
-        var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
-        interrogate: Function defining the interrogation method.
+        wgt_state (ndarray(n_block, n_bstate, n_bstate)): Transition matrix defining the solution prior; :math:`Q`.
+        mu_state (ndarray(n_block, n_bstate)): Transition_offsets defining the solution prior; :math:`c`.
+        var_state (ndarray(n_block, n_bstate, n_bstate)): Variance matrix defining the solution prior; :math:`R`.
+        wgt_meas (ndarray(n_block, n_bmeas, n_bstate)): Transition matrix defining the measure prior; :math:`W`.
+        interrogate (function): Function defining the interrogation method.
 
     Returns:
         (tuple):
-        - **mu_state_smooth** (ndarray(n_steps, n_state)): Posterior mean of the solution process :math:`X_t` at times :math:`t \in [a, b]`.
-        - **var_state_smooth** (ndarray(n_steps, n_state, n_state)): Posterior variance of the solution process at times :math:`t \in [a, b]`.
+        - **mu_state_smooth** (ndarray(n_steps, n_block, n_bstate)): Posterior mean of the solution process :math:`X_t` at times :math:`t \in [a, b]`.
+        - **var_state_smooth** (ndarray(n_steps, n_block, n_bstate, n_bstate)): Posterior variance of the solution process at times :math:`t \in [a, b]`.
 
     """
     n_block, n_bstate = mu_state.shape
@@ -277,29 +306,31 @@ def solve(key, fun, x0, theta,
     Both random draw and mean/variance of the stochastic ODE solver.
 
     Args:
-        key: PRNG key.
-        fun (function): Higher order ODE function :math:`W x_t = F(x_t, t)` taking arguments :math:`x` and :math:`t`.
+        key (PRNGKey): PRNG key.
+        fun (function): Higher order ODE function :math:`W X_t = F(X_t, t)` taking arguments :math:`X` and :math:`t`.
+        x0 (ndarray(n_block, n_bstate)): Initial value of the state variable :math:`X_t` at time :math:`t = a`.
         theta (ndarray(n_theta)): Parameters in the ODE function.
-        x0 (float): Initial value of the state variable :math:`x_t` at time :math:`t = a`.
-        tmin (int): First time point of the time interval to be evaluated; :math:`a`.
-        tmax (int): Last time point of the time interval to be evaluated; :math:`b`.
+        tmin (float): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (float): Last time point of the time interval to be evaluated; :math:`b`.
         n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated, such that discretization timestep is :math:`dt = b/N`.
-        wgt_state (ndarray(n_state, n_state)): Transition matrix defining the solution prior; :math:`Q`.
-        mu_state (ndarray(n_state)): Transition_offsets defining the solution prior; :math:`c`.
-        var_state (ndarray(n_state, n_state)): Variance matrix defining the solution prior; :math:`R`.
-        wgt_meas (ndarray(n_meas, n_state)): Transition matrix defining the measure prior; :math:`W`.
-        interrogate: Function defining the interrogation method.
+        wgt_state (ndarray(n_block, n_bstate, n_bstate)): Transition matrix defining the solution prior; :math:`Q`.
+        mu_state (ndarray(n_block, n_bstate)): Transition_offsets defining the solution prior; :math:`c`.
+        var_state (ndarray(n_block, n_bstate, n_bstate)): Variance matrix defining the solution prior; :math:`R`.
+        wgt_meas (ndarray(n_block, n_bmeas, n_bstate)): Transition matrix defining the measure prior; :math:`W`.
+        interrogate (function): Function defining the interrogation method.
 
     Returns:
         (tuple):
-        - **x_state_smooth** (ndarray(n_steps, n_state)): Sample solution for :math:`X_t` at times :math:`t \in [a, b]`.
-        - **mu_state_smooth** (ndarray(n_steps, n_state)): Posterior mean of the solution process :math:`X_t` at times :math:`t \in [a, b]`.
-        - **var_state_smooth** (ndarray(n_steps, n_state, n_state)): Posterior variance of the solution process at times :math:`t \in [a, b]`.
+        - **x_state_smooth** (ndarray(n_steps, n_block, n_bstate)): Sample solution for :math:`X_t` at times :math:`t \in [a, b]`.
+        - **mu_state_smooth** (ndarray(n_steps, n_block, n_bstate)): Posterior mean of the solution process :math:`X_t` at times :math:`t \in [a, b]`.
+        - **var_state_smooth** (ndarray(n_steps, n_block, n_bstate, n_bstate)): Posterior variance of the solution process at times :math:`t \in [a, b]`.
 
     """
     n_block, n_bstate = mu_state.shape
-    key, subkey = jax.random.split(key)
-    z_state = jax.random.normal(subkey, (n_eval, n_block, n_bstate))
+    #key, subkey = jax.random.split(key)
+    #z_state = jax.random.normal(subkey, (n_eval, n_block, n_bstate))
+    key, *subkeys = jax.random.split(key, num=n_eval*n_block+1)
+    subkeys = jnp.reshape(jnp.array(subkeys), newshape=(n_eval, n_block, 2))
     x_state_smooth = np.zeros((n_eval+1, n_block, n_bstate))
     x_state_smooth[0] = x0
     mu_state_smooth = np.zeros((n_eval+1, n_block, n_bstate))
@@ -320,18 +351,26 @@ def solve(key, fun, x0, theta,
     mu_state_smooth[-1] = mu_state_filt[-1]
     var_state_smooth[-1] = var_state_filt[-1]
 
+    # for b in range(n_block):
+    #     x_state_smooth[n_eval, b] = \
+    #         _state_sim(
+    #             mu_state_filt[n_eval, b],
+    #             var_state_filt[n_eval, b],
+    #             z_state[n_eval-1, b])
+
     for b in range(n_block):
         x_state_smooth[n_eval, b] = \
-            _state_sim(
+            jax.random.multivariate_normal(
+                subkeys[n_eval-1, b],
                 mu_state_filt[n_eval, b],
-                var_state_filt[n_eval, b],
-                z_state[n_eval-1, b])
+                var_state_filt[n_eval, b])
 
     # backward pass
     for t in range(n_eval-1, 0, -1):
         for b in range(n_block):
             x_state_smooth[t, b], mu_state_smooth[t, b], var_state_smooth[t, b] = \
                 smooth(
+                    subkeys[t-1, b],
                     x_state_next=x_state_smooth[t+1, b],
                     mu_state_next=mu_state_smooth[t+1, b],
                     var_state_next=var_state_smooth[t+1, b],
@@ -339,8 +378,7 @@ def solve(key, fun, x0, theta,
                     mu_state_filt=mu_state_filt[t, b],
                     var_state_filt=var_state_filt[t, b],
                     mu_state_pred=mu_state_pred[t+1, b],
-                    var_state_pred=var_state_pred[t+1, b],
-                    z_state=z_state[t-1, b]
+                    var_state_pred=var_state_pred[t+1, b]
                 )
     # x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
     # mu_state_smooth = jnp.reshape(mu_state_smooth, newshape=(-1, n_block*n_bstate))
