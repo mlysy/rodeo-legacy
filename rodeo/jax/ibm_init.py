@@ -8,6 +8,13 @@ def _factorial(x):
     JAX factorial function.
 
     It's actually the gamma function shifted such that `_factorial(x) = x!` for integer-valued `x`.
+
+    Args:
+        x (int): Integer.
+    
+    Returns:
+        (int): Factorial of x.
+
     """
     return jnp.exp(jsp.special.gammaln(x+1.0))
 
@@ -17,8 +24,6 @@ def ibm_state(dt, q, sigma):
     Calculate the state transition matrix and variance matrix of q-times integrated Brownian motion.
 
     The q-times integrated Brownian motion process :math:`X_t` is such that its q-th order derivative :math:`X^{q}_t = d^q/dt^q X_t` is :math:`\sigma B_t`, i.e., Brownian motion scaled by :math:`\sigma`.
-
-    **FIXME:** Output dimensions need to be increased.
 
     Args:
         dt (float): The step size between simulation points.
@@ -71,9 +76,9 @@ def ibm_init(dt, n_order, sigma):
 
     Returns:
         (dict):
-        - **wgt_state** (ndarray(n_block, p, p)) Transition matrix defining the solution prior; :math:`Q_n`.
-        - **mu_state** (ndarray(n_block, p)): Transition_offsets defining the solution prior; denoted by :math:`c_n`.
-        - **var_state** (ndarray(n_block, p, p)) Variance matrix defining the solution prior; :math:`R_n`.
+        - **wgt_state** (ndarray(n_block, p, p)) Transition matrix defining the solution prior; :math:`Q`.
+        - **mu_state** (ndarray(n_block, p)): Transition_offsets defining the solution prior; denoted by :math:`c`.
+        - **var_state** (ndarray(n_block, p, p)) Variance matrix defining the solution prior; :math:`R`.
 
     """
     n_block = len(n_order)

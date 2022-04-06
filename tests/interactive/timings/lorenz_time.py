@@ -45,7 +45,7 @@ thetaj = jnp.array(theta)
 
 # The rest of the parameters can be tuned according to ODE
 # For this problem, we will use
-sigma = .5
+sigma = jnp.array([.5, .5, .5])
 
 # Initial value, x0, for the IVP
 W_mat = np.zeros((n_obs, 1, n_deriv_prior))
@@ -60,7 +60,6 @@ x0_block = jnp.pad(X0, [(0, 0), (0, pad_dim)])
 # Get parameters needed to run the solver
 dt = (tmax-tmin)/n_eval
 n_order = jnp.array([n_deriv_prior]*n_obs)
-sigma = jnp.array([sigma]*n_obs)
 ode_init = ibm_init(dt, n_order, sigma)
 
 # Jit solver
