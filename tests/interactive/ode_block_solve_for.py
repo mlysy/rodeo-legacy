@@ -221,9 +221,7 @@ def solve_sim(key, fun, x0, theta,
 
     for t in range(n_eval-1, 0, -1):
         for b in range(n_block):
-            x_state_smooth[t, b] = \
-                smooth_sim(
-                    subkeys[t-1, b],
+            mu_state_sim, var_state_sim = smooth_sim(
                     x_state_next=x_state_smooth[t+1, b],
                     wgt_state=wgt_state[b],
                     mu_state_filt=mu_state_filt[t, b],
@@ -231,6 +229,7 @@ def solve_sim(key, fun, x0, theta,
                     mu_state_pred=mu_state_pred[t+1, b],
                     var_state_pred=var_state_pred[t+1, b]
                 )
+            x_state_smooth[t, b] = jax.random.multivariate_normal(subkeys[t-1, b], mu_state_sim, var_state_sim)
     
     # x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
     return jnp.array(x_state_smooth)
@@ -368,9 +367,8 @@ def solve(key, fun, x0, theta,
     # backward pass
     for t in range(n_eval-1, 0, -1):
         for b in range(n_block):
-            x_state_smooth[t, b], mu_state_smooth[t, b], var_state_smooth[t, b] = \
+            mu_state_sim, var_state_sim, mu_state_smooth[t, b], var_state_smooth[t, b] = \
                 smooth(
-                    subkeys[t-1, b],
                     x_state_next=x_state_smooth[t+1, b],
                     mu_state_next=mu_state_smooth[t+1, b],
                     var_state_next=var_state_smooth[t+1, b],
@@ -380,6 +378,7 @@ def solve(key, fun, x0, theta,
                     mu_state_pred=mu_state_pred[t+1, b],
                     var_state_pred=var_state_pred[t+1, b]
                 )
+            x_state_smooth[t, b] = jax.random.multivariate_normal(subkeys[t-1, b], mu_state_sim, var_state_sim)
     # x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
     # mu_state_smooth = jnp.reshape(mu_state_smooth, newshape=(-1, n_block*n_bstate))
     # var_state_smooth = block_diag(jnp.array(var_state_smooth))

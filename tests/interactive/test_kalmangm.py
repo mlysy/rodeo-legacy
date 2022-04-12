@@ -138,15 +138,15 @@ class TestKalmanTVGM(unittest.TestCase):
             Sigma=var_state_smooth.reshape(2*self.n_state, 2*self.n_state),
             icond=jnp.array([False]*self.n_state + [True]*self.n_state)
         )
-        x_state_smooth1 = random.multivariate_normal(self.key, A.dot(self.x_state_next)+b, V)
+        mu_state_sim1 = A.dot(self.x_state_next)+b
+        # x_state_smooth1 = random.multivariate_normal(self.key, A.dot(self.x_state_next)+b, V)
         #x_state_smooth1 = ktv._state_sim(
         #    mu_state=A.dot(self.x_state_next)+b,
         #    var_state=V,
         #    z_state=self.z_state
         #)
 
-        x_state_smooth2 = ktv.smooth_sim(
-            key =self.key,
+        mu_state_sim2, var_state_sim2 = ktv.smooth_sim(
             x_state_next=self.x_state_next,
             mu_state_filt=mu_state_filt,
             var_state_filt=var_state_filt,
@@ -154,7 +154,10 @@ class TestKalmanTVGM(unittest.TestCase):
             var_state_pred=var_state_pred,
             wgt_state=self.wgt_state[0]
         )
-        self.assertAlmostEqual(utils.rel_err(x_state_smooth1, x_state_smooth2), 0.0)
+
+        self.assertAlmostEqual(utils.rel_err(mu_state_sim1, mu_state_sim2), 0.0)
+        self.assertAlmostEqual(utils.rel_err(V, var_state_sim2), 0.0)
+        
 
     def test_smooth(self):
         # theta_{1|1}
@@ -178,14 +181,14 @@ class TestKalmanTVGM(unittest.TestCase):
             Sigma=var_state_smooth1.reshape(2*self.n_state, 2*self.n_state),
             icond=jnp.array([False]*self.n_state + [True]*self.n_state)
         )
+        mu_state_sim1 = A.dot(self.x_state_next)+b
         #x_state_smooth1 = ktv._state_sim(
         #    mu_state=A.dot(self.x_state_next)+b,
         #    var_state=V,
         #    z_state=self.z_state
         #)
-        x_state_smooth1 = jax.random.multivariate_normal(self.key, A.dot(self.x_state_next)+b, V)
-        x_state_smooth2, mu_state_smooth2, var_state_smooth2 = ktv.smooth(
-            key=self.key,
+        # x_state_smooth1 = jax.random.multivariate_normal(self.key, A.dot(self.x_state_next)+b, V)
+        mu_state_sim2, var_state_sim2, mu_state_smooth2, var_state_smooth2 = ktv.smooth(
             x_state_next=self.x_state_next,
             mu_state_next=mu_state_next,
             var_state_next=var_state_next,
@@ -195,7 +198,8 @@ class TestKalmanTVGM(unittest.TestCase):
             var_state_pred=var_state_pred,
             wgt_state=self.wgt_state[0],
         )
-        self.assertAlmostEqual(utils.rel_err(x_state_smooth1, x_state_smooth2), 0.0)
+        self.assertAlmostEqual(utils.rel_err(mu_state_sim1, mu_state_sim2), 0.0)
+        self.assertAlmostEqual(utils.rel_err(V, var_state_sim2), 0.0)
         self.assertAlmostEqual(utils.rel_err(mu_state_smooth1[0], mu_state_smooth2), 0.0)
         self.assertAlmostEqual(utils.rel_err(var_state_smooth1[0, :, 0, :].squeeze(), var_state_smooth2), 0.0)
 

@@ -2,13 +2,11 @@ from timeit import default_timer as timer
 import numpy as np
 import jax
 import jax.numpy as jnp
-import jax.scipy as jsp
-import jax.random as random
 from scipy.integrate import odeint
 from numba import njit
 
 from rodeo.jax.ibm_init import ibm_init
-from rodeo.jax.ode_block_solve import *
+from rodeo.jax.ode_solve import *
 
 def ode_fun_jax(X, t, theta):
     rho, sigma, beta = theta
@@ -47,12 +45,15 @@ thetaj = jnp.array(theta)
 # For this problem, we will use
 sigma = jnp.array([.5, .5, .5])
 
-# Initial value, x0, for the IVP
+# W matrix for the IVP
 W_mat = np.zeros((n_obs, 1, n_deriv_prior))
 W_mat[:, :, 1] = 1
 W_block = jnp.array(W_mat)
 
+# Initial x0 for odeint
 ode0 = np.array([-12, -5, 38])
+
+# Initial x0 for jax block
 X0 = jnp.array([[-12, 70], [-5, 125], [38, -124/3]])
 pad_dim = n_deriv_prior - n_deriv - 1
 x0_block = jnp.pad(X0, [(0, 0), (0, pad_dim)])
@@ -99,6 +100,4 @@ for i in range(n_loops):
 end = timer()
 time_ode2 = (end - start)/n_loops
 
-print(time_jax)
-print(time_ode)
-print(time_ode2)
+print("Number of times faster jax is compared to odeint {}".format(time_ode/time_jax))

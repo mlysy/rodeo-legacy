@@ -2,18 +2,15 @@ from timeit import default_timer as timer
 import numpy as np
 import jax
 import jax.numpy as jnp
-import jax.scipy as jsp
-import jax.random as random
 from scipy.integrate import odeint
 from numba import njit
 
 from rodeo.jax.ibm_init import ibm_init
-from rodeo.jax.ode_block_solve import *
+from rodeo.jax.ode_solve import *
 
 # ode function used by jax
 def ode_fun_jax(X_t, t, theta):
     "SEIRAH ODE function"
-    p = len(X_t)//6
     S, E, I, R, A, H = X_t[:, 0]
     N = S + E + I + R + A + H
     b, r, alpha, D_e, D_I, D_q= theta
@@ -73,17 +70,21 @@ thetaj = jnp.array(theta)
 # For this problem, we will use
 sigma = jnp.array([.5]*n_obs)
 
-# Initial value, x0, for the IVP
+# W matrix for the IVP
 W_mat = np.zeros((n_obs, 1, n_deriv_prior))
 W_mat[:, :, 1] = 1
 W_block = jnp.array(W_mat)
 
+# Initial x0 for odeint
 ode0 = np.array([63804435, 15492, 21752, 0, 618013, 93583])
+
+# Initial x0 for jax block
 x0 = jnp.array([[63804435], [15492], [21752], [0], [618013], [93583]])
 v0 = ode_fun_jax(x0, 0, theta)
 X0 = jnp.concatenate([x0, v0],axis=1)
 pad_dim = n_deriv_prior - n_deriv - 1
 x0_block = jnp.pad(X0, [(0, 0), (0, pad_dim)])
+
 # Get parameters needed to run the solver
 dt = (tmax-tmin)/n_eval
 n_order = jnp.array([n_deriv_prior]*n_obs)
@@ -126,6 +127,4 @@ for i in range(n_loops):
 end = timer()
 time_ode2 = (end - start)/n_loops
 
-print(time_jax)
-print(time_ode)
-print(time_ode2)
+print("Number of times faster jax is compared to odeint {}".format(time_ode/time_jax))

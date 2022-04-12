@@ -180,8 +180,8 @@ class TestKalmanTVJit(unittest.TestCase):
             ktv.filter(mu_state_past, var_state_past,
                        self.mu_state[0], self.wgt_state[0], self.var_state[0],
                        self.x_meas[0], self.mu_meas[0], self.wgt_meas[0], self.var_meas[0])
-        x_state_smooth1 = \
-            ktv.smooth_sim(self.key, x_state_next,
+        mu_state_sim1, var_state_sim1 = \
+            ktv.smooth_sim(x_state_next,
                            mu_state_filt1, var_state_filt1,
                            mu_state_pred1, var_state_pred1,
                            self.wgt_state[0])
@@ -192,34 +192,35 @@ class TestKalmanTVJit(unittest.TestCase):
                        self.mu_state[0], self.wgt_state[0], self.var_state[0],
                        self.x_meas[0], self.mu_meas[0], self.wgt_meas[0], self.var_meas[0])
         sim_jit = jax.jit(ktv.smooth_sim)
-        x_state_smooth2 = \
-            sim_jit(self.key, x_state_next,
+        mu_state_sim2, var_state_sim2 = \
+            sim_jit(x_state_next,
                     mu_state_filt2, var_state_filt2,
                     mu_state_pred2, var_state_pred2,
                     self.wgt_state[0])
         # objective function for gradient
-        def obj_fun(key, x_state_next,
+        def obj_fun(x_state_next,
                     mu_state_filt, var_state_filt,
                     mu_state_pred, var_state_pred,
                     wgt_state):
             return jnp.mean(
-                ktv.smooth_sim(key, x_state_next,
+                ktv.smooth_sim(x_state_next,
                                mu_state_filt, var_state_filt,
                                mu_state_pred, var_state_pred,
-                               wgt_state))
+                               wgt_state)[0])
         # grad without jit
         grad1 = jax.grad(obj_fun, argnums=1)(
-            self.key, x_state_next,
+            x_state_next,
             mu_state_filt1, var_state_filt1,
             mu_state_pred1, var_state_pred1,
             self.wgt_state[0])
         # grad with jit
         grad2 = jax.jit(jax.grad(obj_fun, argnums=1))(
-            self.key, x_state_next,
+            x_state_next,
             mu_state_filt2, var_state_filt2,
             mu_state_pred2, var_state_pred2,
             self.wgt_state[0])
-        self.assertAlmostEqual(utils.rel_err(x_state_smooth1, x_state_smooth2), 0.0)
+        self.assertAlmostEqual(utils.rel_err(mu_state_sim1, mu_state_sim2), 0.0)
+        self.assertAlmostEqual(utils.rel_err(var_state_sim1, var_state_sim2), 0.0)
         self.assertAlmostEqual(utils.rel_err(grad1, grad2), 0.0)
 
     def test_smooth(self):
@@ -236,8 +237,8 @@ class TestKalmanTVJit(unittest.TestCase):
             ktv.filter(mu_state_past, var_state_past,
                        self.mu_state[0], self.wgt_state[0], self.var_state[0],
                        self.x_meas[0], self.mu_meas[0], self.wgt_meas[0], self.var_meas[0])
-        x_state_smooth1, mu_state_smooth1, var_state_smooth1= \
-            ktv.smooth(self.key, x_state_next, 
+        mu_state_sim1, var_state_sim1, mu_state_smooth1, var_state_smooth1= \
+            ktv.smooth(x_state_next, 
                        mu_state_next, var_state_next,
                        mu_state_filt1, var_state_filt1,
                        mu_state_pred1, var_state_pred1,
@@ -249,41 +250,42 @@ class TestKalmanTVJit(unittest.TestCase):
                        self.mu_state[0], self.wgt_state[0], self.var_state[0],
                        self.x_meas[0], self.mu_meas[0], self.wgt_meas[0], self.var_meas[0])
         smooth_jit = jax.jit(ktv.smooth)
-        x_state_smooth2, mu_state_smooth2, var_state_smooth2 = \
-            smooth_jit(self.key, x_state_next,
+        mu_state_sim2, var_state_sim2, mu_state_smooth2, var_state_smooth2 = \
+            smooth_jit(x_state_next,
                        mu_state_next, var_state_next,
                        mu_state_filt2, var_state_filt2,
                        mu_state_pred2, var_state_pred2,
                        self.wgt_state[0])
         # objective function for gradient
-        def obj_fun(key, x_state_next,
+        def obj_fun(x_state_next,
                     mu_state_next, var_state_next,
                     mu_state_filt, var_state_filt,
                     mu_state_pred, var_state_pred,
                     wgt_state):
             return jnp.mean(
-                ktv.smooth(key, x_state_next,
+                ktv.smooth(x_state_next,
                            mu_state_next, var_state_next,
                            mu_state_filt, var_state_filt,
                            mu_state_pred, var_state_pred,
                            wgt_state)[0])
         # grad without jit
-        grad1 = jax.grad(obj_fun, argnums=1)(
-            self.key, x_state_next,
+        grad1 = jax.grad(obj_fun)(
+            x_state_next,
             mu_state_next, var_state_next,
             mu_state_filt1, var_state_filt1,
             mu_state_pred1, var_state_pred1,
             self.wgt_state[0])
         # grad with jit
-        grad2 = jax.jit(jax.grad(obj_fun, argnums=1))(
-            self.key, x_state_next,
+        grad2 = jax.jit(jax.grad(obj_fun))(
+            x_state_next,
             mu_state_next, var_state_next,
             mu_state_filt2, var_state_filt2,
             mu_state_pred2, var_state_pred2,
             self.wgt_state[0])
         self.assertAlmostEqual(utils.rel_err(mu_state_smooth1, mu_state_smooth2), 0.0)
         self.assertAlmostEqual(utils.rel_err(var_state_smooth1, var_state_smooth2), 0.0)
-        self.assertAlmostEqual(utils.rel_err(x_state_smooth1, x_state_smooth2), 0.0)
+        self.assertAlmostEqual(utils.rel_err(mu_state_sim1, mu_state_sim2), 0.0)
+        self.assertAlmostEqual(utils.rel_err(var_state_sim1, var_state_sim2), 0.0)
         self.assertAlmostEqual(utils.rel_err(grad1, grad2), 0.0)
 
     def test_forecast(self):

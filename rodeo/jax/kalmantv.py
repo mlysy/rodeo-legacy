@@ -241,8 +241,7 @@ def smooth_mv(mu_state_next,
     return mu_state_smooth, var_state_smooth
 
 
-def smooth_sim(key,
-               x_state_next,
+def smooth_sim(x_state_next,
                mu_state_filt,
                var_state_filt,
                mu_state_pred,
@@ -254,7 +253,6 @@ def smooth_sim(key,
     Calculates a draw: math: `x_{n|N}` from: math: `x_{n+1|N}`, : math: `\theta_{n|n}`, and: math: `\theta_{n+1|n}`.
 
     Args:
-        key (PRNGKey): PRNG key.
         x_state_next(ndarray(n_state)): Simulated state at time n+1 given observations from times[0...N]; denoted by: math: `\x_{n+1 | N}`.
         mu_state_filt(ndarray(n_state)): Mean estimate for state at time n given observations from times[0...n]; denoted by: math: `\mu_{n | n}`.
         var_state_filt(ndarray(n_state, n_state)): Covariance of estimate for state at time n given observations from times[0...n]; denoted by: math: `\Sigma_{n | n}`.
@@ -275,15 +273,14 @@ def smooth_sim(key,
         var_state_temp_tilde.dot(x_state_next - mu_state_pred)
     var_state_sim = var_state_filt - \
         var_state_temp_tilde.dot(var_state_temp.T)
-    x_state_smooth = jax.random.multivariate_normal(key, mu_state_sim, var_state_sim)
+    # x_state_smooth = jax.random.multivariate_normal(key, mu_state_sim, var_state_sim)
     #x_state_smooth = _state_sim(mu_state_sim,
     #                            var_state_sim,
     #                            z_state)
-    return x_state_smooth
+    return mu_state_sim, var_state_sim
 
 
-def smooth(key,
-           x_state_next,
+def smooth(x_state_next,
            mu_state_next,
            var_state_next,
            mu_state_filt,
@@ -297,7 +294,6 @@ def smooth(key,
     Combines: func: `kalmantv.smooth_mv` and : func: `kalmantv.smooth_sim` steps to get : math: `x_{n|N}` and : math: `\theta_{n|N}` from : math: `\theta_{n+1|N}`, : math: `\theta_{n|n}`, and : math: `\theta_{n+1|n}`.
 
     Args:
-        key (PRNGKey): PRNG key.
         x_state_next(ndarray(n_state)): Simulated state at time n+1 given observations from times[0...N]; denoted by: math: `\x_{n+1 | N}`.
         mu_state_next(ndarray(n_state)): Mean estimate for state at time n+1 given observations from times[0...N]; denoted by: math: `\mu_{n+1 | N}`.
         var_state_next(ndarray(n_state, n_state)): Covariance of estimate for state at time n+1 given observations from times[0...N]; denoted by: math: `\Sigma_{n+1 | N}`.
@@ -324,7 +320,7 @@ def smooth(key,
     mu_state_sim = mu_state_temp[0]
     var_state_sim = var_state_filt - \
         var_state_temp_tilde.dot(var_state_temp.T)
-    x_state_smooth = jax.random.multivariate_normal(key, mu_state_sim, var_state_sim)
+    # x_state_smooth = jax.random.multivariate_normal(key, mu_state_sim, var_state_sim)
     #x_state_smooth = _state_sim(mu_state_sim,
     #                            var_state_sim,
     #                            z_state)
@@ -351,7 +347,7 @@ def smooth(key,
     #     wgt_state=wgt_state,
     #     z_state=z_state
     # )
-    return x_state_smooth, mu_state_smooth, var_state_smooth,
+    return mu_state_sim, var_state_sim, mu_state_smooth, var_state_smooth,
 
 
 def forecast(mu_state_pred,

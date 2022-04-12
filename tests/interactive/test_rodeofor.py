@@ -3,8 +3,8 @@ import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
 import jax.random as random
-from rodeo.jax.ode_block_solve import *
-from rodeo.jax.ode_block_solve import _solve_filter
+from rodeo.jax.ode_solve import *
+from rodeo.jax.ode_solve import _solve_filter
 import ode_block_solve_for as bfor
 import utils
 from jax.config import config

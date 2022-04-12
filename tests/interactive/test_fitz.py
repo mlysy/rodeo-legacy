@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import jax.scipy as jsp
 import jax.random as random
 
-from rodeo.jax.ode_block_solve import *
+from rodeo.jax.ode_solve import *
 from rodeo.jax.ode_block_solve import _solve_filter
 import utils
 
