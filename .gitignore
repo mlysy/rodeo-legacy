@@ -16,3 +16,4 @@ __pycache__
 Untitled.ipynb
 /rodeo/cython/*.c
 /rodeo/eigen/*.cpp
+/tests/interactive/examples/figures/
