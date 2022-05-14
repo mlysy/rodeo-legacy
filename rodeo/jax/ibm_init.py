@@ -41,9 +41,10 @@ def ibm_state(dt, q, sigma):
     I, J = jnp.meshgrid(jnp.arange(q+1), jnp.arange(q+1),
                         indexing="ij", sparse=True)
     mesh = J-I
-    A = jnp.maximum(dt**mesh/_factorial(mesh),
-                    jnp.zeros((q+1, q+1)))
+    #A = jnp.maximum(dt**mesh/_factorial(mesh),
+    #                jnp.zeros((q+1, q+1)))
 
+    A = jnp.nan_to_num(dt**mesh/_factorial(mesh), 0)
     mesh = (2.0*q+1.0) - I - J
     num = dt**mesh
     den = mesh * _factorial(q - I) * _factorial(q-J)
@@ -71,30 +72,30 @@ def ibm_init(dt, n_order, sigma):
 
     Args:
         dt (float): The step size between simulation points.
-        n_order (jnp.array(n_block)): Dimension of the prior.
-        sigma (jnp.array(n_block)): Parameter in variance matrix.
+        n_order (ndarray(n_block)): Dimension of the prior.
+        sigma (ndarray(n_block)): Parameter in variance matrix.
 
     Returns:
         (dict):
         - **wgt_state** (ndarray(n_block, p, p)) Transition matrix defining the solution prior; :math:`Q`.
-        - **mu_state** (ndarray(n_block, p)): Transition_offsets defining the solution prior; denoted by :math:`c`.
+        - **mu_state** (ndarray(n_block, p)): Transition offsets defining the solution prior; denoted by :math:`c`.
         - **var_state** (ndarray(n_block, p, p)) Variance matrix defining the solution prior; :math:`R`.
 
     """
     n_block = len(n_order)
-    p = jnp.max(n_order)
+    p = max(n_order)
     mu_state = jnp.zeros((n_block, p))
-    wgt_state = [None]*n_block
-    var_state = [None]*n_block    
+    #wgt_state = [None]*n_block
+    #var_state = [None]*n_block    
 
-    #wgt_state, var_state = jax.vmap(lambda b:
-    #    ibm_state(dt, (n_order[b]-1), sigma[b]))(jnp.arange(n_block))
+    wgt_state, var_state = jax.vmap(lambda b:
+        ibm_state(dt, p-1, sigma[b]))(jnp.arange(n_block))
     
-    for i in range(n_block):
-        wgt_state[i], var_state[i] = ibm_state(dt, n_order[i]-1, sigma[i])
+    #for i in range(n_block):
+    #    wgt_state[i], var_state[i] = ibm_state(dt, n_order[i]-1, sigma[i])
     
-    wgt_state = jnp.array(wgt_state)
-    var_state = jnp.array(var_state)
+    #wgt_state = jnp.array(wgt_state)
+    #var_state = jnp.array(var_state)
     #if n_var == 1:
     #    wgt_state = wgt_state[0]
     #    var_state = var_state[0]

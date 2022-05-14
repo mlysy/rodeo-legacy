@@ -88,7 +88,7 @@ def seirah_example(load_calcs=False):
     # Plot observations and true value
     plot_tseq = np.linspace(1, tmax, int((tmax-1))+1)
     plt.rcParams.update({'font.size': 20})
-    fig, axs = plt.subplots(1, 2, figsize=(20, 10))
+    fig, axs = plt.subplots(1, 2, figsize=(20, 5))
     axs[0].plot(plot_tseq,  X_t[:,0], label = 'X_t')
     axs[0].scatter(plot_tseq, Y_t[:,0], label = 'Y_t', color='orange')
     axs[0].set_title("$I^{(in)}_t$")
@@ -117,7 +117,7 @@ def seirah_example(load_calcs=False):
             phi_sample = inf.phi_sample(phi_hat, phi_var, n_samples)
             theta_sample = np.exp(phi_sample[:, :n_theta])
             theta_euler[i] = np.abs(np.append(theta_sample, phi_sample[:, n_theta:], axis=1))
-        np.save('saves/seirah_theta_euler.npy', theta_euler)
+        #np.save('saves/seirah_theta_euler.npy', theta_euler)
         
         # Parameter inference using Kalman solver
         theta_kalman = np.zeros((len(dtlst), n_samples, n_theta+2))
@@ -137,17 +137,17 @@ def seirah_example(load_calcs=False):
             phi_sample = inf.phi_sample(phi_hat, phi_var, n_samples)
             theta_sample = np.exp(phi_sample[:, :n_theta])
             theta_kalman[i] = np.abs(np.append(theta_sample, phi_sample[:, n_theta:], axis=1)) 
-        np.save('saves/seirah_theta_kalman.npy', theta_kalman)
+        #np.save('saves/seirah_theta_kalman.npy', theta_kalman)
     
     plt.rcParams.update({'font.size': 20})
     var_names = ["b", "r", r"$\alpha$", "$D_e$", "$D_I$", "$D_q$", "$E_0^{(0)}$", "$I_0^{(0)}$"]
     clip = [(0, 8), None, (0,2), None, None, None, None, None]
     param_true = np.append(theta_true, np.array([15492, 21752]))
-    figure = inf.theta_plot(theta_euler, theta_kalman, param_true, dtlst, var_names, clip=clip, rows=3)
+    figure = inf.theta_plot(theta_euler, theta_kalman, param_true, dtlst, var_names, clip=clip, rows=1)
     figure.savefig('figures/seirahfigure.pdf')
     plt.show()
     return
 
 if __name__ == '__main__':
-    seirah_example(False)
+    seirah_example(True)
 

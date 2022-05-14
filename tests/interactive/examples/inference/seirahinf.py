@@ -27,6 +27,43 @@ def seirah(X_t, t, theta):
 class seirahinf(inference):
     r"Inference using the France Covid data from Prague et al."
     
+    def ode_fun(self, X_t, t, theta):
+        "SEIRAH ODE function"
+        p = len(X_t)//6
+        S, E, I, R, A, H = X_t[::p]
+        N = S + E + I + R + A + H
+        b, r, alpha, D_e, D_I, D_q= theta
+        D_h = 30
+        x1 = -b*S*(I + alpha*A)/N
+        x2 = b*S*(I + alpha*A)/N - E/D_e
+        x3 = r*E/D_e - I/D_q - I/D_I
+        x4 = (I + A)/D_I + H/D_h
+        x5 = (1-r)*E/D_e - A/D_I
+        x6 = I/D_q - H/D_h
+        return jnp.array([x1, x2, x3, x4, x5, x6])
+
+    def rax_fun(self, t, X_t, theta):
+        "SEIRAH ODE function"
+        p = len(X_t)//6
+        S, E, I, R, A, H = X_t[::p]
+        N = S + E + I + R + A + H
+        b, r, alpha, D_e, D_I, D_q= theta
+        D_h = 30
+        x1 = -b*S*(I + alpha*A)/N
+        x2 = b*S*(I + alpha*A)/N - E/D_e
+        x3 = r*E/D_e - I/D_q - I/D_I
+        x4 = (I + A)/D_I + H/D_h
+        x5 = (1-r)*E/D_e - A/D_I
+        x6 = I/D_q - H/D_h
+        return jnp.array([x1, x2, x3, x4, x5, x6])
+
+    def loglike(self, Y_t, X_t, step_size, obs_size, theta):
+        data_tseq = np.linspace(self.tmin+1, self.tmax, int((self.tmax-self.tmin)/obs_size))
+        ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
+        X_t = self.thinning(ode_tseq, data_tseq, X_t)
+        X_in = self.covid_obs(X_t, theta)
+        return jnp.sum(jsp.stats.poisson.logpmf(Y_t, X_in))
+
     def loglike_pois(self, x, mean):
         r"Calculate the loglikelihood of the poisson distribution."
         return jnp.sum(jsp.stats.poisson.logpmf(x, mean))
@@ -55,21 +92,21 @@ class seirahinf(inference):
         Y_in = np.random.default_rng(111).poisson(X_in)
         return Y_in, X_in
     
-    def kalman_solve(self, step_size, obs_size, x0, theta):
-        r"Using Kalman solver to compute solutions"
-        self.key, subkey = jax.random.split(self.key)
-        data_tseq = np.linspace(self.tmin+1, self.tmax, int((self.tmax-self.tmin)/obs_size))
-        ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
-        X_t = mv_jit(subkey, self.fun, x0, theta, self.tmin, self.tmax, self.n_eval, self.W, **self.kinit)[0]
-        X_t = X_t[:, :, 0]
-        X_t = self.thinning(ode_tseq, data_tseq, X_t)
-        X_in = self.covid_obs(X_t, theta)
-        return X_in
+    # def kalman_solve(self, step_size, obs_size, x0, theta):
+    #     r"Using Kalman solver to compute solutions"
+    #     self.key, subkey = jax.random.split(self.key)
+    #     data_tseq = np.linspace(self.tmin+1, self.tmax, int((self.tmax-self.tmin)/obs_size))
+    #     ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
+    #     X_t = mv_jit(subkey, self.fun, x0, theta, self.tmin, self.tmax, self.n_eval, self.W, **self.kinit)[0]
+    #     X_t = X_t[:, :, 0]
+    #     X_t = self.thinning(ode_tseq, data_tseq, X_t)
+    #     X_in = self.covid_obs(X_t, theta)
+    #     return X_in
     
-    def euler_solve(self, x0, step_size, obs_size, theta):
-        r"Using Euler method to compute solutions"
-        data_tseq = np.linspace(self.tmin+1, self.tmax, int((self.tmax-self.tmin)/obs_size))
-        ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
-        X_t = self.euler(seirah, x0, ode_tseq, data_tseq, step_size, theta)
-        X_in = self.covid_obs(X_t, theta)
-        return X_in
+    # def euler_solve(self, x0, step_size, obs_size, theta):
+    #     r"Using Euler method to compute solutions"
+    #     data_tseq = np.linspace(self.tmin+1, self.tmax, int((self.tmax-self.tmin)/obs_size))
+    #     ode_tseq = np.linspace(self.tmin, self.tmax, int((self.tmax-self.tmin)/step_size)+1)
+    #     X_t = self.euler(seirah, x0, ode_tseq, data_tseq, step_size, theta)
+    #     X_in = self.covid_obs(X_t, theta)
+    #     return X_in

@@ -12,94 +12,80 @@ from rodeo.jax.ode_solve import *
 from rodeo.ibm import ibm_init as ibm_init_nb
 from rodeo.utils import indep_init
 import ode_solve as rodeonb
+import sys
+sys.path.append("..")
+from examples.euler_solve import euler
 
-# ode function used by jax
 def ode_fun_jax(X_t, t, theta):
-    "SEIRAH ODE function"
-    S, E, I, R, A, H = X_t[:, 0]
-    N = S + E + I + R + A + H
-    b, r, alpha, D_e, D_I, D_q= theta
-    D_h = 30
-    x1 = -b*S*(I + alpha*A)/N
-    x2 = b*S*(I + alpha*A)/N - E/D_e
-    x3 = r*E/D_e - I/D_q - I/D_I
-    x4 = (I + A)/D_I + H/D_h
-    x5 = (1-r)*E/D_e - A/D_I
-    x6 = I/D_q - H/D_h
-    return jnp.array([[x1], [x2], [x3], [x4], [x5], [x6]])
+    "FitzHugh-Nagumo ODE."
+    P, M, H = jnp.exp(X_t[:, 0])
+    a, b, c, d, e, f, g = theta
+    x1 = -a*H + b*M/P - c
+    x2 = -d + e/(1+P*P)/M
+    x3 = -a*P + f/(1+P*P)/H - g
+    return jnp.array([[x1], [x2], [x3]])
 
-# ode function used by non block
 def ode_fun_jax2(X_t, t, theta):
-    "SEIRAH ODE function"
-    S, E, I, R, A, H = X_t[::3]
-    N = S + E + I + R + A + H
-    b, r, alpha, D_e, D_I, D_q= theta
-    D_h = 30
-    x1 = -b*S*(I + alpha*A)/N
-    x2 = b*S*(I + alpha*A)/N - E/D_e
-    x3 = r*E/D_e - I/D_q - I/D_I
-    x4 = (I + A)/D_I + H/D_h
-    x5 = (1-r)*E/D_e - A/D_I
-    x6 = I/D_q - H/D_h
-    return jnp.array([x1, x2, x3, x4, x5, x6])
+    "FitzHugh-Nagumo ODE."
+    P, M, H = jnp.exp(X_t[::3])
+    a, b, c, d, e, f, g = theta
+    x1 = -a*H + b*M/P - c
+    x2 = -d + e/(1+P*P)/M
+    x3 = -a*P + f/(1+P*P)/H - g
+    return jnp.array([x1, x2, x3])
 
 @njit
-def ode_fun(X_t, t, theta, out=None):
-    "SEIRAH ODE function"
-    S, E, I, R, A, H = X_t
-    N = S + E + I + R + A + H
-    b, r, alpha, D_e, D_I, D_q = theta
-    D_h = 30
-    dS = -b*S*(I + alpha*A)/N
-    dE = b*S*(I + alpha*A)/N - E/D_e
-    dI = r*E/D_e - I/D_q - I/D_I
-    dR = (I + A)/D_I + H/D_h
-    dA = (1-r)*E/D_e - A/D_I
-    dH = I/D_q - H/D_h
-    out = np.array([dS, dE, dI, dR, dA, dH])
-    return out
+def ode_fun(X_t, t, theta):
+    P, M, H = np.exp(X_t)
+    a, b, c, d, e, f, g = theta
+    x1 = -a*H + b*M/P - c
+    x2 = -d + e/(1+P*P)/M
+    x3 = -a*P + f/(1+P*P)/H - g
+    return np.array([x1, x2, x3])
 
 def ode_fun_rax(t, X_t, theta):
-    "SEIRAH ODE function"
-    S, E, I, R, A, H = X_t
-    N = S + E + I + R + A + H
-    b, r, alpha, D_e, D_I, D_q = theta
-    D_h = 30
-    dS = -b*S*(I + alpha*A)/N
-    dE = b*S*(I + alpha*A)/N - E/D_e
-    dI = r*E/D_e - I/D_q - I/D_I
-    dR = (I + A)/D_I + H/D_h
-    dA = (1-r)*E/D_e - A/D_I
-    dH = I/D_q - H/D_h
-    out = jnp.array([dS, dE, dI, dR, dA, dH])
-    return out
+    P, M, H = jnp.exp(X_t)
+    a, b, c, d, e, f, g = theta
+    x1 = -a*H + b*M/P - c
+    x2 = -d + e/(1+P*P)/M
+    x3 = -a*P + f/(1+P*P)/H - g
+    return jnp.array([x1, x2, x3])
+
+def ode_fun_euler(X_t, t, theta):
+    P, M, H = jnp.exp(X_t)
+    a, b, c, d, e, f, g = theta
+    x1 = -a*H + b*M/P - c
+    x2 = -d + e/(1+P*P)/M
+    x3 = -a*P + f/(1+P*P)/H - g
+    return jnp.array([x1, x2, x3])
 
 # problem setup and intialization
 n_deriv = 1  # Total state
-n_obs = 6  # Total measures
+n_obs = 3  # Total measures
 n_deriv_prior = 3
 
 # it is assumed that the solution is sought on the interval [tmin, tmax].
-n_eval = 50
+n_eval = 120
 tmin = 0.
-tmax = 10.
-theta = np.array([2.23, 0.034, 0.55, 5.1, 2.3, 0.36])
+tmax = 240.
+theta = np.array([0.022, 0.3, 0.031, 0.028, 0.5, 20, 0.3])
 thetaj = jnp.array(theta)
 
 # The rest of the parameters can be tuned according to ODE
 # For this problem, we will use
-sigma = jnp.array([.5]*n_obs)
+sigma = 0.00001
+sigma = jnp.array([sigma]*n_obs)
 
-# W matrix for the IVP
+# Initial value, x0, for the IVP
 W_mat = np.zeros((n_obs, 1, n_deriv_prior))
 W_mat[:, :, 1] = 1
 W_block = jnp.array(W_mat)
 
 # Initial x0 for odeint
-ode0 = np.array([63804435, 15492, 21752, 0, 618013, 93583])
+ode0 = np.log(np.array([1.439, 2.037, 17.904]))
 
 # Initial x0 for jax block
-x0 = jnp.array([[63804435], [15492], [21752], [0], [618013], [93583]])
+x0 = jnp.log(jnp.array([[1.439], [2.037], [17.904]]))
 v0 = ode_fun_jax(x0, 0, theta)
 X0 = jnp.concatenate([x0, v0],axis=1)
 pad_dim = n_deriv_prior - n_deriv - 1
@@ -142,7 +128,7 @@ sim_jit2(key=key, fun=ode_fun_jax2,
 # Timings
 n_loops = 1000
 
-# Jax
+# Jax block
 start = timer()
 for i in range(n_loops):
     _ = sim_jit(key=key, fun=ode_fun_jax,
@@ -179,13 +165,23 @@ time_rax = (end - start)/n_loops
 
 # odeint
 tseq = np.linspace(tmin, tmax, n_eval+1)
-_ = odeint(ode_fun, ode0, tseq, args=(theta, ))
+_ = odeint(ode_fun, ode0, tseq, args=(theta,))
 start = timer()
 for i in range(n_loops):
     _ = odeint(ode_fun, ode0, tseq, args=(theta,))
 end = timer()
 time_ode = (end - start)/n_loops
 
+# euler
+n_eval = 2000
+euler_sim = euler(ode_fun_euler, ode0, theta, tmin, tmax, n_eval)
+start = timer()
+for i in range(n_loops):
+    _ = euler(ode_fun_euler, ode0, theta, tmin, tmax, n_eval)
+end = timer()
+time_euler = (end - start)/n_loops
+
 print("Number of times faster jax is compared to odeint {}".format(time_ode/time_jax))
 print("Number of times faster jax is compared to diffrax {}".format(time_rax/time_jax))
 print("Number of times faster jax is compared to non-blocking {}".format(time_jaxnb/time_jax))
+print("Number of times faster jax is compared to euler {}".format(time_euler/time_jax))

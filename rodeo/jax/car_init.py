@@ -99,12 +99,12 @@ def car_initial_draw(key, n_order, tau, sigma, x0):
 
     Args:
         key (PRNGKey): Jax PRNGKey.
-        n_order (ndarray(n_var)): Derivative order for each variate. 
-        sigma (ndarray(n_var)): Parameter in mOU volatility matrix.
-        x0 (ndarray(n_var, n_ode)): Initial conditions of the ode.
+        n_order (ndarray(n_block)): Derivative order for each variate. 
+        sigma (ndarray(n_block)): Parameter in mOU volatility matrix.
+        x0 (ndarray(n_block, n_ode)): Initial conditions of the ode.
 
     Returns:
-        (ndarray(n_var, p)): Simulate :math:`X0 \sim N(c_0, 0_{pxp})` conditioned on x0.
+        (ndarray(n_block, p)): Simulate :math:`X0 \sim N(c_0, 0_{pxp})` conditioned on x0.
 
     """
     n_block = len(n_order)
@@ -116,7 +116,7 @@ def car_initial_draw(key, n_order, tau, sigma, x0):
         if p == q+1:
             x0_state[i] = x0[i]
             continue
-        broots = root_gen(tau[i], n_order[i])
+        broots = root_gen(tau[i], p)
         V_inf = car_varinf(broots, sigma[i])
         icond = jnp.array([True]*(q+1) + [False]*(p-q-1))
         A, b, V = mvncond(jnp.zeros(p), V_inf, icond)
@@ -153,17 +153,15 @@ def car_init(dt, n_order, tau, sigma):
     Calculates the initial parameters necessary for the Kalman solver.
     Args:
         dt (float): The step size between simulation points.
-        n_order (ndarray(n_var)): Derivative order of each variate.
-        tau (ndarray(n_var)): First root parameter.
-        sigma (ndarray(n_var)): Parameter in mOU volatility matrix.
-        x0 (ndarray(n_var, n_ode)): The initial value, :math:`x0`, to the ODE problem.
+        n_order (ndarray(n_block)): Derivative order of each variate.
+        tau (ndarray(n_block)): First root parameter.
+        sigma (ndarray(n_block)): Parameter in mOU volatility matrix.
         
     Returns:
         (tuple):
-        - **wgt_state** (ndarray(p, p)) Transition matrix defining the solution prior; :math:`Q`.
-        - **mu_state** (ndarray(p)): Transition_offsets defining the solution prior; denoted by :math:`c_n`.
-        - **var_state** (ndarray(p, p)) Variance matrix defining the solution prior; :math:`R`.
-        - **x0_state** (ndarray(p)): Initial value of the state variable :math:`x_t` at time :math:`t = 0`; :math:`x_0`.
+        - **wgt_state** (ndarray(n_block, p, p)) Transition matrix defining the solution prior; :math:`Q`.
+        - **mu_state** (ndarray(n_block, p)): Transition_offsets defining the solution prior; denoted by :math:`c_n`.
+        - **var_state** (ndarray(n_block, p, p)) Variance matrix defining the solution prior; :math:`R`.
     
     """
     n_block = len(n_order)
@@ -177,7 +175,7 @@ def car_init(dt, n_order, tau, sigma):
     #    ibm_state(dt, (n_order[b]-1), sigma[b]))(jnp.arange(n_block))
     
     for i in range(n_block):
-        broots = root_gen(tau[i], n_order[i])
+        broots = root_gen(tau[i], p)
         wgt_state[i], var_state[i] = car_state(dt, broots, sigma[i])
     
     wgt_state = jnp.array(wgt_state)

@@ -72,7 +72,7 @@ sim_jit(key=key, fun=ode_fun_jax,
         wgt_meas=W_block, **ode_init)
 
 # Timings
-n_loops = 100
+n_loops = 10
 
 # Jax
 start = timer()

@@ -40,8 +40,6 @@ def fitz_example(load_calcs=False):
 
     # Initial value, x0, for the IVP
     x0 = np.array([-1., 1.])
-    v0 = np.array([1, 1/3])
-    X0 = np.ravel([x0, v0], 'F')
 
     # pad the inputs
     W_mat = np.zeros((n_obs, 1, n_deriv_prior))
@@ -68,7 +66,7 @@ def fitz_example(load_calcs=False):
     Y_t, X_t = inf.simulate(x0, theta_true, gamma, tseq)
 
     plt.rcParams.update({'font.size': 20})
-    fig, axs = plt.subplots(1, 2, figsize=(20, 10))
+    fig, axs = plt.subplots(1, 2, figsize=(20, 5))
     axs[0].plot(tseq, X_t[:,0], label = 'X_t')
     axs[0].scatter(tseq, Y_t[:,0], label = 'Y_t', color='orange')
     axs[0].set_title("$V^{(0)}_t$")
@@ -115,11 +113,11 @@ def fitz_example(load_calcs=False):
     plt.rcParams.update({'font.size': 20})
     var_names = ['a', 'b', 'c', r"$V_t^{(0)}$", r"$R_t^{(0)}$"]
     param_true = np.append(theta_true, np.array([-1, 1]))
-    figure = inf.theta_plot(theta_euler, theta_kalman, param_true, dtlst, var_names, clip=[None, (0, 0.5), None, None, None], rows=2)
+    figure = inf.theta_plot(theta_euler, theta_kalman, param_true, dtlst, var_names, clip=[None, (0, 0.5), None, None, None], rows=1)
     figure.savefig('figures/fitzfigure.pdf')
     plt.show()
     return
 
 if __name__ == '__main__':
-    fitz_example(False)
+    fitz_example(True)
     
