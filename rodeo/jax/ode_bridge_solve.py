@@ -179,6 +179,7 @@ def _solve_filter(key, fun, x0, theta,
             mu_state_pred=mu_state_pred,
             var_state_pred=var_state_pred
         )
+        
         # kalman update
         mu_state_next, var_state_next = jax.vmap(lambda b:
             update(
@@ -300,7 +301,7 @@ def solve_sim(key, fun, x0, theta,
         'var_state_filt': var_state_filt[1:n_eval],
         'mu_state_pred': mu_state_pred[2:n_eval+1],
         'var_state_pred': var_state_pred[2:n_eval+1],
-        'wgt_state': wgt_state[:n_eval-1],
+        'wgt_state': wgt_state[1:n_eval],
         'key': subkeys[:n_eval-1]
     }
     # Note: initial value x0 is assumed to be known, so we don't
@@ -322,6 +323,7 @@ def solve_sim(key, fun, x0, theta,
     )
     # x_state_smooth = jnp.reshape(x_state_smooth, newshape=(-1, n_block*n_bstate))
     return x_state_smooth
+
 
 def solve_mv(key, fun, x0, theta,
              tmin, tmax, n_eval,
@@ -399,7 +401,7 @@ def solve_mv(key, fun, x0, theta,
         'var_state_filt': var_state_filt[1:n_eval],
         'mu_state_pred': mu_state_pred[2:n_eval+1],
         'var_state_pred': var_state_pred[2:n_eval+1],
-        'wgt_state': wgt_state[:n_eval-1]
+        'wgt_state': wgt_state[1:n_eval]
     }
     # Note: initial value x0 is assumed to be known, so no need to smooth it
     _, scan_out = jax.lax.scan(scan_fun, scan_init, scan_kwargs,
@@ -521,7 +523,7 @@ def solve(key, fun, x0, theta,
         'var_state_filt': var_state_filt[1:n_eval],
         'mu_state_pred': mu_state_pred[2:n_eval+1],
         'var_state_pred': var_state_pred[2:n_eval+1],
-        'wgt_state': wgt_state[:n_eval-1],
+        'wgt_state': wgt_state[1:n_eval],
         'key': subkeys[:n_eval-1]
     }
     # Note: initial value x0 is assumed to be known, so no need to smooth it
@@ -543,3 +545,106 @@ def solve(key, fun, x0, theta,
     # mu_state_smooth = jnp.reshape(mu_state_smooth, newshape=(-1, n_block*n_bstate))
     # var_state_smooth = block_diag(var_state_smooth)
     return x_state_smooth, mu_state_smooth, var_state_smooth
+
+
+def solve_forward(key, fun, x0, theta,
+                  tmin, tmax, n_eval,
+                  wgt_meas, wgt_state, mu_state, var_state,
+                  interrogate=interrogate_schober):
+    r"""
+    Forward pass of the ODE solver.
+
+    Args:
+        key (PRNGKey): PRNG key.
+        fun (function): Higher order ODE function :math:`W X_t = F(X_t, t)` taking arguments :math:`X` and :math:`t`.
+        x0 (ndarray(n_block, n_bstate)): Initial value of the state variable :math:`X_t` at time :math:`t = a`.
+        theta (ndarray(n_theta)): Parameters in the ODE function.
+        tmin (float): First time point of the time interval to be evaluated; :math:`a`.
+        tmax (float): Last time point of the time interval to be evaluated; :math:`b`.
+        n_eval (int): Number of discretization points (:math:`N`) of the time interval that is evaluated, such that discretization timestep is :math:`dt = b/N`.
+        wgt_state (ndarray(n_block, n_bstate, n_bstate)): Transition matrix defining the solution prior; :math:`Q`.
+        mu_state (ndarray(n_block, n_bstate)): Transition_offsets defining the solution prior; :math:`c`.
+        var_state (ndarray(n_block, n_bstate, n_bstate)): Variance matrix defining the solution prior; :math:`R`.
+        wgt_meas (ndarray(n_block, n_bmeas, n_bstate)): Transition matrix defining the measure prior; :math:`W`.
+        interrogate (function): Function defining the interrogation method.
+
+    Returns:
+        (tuple):
+        - **mu_state_pred** (ndarray(n_steps, n_block, n_bstate)): Mean estimate for state at time t given observations from times [a...t-1] for :math:`t \in [a, b]`.
+        - **var_state_pred** (ndarray(n_steps, n_block, n_bstate, n_bstate)): Variance estimate for state at time t given observations from times [a...t-1] for :math:`t \in [a, b]`.
+        - **mu_state_filt** (ndarray(n_steps, n_block, n_bstate)): Mean estimate for state at time t given observations from times [a...t] for :math:`t \in [a, b]`.
+        - **var_state_filt** (ndarray(n_steps, n_block, n_bstate, n_bstate)): Variance estimate for state at time t given observations from times [a...t] for :math:`t \in [a, b]`.
+
+    """
+    # Dimensions of block, state and measure variables
+    n_block, n_bmeas, n_bstate = wgt_meas.shape
+    #n_state = len(mu_state)
+
+    # arguments for kalman_filter and kalman_smooth
+    mu_meas = jnp.zeros((n_block, n_bmeas))
+    mu_state_init = x0
+    var_state_init = jnp.zeros((n_block, n_bstate, n_bstate))
+
+    # lax.scan setup
+    # scan function
+    def scan_fun(carry, t):
+        mu_state_filt, var_state_filt = carry["state_filt"]
+        key, subkey = jax.random.split(carry["key"])
+        # kalman predict
+        mu_state_pred, var_state_pred = jax.vmap(lambda b:
+            predict(
+                mu_state_past=mu_state_filt[b],
+                var_state_past=var_state_filt[b],
+                mu_state=mu_state[t, b],
+                wgt_state=wgt_state[t, b],
+                var_state=var_state[t, b]
+            )
+        )(jnp.arange(n_block))
+        # model interrogation
+        x_meas, var_meas = interrogate(
+            key=subkey,
+            fun=fun,
+            t=tmin + (tmax-tmin)*(t+1)/n_eval,
+            theta=theta,
+            wgt_meas=wgt_meas,
+            mu_state_pred=mu_state_pred,
+            var_state_pred=var_state_pred
+        )
+        # kalman update
+        mu_state_next, var_state_next = jax.vmap(lambda b:
+            update(
+                mu_state_pred=mu_state_pred[b],
+                var_state_pred=var_state_pred[b],
+                x_meas=x_meas[b],
+                mu_meas=mu_meas[b],
+                wgt_meas=wgt_meas[b],
+                var_meas=var_meas[b]
+            )
+        )(jnp.arange(n_block))
+        # output
+        carry = {
+            "state_filt": (mu_state_next, var_state_next),
+            "key": key
+        }
+        stack = {
+            "state_filt": (mu_state_next, var_state_next),
+            "state_pred": (mu_state_pred, var_state_pred)
+        }
+        return carry, stack
+    # scan initial value
+    scan_init = {
+        "state_filt": (mu_state_init, var_state_init),
+        "key": key
+    }
+    # scan itself
+    _, scan_out = jax.lax.scan(scan_fun, scan_init, jnp.arange(n_eval))
+    # append initial values to front
+    scan_out["state_filt"] = (
+        jnp.concatenate([mu_state_init[None], scan_out["state_filt"][0]]),
+        jnp.concatenate([var_state_init[None], scan_out["state_filt"][1]])
+    )
+    scan_out["state_pred"] = (
+        jnp.concatenate([mu_state_init[None], scan_out["state_pred"][0]]),
+        jnp.concatenate([var_state_init[None], scan_out["state_pred"][1]])
+    )
+    return scan_out["state_filt"][0]

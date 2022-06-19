@@ -5,8 +5,6 @@ import jax
 
 from rodeo.jax.ode_solve import *
 
-mv_jit = jax.jit(solve_mv, static_argnums=(1, 6))
-
 class fitzinf(inference):
     r"Inference assuming a normal prior"
     

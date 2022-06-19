@@ -49,6 +49,29 @@ def ode_fun_euler(X_t, t, theta):
     V, R = X_t
     return jnp.array([c*(V - V*V*V/3 + R), -1/c*(V - a + b*R)])
 
+def _logpost(y_meas, Xt, gamma):
+    return jnp.sum(jsp.stats.norm.logpdf(x=y_meas, loc=Xt, scale=gamma))
+
+def logpost_rodeo(theta, y_meas, gamma):
+    Xt = solve_sim(key=key, fun=ode_fun_jax,
+                    x0=x0_block, theta=theta,
+                    tmin=tmin, tmax=tmax, n_eval=n_eval,
+                    wgt_meas=W_block, **ode_init)
+    return _logpost(y_meas, Xt[:,:,0], gamma)
+
+def logpost_diffrax(theta, y_meas, gamma):
+    Xt = diffeqsolve(term, solver, args = theta, t0=tmin, t1=tmax, dt0=dt, y0=jnp.array(ode0), saveat=saveat,
+                      stepsize_controller=stepsize_controller).ys
+    return _logpost(y_meas, Xt, gamma)
+
+def logpost_nbrodeo(theta, y_meas, gamma):
+    Xt = rodeonb.solve_sim(key=key, fun=ode_fun_jax2,
+                  x0=x0_state, theta=theta,
+                  tmin=tmin, tmax=tmax, n_eval=n_eval,
+                  wgt_meas=W, **ode_initnb)
+    return _logpost(y_meas, Xt[:,::n_deriv_prior], gamma)
+
+
 # problem setup and intialization
 n_deriv = 1  # Total state
 n_obs = 2  # Total measures
@@ -134,41 +157,69 @@ for i in range(n_loops):
 end = timer()
 time_jaxnb = (end - start)/n_loops
 
-
 # odeint
 tseq = np.linspace(tmin, tmax, n_eval+1)
-_ = odeint(ode_fun, ode0, tseq, args=(theta,))
-start = timer()
-for i in range(n_loops):
-    _ = odeint(ode_fun, ode0, tseq, args=(theta,))
-end = timer()
-time_ode = (end - start)/n_loops
+y_meas = odeint(ode_fun, ode0, tseq, args=(theta,))
+# start = timer()
+# for i in range(n_loops):
+#     _ = odeint(ode_fun, ode0, tseq, args=(theta,))
+# end = timer()
+# time_ode = (end - start)/n_loops
 
-# diffrax
-tseq = np.linspace(tmin, tmax, n_eval+1)
-term = ODETerm(ode_fun_rax)
-solver = Dopri5()
-saveat = SaveAt(ts=tseq)
-stepsize_controller = PIDController(rtol=1e-5, atol=1e-5)
-sol = diffeqsolve(term, solver, args = thetaj, t0=tmin, t1=tmax, dt0=dt, y0=jnp.array(ode0), saveat=saveat,
-                  stepsize_controller=stepsize_controller)
+# # diffrax
+# tseq = np.linspace(tmin, tmax, n_eval+1)
+# term = ODETerm(ode_fun_rax)
+# solver = Dopri5()
+# saveat = SaveAt(ts=tseq)
+# stepsize_controller = PIDController(rtol=1e-5, atol=1e-5)
+# sol = diffeqsolve(term, solver, args = thetaj, t0=tmin, t1=tmax, dt0=dt, y0=jnp.array(ode0), saveat=saveat,
+#                   stepsize_controller=stepsize_controller)
+# start = timer()
+# for i in range(n_loops):
+#     _ = diffeqsolve(term, solver, args = thetaj, t0=tmin, t1=tmax, dt0=dt, y0=jnp.array(ode0), saveat=saveat,
+#                     stepsize_controller=stepsize_controller)
+# end = timer()
+# time_rax = (end - start)/n_loops
+
+# jit grad for diffrax and rodeo
+gamma = 0.1
+grad_jit1 = jax.jit(jax.grad(logpost_rodeo))
+grad_jit2 = jax.jit(jax.grad(logpost_diffrax))
+grad_jit3 = jax.jit(jax.grad(logpost_nbrodeo))
+
+# rodeo grad
 start = timer()
 for i in range(n_loops):
-    _ = diffeqsolve(term, solver, args = thetaj, t0=tmin, t1=tmax, dt0=dt, y0=jnp.array(ode0), saveat=saveat,
-                    stepsize_controller=stepsize_controller)
+    _ = grad_jit1(thetaj, y_meas, gamma)
 end = timer()
-time_rax = (end - start)/n_loops
+time_jaxgrad = (end - start)/n_loops
+
+# non-block grad
+start = timer()
+for i in range(n_loops):
+    _ = grad_jit3(thetaj, y_meas, gamma)
+end = timer()
+time_nbgrad = (end - start)/n_loops
+
+# diffrax grad
+# start = timer()
+# for i in range(n_loops):
+#     _ = grad_jit2(thetaj, y_meas, gamma)
+# end = timer()
+# time_raxgrad = (end - start)/n_loops
 
 # euler
-n_eval = 4000
-euler_sim = euler(ode_fun_euler, ode0, theta, tmin, tmax, n_eval)
-start = timer()
-for i in range(n_loops):
-    _ = euler(ode_fun_euler, ode0, theta, tmin, tmax, n_eval)
-end = timer()
-time_euler = (end - start)/n_loops
+# n_eval = 4000
+# euler_sim = euler(ode_fun_euler, ode0, theta, tmin, tmax, n_eval)
+# start = timer()
+# for i in range(n_loops):
+#     _ = euler(ode_fun_euler, ode0, theta, tmin, tmax, n_eval)
+# end = timer()
+# time_euler = (end - start)/n_loops
 
-print("Number of times faster jax is compared to odeint {}".format(time_ode/time_jax))
-print("Number of times faster jax is compared to diffrax {}".format(time_rax/time_jax))
+# print("Number of times faster jax is compared to odeint {}".format(time_ode/time_jax))
+# print("Number of times faster jax is compared to diffrax {}".format(time_rax/time_jax))
 print("Number of times faster jax is compared to non-blocking {}".format(time_jaxnb/time_jax))
-print("Number of times faster jax is compared to euler {}".format(time_euler/time_jax))
+# print("Number of times faster jax is compared to euler {}".format(time_euler/time_jax))
+# print("Number of times faster jax is compared to diffrax for grad {}".format(time_raxgrad/time_jaxgrad))
+print("Number of times faster jax is compared to diffrax for grad {}".format(time_nbgrad/time_jaxgrad))

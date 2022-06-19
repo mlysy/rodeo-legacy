@@ -7,23 +7,6 @@ import jax.scipy as jsp
 
 from rodeo.jax.ode_solve import *
 
-mv_jit = jax.jit(solve_mv, static_argnums=(1, 6))
-
-def seirah(X_t, t, theta):
-    "SEIRAH ODE function"
-    p = len(X_t)//6
-    S, E, I, R, A, H = X_t[::p]
-    N = S + E + I + R + A + H
-    b, r, alpha, D_e, D_I, D_q= theta
-    D_h = 30
-    x1 = -b*S*(I + alpha*A)/N
-    x2 = b*S*(I + alpha*A)/N - E/D_e
-    x3 = r*E/D_e - I/D_q - I/D_I
-    x4 = (I + A)/D_I + H/D_h
-    x5 = (1-r)*E/D_e - A/D_I
-    x6 = I/D_q - H/D_h
-    return jnp.array([x1, x2, x3, x4, x5, x6])
-
 class seirahinf(inference):
     r"Inference using the France Covid data from Prague et al."
     
@@ -64,9 +47,16 @@ class seirahinf(inference):
         X_in = self.covid_obs(X_t, theta)
         return jnp.sum(jsp.stats.poisson.logpmf(Y_t, X_in))
 
-    def loglike_pois(self, x, mean):
-        r"Calculate the loglikelihood of the poisson distribution."
-        return jnp.sum(jsp.stats.poisson.logpmf(x, mean))
+    def x0_initialize(self, phi, x0, phi_len):
+        j = 0
+        xx0 = []
+        for i in range(len(x0)):
+            if x0[i] is None:
+                xx0.append(jnp.exp(phi[phi_len+j]))
+                j+=1
+            else:
+                xx0.append(x0[i])
+        return jnp.array(xx0)
     
     def covid_obs(self, X_t, theta):
         r"Compute the observations as detailed in the paper"
@@ -87,7 +77,7 @@ class seirahinf(inference):
             H^{(in)}(t) = I(t)/D_q
 
         """
-        X_t = odeint(seirah, x0, tseq, args=(theta,))
+        X_t = odeint(self.ode_fun, x0, tseq, args=(theta,))
         X_in = self.covid_obs(X_t, theta)
         Y_in = np.random.default_rng(111).poisson(X_in)
         return Y_in, X_in

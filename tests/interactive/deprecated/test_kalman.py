@@ -15,8 +15,8 @@ def print_diff(name, x1, x2):
 
 key = jax.random.PRNGKey(0)
 
-n_meas = 3
-n_state = 4
+n_meas = 1
+n_state = 2
 n_tot = 2
 
 key, *subkeys = jax.random.split(key, 10)
@@ -44,7 +44,7 @@ A_gm, b_gm, C_gm = gm.kalman2gm(
 )
 
 mu_gm, var_gm = gm.gauss_markov_mv(A=A_gm, b=b_gm, C=C_gm)
-
+print(mu_gm)
 
 def kalman_theta(m, y, mu, Sigma):
     """
@@ -82,6 +82,8 @@ def kalman_theta(m, y, mu, Sigma):
     V_mn = V[np.ix_(imarg, imarg)]
     mu_mn = mu_mn.reshape((n_x, n_state))
     V_mn = V_mn.reshape((n_x, n_state, n_x, n_state))
+    print(icond)
+    print(imarg)
     if n_x == 1:
         mu_mn = mu_mn.squeeze(axis=(0,))
         V_mn = V_mn.squeeze(axis=(0, 2))
@@ -90,7 +92,7 @@ def kalman_theta(m, y, mu, Sigma):
 # --- kalmantv.predict ---------------------------------------------------------
 
 
-if True:
+if False:
     # theta_{0|0}
     mu_state_past, var_state_past = kalman_theta(
         m=0, y=jnp.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
@@ -103,7 +105,7 @@ if True:
         mu_state_past=mu_state_past,
         var_state_past=var_state_past,
         mu_state=mu_state[1],
-        wgt_state=wgt_state[1],
+        wgt_state=wgt_state[0],
         var_state=var_state[1]
     )
 
@@ -210,7 +212,7 @@ else:
 
 # --- kalmantv.smooth_sim ------------------------------------------------------
 
-if False:
+if True:
     # theta_{0|0}
     mu_state_filt, var_state_filt = kalman_theta(
         m=0, y=np.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
@@ -219,10 +221,14 @@ if False:
     mu_state_pred, var_state_pred = kalman_theta(
         m=1, y=np.atleast_2d(x_meas[0]), mu=mu_gm, Sigma=var_gm
     )
+
+    print('smooth')
     # theta_{0:1|1}
     mu_state_smooth, var_state_smooth = kalman_theta(
         m=[0, 1], y=x_meas, mu=mu_gm, Sigma=var_gm
     )
+    print(mu_state_smooth)
+    print(var_state_smooth.shape)
     A, b, V = mvncond(
         mu=mu_state_smooth.ravel(),
         Sigma=var_state_smooth.reshape(2*n_state, 2*n_state),
@@ -233,13 +239,17 @@ if False:
         var_state=V,
         z_state=z_state
     )
-    x_state_smooth2 = ktv.smooth_sim(
+    mu_state_smooth2, var_state_smooth2 = ktv.smooth_sim(
         x_state_next=x_state_next,
         mu_state_filt=mu_state_filt,
         var_state_filt=var_state_filt,
         mu_state_pred=mu_state_pred,
         var_state_pred=var_state_pred,
-        wgt_state=wgt_state[0],
+        wgt_state=wgt_state[0]
+    )
+    x_state_smooth2 = ktv._state_sim(
+        mu_state=mu_state_smooth2,
+        var_state=var_state_smooth2,
         z_state=z_state
     )
     print_diff("x_state_smooth", x_state_smooth, x_state_smooth2)

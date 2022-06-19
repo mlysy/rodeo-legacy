@@ -10,7 +10,9 @@ import jax.scipy as jsp
 
 from diffrax import diffeqsolve, Dopri5, ODETerm, SaveAt, PIDController
 from rodeo.jax.ode_solve import *
+import rodeo.jax.ode_bridge_solve as bsol
 from euler_solve import euler
+#from ode_forward import solve_forward
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -19,7 +21,9 @@ import matplotlib.lines as mlines
 import warnings
 warnings.filterwarnings('ignore')
 
-mv_jit = jax.jit(solve_mv, static_argnums=(1, 6))
+mv_jit = jax.jit(solve_sim, static_argnums=(1, 6))
+mv_jitb = jax.jit(bsol.solve_sim, static_argnums=(1, 6))
+#fw_jit = jax.jit(solve_forward, static_argnums=(1, 6))
 
 class inference:
     r"""
@@ -107,7 +111,21 @@ class inference:
         theta = jnp.exp(phi)
         xx0 = self.funpad(xx0, 0, theta)
         self.key, subkey = jax.random.split(self.key)
-        X_t = mv_jit(subkey, self.fun, xx0, theta, self.tmin, self.tmax, self.n_eval, self.W, **self.kinit)[0]
+        X_t = mv_jit(subkey, self.fun, xx0, theta, self.tmin, self.tmax, self.n_eval, self.W, **self.kinit)
+        X_t = X_t[:, :, 0]
+        lp = self.loglike(Y_t, X_t, step_size, obs_size, theta, *args)
+        lp += self.logprior(phi, phi_mean, phi_sd)
+        return -lp
+
+
+    def bridge_nlpost(self, phi, Y_t, x0, step_size, obs_size, phi_mean, phi_sd, *args):
+        phi_ind = len(phi_mean)
+        xx0 = self.x0_initialize(phi, x0, phi_ind)
+        phi = phi[:phi_ind]
+        theta = jnp.exp(phi)
+        xx0 = self.funpad(xx0, 0, theta)
+        self.key, subkey = jax.random.split(self.key)
+        X_t = mv_jitb(subkey, self.fun, xx0, theta, self.tmin, self.tmax, self.n_eval, self.W, **self.kinit)
         X_t = X_t[:, :, 0]
         lp = self.loglike(Y_t, X_t, step_size, obs_size, theta, *args)
         lp += self.logprior(phi, phi_mean, phi_sd)
@@ -216,9 +234,6 @@ class inference:
                 sns.kdeplot(theta_kalman[h, :, t-1], ax=axs2, clip=clip[t-1])
             
 
-            axs1.set_xticks([])
-            axs2.set_xticks([theta_true[t-1]])
-
             sns.kdeplot(theta_diffrax[:, t-1], ax=axs1, color='black', clip=clip[t-1])
             sns.kdeplot(theta_diffrax[:, t-1], ax=axs2, color='black', clip=clip[t-1])
             if t==n_theta:
@@ -236,8 +251,8 @@ class inference:
             and the Euler approximation."""
         n_hlst, _, n_theta = theta.shape
         ncol = ceil(n_theta/rows) +1
-        fig = plt.figure(figsize=(20, 10*rows))
-        patches = [None]*(n_hlst+1 + (theta_diffrax!=None))
+        fig = plt.figure(figsize=(20, 5*rows))
+        patches = [None]*(n_hlst+2)
         if clip is None:
             clip = [None]*ncol*rows 
         carry = 0
@@ -256,13 +271,11 @@ class inference:
                     patches[h] = mpatches.Patch(color='C{}'.format(h), label='$\\Delta$ t ={}'.format(step_sizes[h]))
                 sns.kdeplot(theta[h, :, t-1], ax=axs, clip=clip[t-1])
             
-            axs.set_xticks([theta_true[t-1]])
-            if theta_diffrax!= None:
-                sns.kdeplot(theta_diffrax[:, t-1], ax=axs, color='black', clip=clip[t-1])
+            sns.kdeplot(theta_diffrax[:, t-1], ax=axs, color='black', clip=clip[t-1])
+            
             if t==n_theta:
-                if theta_diffrax!= None:
-                    patches[-2] = mpatches.Patch(color='black', label="True Posterior")
-                patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\theta$')
+                patches[-2] = mpatches.Patch(color='black', label="True Posterior")
+                patches[-1] = mlines.Line2D([], [], color='r', linestyle='dashed', linewidth=1, label='True $\\Theta$')
                 
         fig.legend(handles=patches, framealpha=0.5, loc=7)
         

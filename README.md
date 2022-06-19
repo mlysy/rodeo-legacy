@@ -1,8 +1,11 @@
-# **rodeo:** Probabilistic ODE Solver
+# **rodeo:** Probabilistic ODE Solver (Legacy)
 
 *Mohan Wu, Martin Lysy*
 
 ---
+
+## Important Notice
+This repo is now the legacy version of **rodeo** and will not be updated. For the latest version of **rodeo** build on Jax please see [here](https://github.com/mlysy/rodeo-jax). The major difference between the new **rodeo** API and the legacy version is instead of using NumPy, everything is done through the Jax equivalent of NumPy via `jax.numpy`. The inputs of the new version is also slightly different. For more details please see the new repo.
 
 ## Description
 

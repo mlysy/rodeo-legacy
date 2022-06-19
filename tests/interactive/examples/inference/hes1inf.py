@@ -5,28 +5,7 @@ import jax
 from jax.config import config
 config.update("jax_enable_x64", True)
 
-from diffrax import diffeqsolve, Dopri5, ODETerm, SaveAt, PIDController
 from rodeo.jax.ode_solve import *
-
-mv_jit = jax.jit(solve_mv, static_argnums=(1, 6))
-
-def hes1(X_t, t, theta):
-    "Hes1 ODE written for odeint"
-    P, M, H = jnp.exp(X_t)
-    a, b, c, d, e, f, g = theta
-    x1 = -a*H + b*M/P - c
-    x2 = -d + e/(1+P*P)/M
-    x3 = -a*P + f/(1+P*P)/H - g
-    return jnp.array([x1, x2, x3])
-
-def hes1_rax(t, X_t, theta):
-    "Hes1 ODE written for odeint"
-    P, M, H = jnp.exp(X_t)
-    a, b, c, d, e, f, g = theta
-    x1 = -a*H + b*M/P - c
-    x2 = -d + e/(1+P*P)/M
-    x3 = -a*P + f/(1+P*P)/H - g
-    return jnp.array([x1, x2, x3])
 
 class hes1inf(inference):
     r"Inference for the Hes1 model"
@@ -62,7 +41,7 @@ class hes1inf(inference):
 
     def simulate(self, x0, theta, gamma, tseq):
         r"Get the observations assuming a normal distribution."
-        sol = odeint(hes1, x0, tseq, args=(theta,))
+        sol = odeint(self.ode_fun, x0, tseq, args=(theta,))
         X_t = self.hes1_obs(sol)
         e_t = np.random.default_rng(0).normal(loc=0.0, scale=1, size=X_t.shape)
         Y_t = X_t + gamma*e_t

@@ -12,6 +12,7 @@ def bridge_prior(A, Q, R, Y, n_res, n_block):
         A (ndarray(n_res, n_block, p, n_by)): Transition offsets defining the solution prior; denoted by :math:`A_n`.
         Q (ndarray(n_res, n_block, p, p)): Transition matrix defining the solution prior; :math:`Q_n`.
         R (ndarray(n_res, n_block, p, p)) Variance matrix defining the solution prior; :math:`R_n`.
+        offset ((ndarray(n_res, n_block, p)): Transition offset used to define the offset :math:`c_n`.
         Y (ndarray(n_y, n_res, n_block, n_by)): Observations.
         n_res (int): The resolution number between observations.
         n_block (int): Number of blocks of X_n.
@@ -43,16 +44,16 @@ def bridge_pars(W, bridge_init, Omega, n_res, n_block):
 
     Args:
         W (ndarray(n_block, p, p)): Transitional matrix in the observations; `Y~N(WX, \Omega).
-        Omega (ndarray(n_block, n_y, n_y)): Variance matrix in the observations; `Y~N(WX, \Omega).
         bridge_init (dict): Dictionary containing the initial parameters computed using the ibm prior.
+        Omega (ndarray(n_block, n_by, n_by)): Variance matrix in the observations; `Y~N(WX, \Omega).
         n_res (int): The resolution number between observations.
         n_block (int): Number of blocks of X_n.
         
     Returns:
         (dict):
-        - **A** (ndarray(n_res, n_block, p, n_by)) Transition offsets defining the solution prior; denoted by :math:`A_n`.
+        - **A** (ndarray(n_res, n_block, p, n_by)): Transition matrix used to define the offset; denoted by :math:`A_n`.
         - **Q** (ndarray(n_res, n_block, p, p)): Transition matrix defining the solution prior; :math:`Q_n`.
-        - **R** (ndarray(n_res, n_block, p, p)) Variance matrix defining the solution prior; :math:`R_n`.
+        - **R** (ndarray(n_res, n_block, p, p)): Variance matrix defining the solution prior; :math:`R_n`.
 
     """
     Qt = bridge_init['wgt_state']
@@ -92,11 +93,12 @@ def ibm_bridge_init(n_res, dt, n_order, sigma, Y, W, Omega):
     Args:
         n_res (int): The resolution number between observations.
         dt (float): The step size between simulation points.
-        n_order (ndarray(n_block)): Dimension of the prior.
+        n_order (int): Dimension of the prior.
+        x0 (ndarray(n_block, p)): Initial value of the ODE.
         sigma (ndarray(n_block)): Parameter in variance matrix.
         Y (ndarray(n_y, n_block, n_by)): Observations.
         W (ndarray(n_block, p, p)): Transitional matrix in the observations; `Y~N(WX, \Omega).
-        Omega (ndarray(n_block, n_y, n_y)): Variance matrix in the observations; `Y~N(WX, \Omega).
+        Omega (ndarray(n_block, n_by, n_by)): Variance matrix in the observations; `Y~N(WX, \Omega).
 
     Returns:
         (dict):
@@ -107,8 +109,11 @@ def ibm_bridge_init(n_res, dt, n_order, sigma, Y, W, Omega):
     """
     n_block = len(n_order)
     init = jax.vmap(lambda r: ibm_init(r*dt, n_order, sigma))(jnp.arange(max(2, n_res)))
+    # Q1 = init['wgt_state'][1]
+    # offset = jax.vmap(lambda b: x0[b] - jnp.matmul(Q1[b], x0[b]))(jnp.arange(n_block))
     Y = jnp.repeat(Y[:, jnp.newaxis, :, :], n_res, axis=1)
     A, Q, R = bridge_pars(W, init, Omega, n_res, n_block)
+    # R = sigma[0]*R
     init = bridge_prior(A, Q, R, Y, n_res, n_block)
     
     return init

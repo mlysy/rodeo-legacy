@@ -91,6 +91,8 @@ def ibm_init(dt, n_order, sigma):
     wgt_state, var_state = jax.vmap(lambda b:
         ibm_state(dt, p-1, sigma[b]))(jnp.arange(n_block))
     
+    # mu_state = jax.vmap(lambda b:
+        # x0[b] - jnp.matmul(wgt_state[b], x0[b]))(jnp.arange(n_block))
     #for i in range(n_block):
     #    wgt_state[i], var_state[i] = ibm_state(dt, n_order[i]-1, sigma[i])
     
